@@ -204,7 +204,7 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
         right: 0.5rem;
         left: 0.5rem;
         width: auto;
-        bottom: calc(55dvh + 0.5rem);
+        bottom: calc(env(safe-area-inset-bottom, 0px) + 4.5rem);
       }
     }
   ` : '';
