@@ -1028,20 +1028,35 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       const now = new Date();
       const options = { timeZone: CONFIG.timezone };
       const localTime = new Date(now.toLocaleString('en-US', options));
-      
-      const startTime = new Date(localTime);
-      startTime.setHours(CONFIG.startHour, CONFIG.startMinute, 0, 0);
-      
-      const endTime = new Date(startTime.getTime() + CONFIG.durationSeconds * 1000);
-      
-      if (localTime < startTime) {
-        return { state: 'countdown', startTime, endTime };
-      } else if (localTime >= startTime && localTime < endTime) {
-        const elapsed = (localTime - startTime) / 1000;
-        return { state: 'live', startTime, endTime, elapsed };
-      } else {
-        return { state: 'ended', startTime, endTime };
+
+      // Today's scheduled start time in the configured timezone
+      const todayStart = new Date(localTime);
+      todayStart.setHours(CONFIG.startHour, CONFIG.startMinute, 0, 0);
+
+      const todayEnd = new Date(todayStart.getTime() + CONFIG.durationSeconds * 1000);
+
+      // If we're before today's start time, we might still be inside yesterday's session
+      // (e.g. webinar starts at 23:00 and lasts 3 hours → continues past midnight)
+      if (localTime < todayStart) {
+        const yesterdayStart = new Date(todayStart);
+        yesterdayStart.setDate(yesterdayStart.getDate() - 1);
+
+        const yesterdayEnd = new Date(yesterdayStart.getTime() + CONFIG.durationSeconds * 1000);
+
+        if (localTime >= yesterdayStart && localTime < yesterdayEnd) {
+          const elapsed = (localTime - yesterdayStart) / 1000;
+          return { state: 'live', startTime: yesterdayStart, endTime: yesterdayEnd, elapsed };
+        }
+
+        return { state: 'countdown', startTime: todayStart, endTime: todayEnd };
       }
+
+      if (localTime >= todayStart && localTime < todayEnd) {
+        const elapsed = (localTime - todayStart) / 1000;
+        return { state: 'live', startTime: todayStart, endTime: todayEnd, elapsed };
+      }
+
+      return { state: 'ended', startTime: todayStart, endTime: todayEnd };
     }
 
     function updateCountdown() {
