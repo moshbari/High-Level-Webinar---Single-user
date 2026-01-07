@@ -176,8 +176,8 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       .cta-banner {
         right: 0;
         left: 0;
-        bottom: 0;
-        padding: 1rem;
+        bottom: 55vh;
+        padding: 0.75rem 1rem;
         z-index: 200;
       }
       
@@ -345,6 +345,12 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       border-bottom: 1px solid var(--border);
     }
     
+    @media (max-width: 768px) {
+      .header {
+        display: none;
+      }
+    }
+    
     .logo-section {
       display: flex;
       align-items: center;
@@ -450,7 +456,7 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       }
       
       .video-section {
-        height: 50vh;
+        height: 45vh;
         flex: none;
       }
       
@@ -458,10 +464,12 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
         width: 100%;
         min-width: 100%;
         max-width: 100%;
-        height: 50vh;
+        height: 55vh;
         flex: none;
         border-left: none;
         border-top: 1px solid var(--border);
+        position: relative;
+        z-index: 50;
       }
     }
     
