@@ -14,6 +14,140 @@ export type Database = {
   }
   public: {
     Tables: {
+      chat_messages: {
+        Row: {
+          ai_response: string
+          id: string
+          lead_id: string | null
+          sent_at: string
+          session_date: string
+          user_email: string
+          user_message: string
+          user_name: string
+          webinar_id: string
+        }
+        Insert: {
+          ai_response: string
+          id?: string
+          lead_id?: string | null
+          sent_at?: string
+          session_date?: string
+          user_email: string
+          user_message: string
+          user_name: string
+          webinar_id: string
+        }
+        Update: {
+          ai_response?: string
+          id?: string
+          lead_id?: string | null
+          sent_at?: string
+          session_date?: string
+          user_email?: string
+          user_message?: string
+          user_name?: string
+          webinar_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_messages_webinar_id_fkey"
+            columns: ["webinar_id"]
+            isOneToOne: false
+            referencedRelation: "webinars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cta_clicks: {
+        Row: {
+          button_text: string | null
+          button_url: string | null
+          clicked_at: string
+          id: string
+          lead_id: string | null
+          minutes_watched: number
+          webinar_id: string
+        }
+        Insert: {
+          button_text?: string | null
+          button_url?: string | null
+          clicked_at?: string
+          id?: string
+          lead_id?: string | null
+          minutes_watched?: number
+          webinar_id: string
+        }
+        Update: {
+          button_text?: string | null
+          button_url?: string | null
+          clicked_at?: string
+          id?: string
+          lead_id?: string | null
+          minutes_watched?: number
+          webinar_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cta_clicks_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cta_clicks_webinar_id_fkey"
+            columns: ["webinar_id"]
+            isOneToOne: false
+            referencedRelation: "webinars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leads: {
+        Row: {
+          captured_at: string
+          email: string
+          id: string
+          ip_address: string | null
+          name: string
+          user_agent: string | null
+          webinar_id: string
+        }
+        Insert: {
+          captured_at?: string
+          email: string
+          id?: string
+          ip_address?: string | null
+          name: string
+          user_agent?: string | null
+          webinar_id: string
+        }
+        Update: {
+          captured_at?: string
+          email?: string
+          id?: string
+          ip_address?: string | null
+          name?: string
+          user_agent?: string | null
+          webinar_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leads_webinar_id_fkey"
+            columns: ["webinar_id"]
+            isOneToOne: false
+            referencedRelation: "webinars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       webinars: {
         Row: {
           background_color: string
@@ -21,7 +155,17 @@ export type Database = {
           bot_name: string
           chat_background: string
           created_at: string
+          cta_button_color: string
+          cta_button_text: string
+          cta_button_url: string
+          cta_headline: string
+          cta_show_after_minutes: number
+          cta_show_urgency: boolean
+          cta_style: string
+          cta_subheadline: string
+          cta_urgency_text: string
           duration_minutes: number
+          enable_cta: boolean
           enable_lead_capture: boolean
           error_message: string
           header_title: string
@@ -51,7 +195,17 @@ export type Database = {
           bot_name?: string
           chat_background?: string
           created_at?: string
+          cta_button_color?: string
+          cta_button_text?: string
+          cta_button_url?: string
+          cta_headline?: string
+          cta_show_after_minutes?: number
+          cta_show_urgency?: boolean
+          cta_style?: string
+          cta_subheadline?: string
+          cta_urgency_text?: string
           duration_minutes?: number
+          enable_cta?: boolean
           enable_lead_capture?: boolean
           error_message?: string
           header_title?: string
@@ -81,7 +235,17 @@ export type Database = {
           bot_name?: string
           chat_background?: string
           created_at?: string
+          cta_button_color?: string
+          cta_button_text?: string
+          cta_button_url?: string
+          cta_headline?: string
+          cta_show_after_minutes?: number
+          cta_show_urgency?: boolean
+          cta_style?: string
+          cta_subheadline?: string
+          cta_urgency_text?: string
           duration_minutes?: number
+          enable_cta?: boolean
           enable_lead_capture?: boolean
           error_message?: string
           header_title?: string

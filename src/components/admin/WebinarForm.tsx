@@ -1,4 +1,4 @@
-import { WebinarConfig, TIMEZONES, DEFAULT_WEBINAR_CONFIG } from '@/types/webinar';
+import { WebinarConfig, TIMEZONES } from '@/types/webinar';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
@@ -12,7 +12,8 @@ import {
   MessageSquare, 
   UserPlus, 
   Palette,
-  Info
+  Info,
+  Megaphone
 } from 'lucide-react';
 
 interface WebinarFormProps {
@@ -293,6 +294,146 @@ export function WebinarForm({ config, onChange }: WebinarFormProps) {
               className="input-field min-h-[80px]"
             />
           </div>
+        </CardContent>
+      </Card>
+
+      {/* CTA Settings */}
+      <Card className="glass-card">
+        <CardHeader className="pb-4">
+          <CardTitle className="flex items-center gap-2 text-lg font-display">
+            <Megaphone className="w-5 h-5 text-primary" />
+            Call to Action (CTA)
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <Label htmlFor="enableCta">Enable CTA</Label>
+              <p className="text-xs text-muted-foreground">Show a call-to-action during the webinar</p>
+            </div>
+            <Switch
+              id="enableCta"
+              checked={config.enableCta}
+              onCheckedChange={(v) => updateField('enableCta', v)}
+            />
+          </div>
+          
+          {config.enableCta && (
+            <>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="ctaShowAfterMinutes">Show After (minutes)</Label>
+                  <Input
+                    id="ctaShowAfterMinutes"
+                    type="number"
+                    value={config.ctaShowAfterMinutes}
+                    onChange={(e) => updateField('ctaShowAfterMinutes', parseInt(e.target.value) || 45)}
+                    className="input-field"
+                    min={0}
+                  />
+                  <p className="text-xs text-muted-foreground">Minutes into webinar before CTA appears</p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="ctaStyle">CTA Style</Label>
+                  <Select
+                    value={config.ctaStyle}
+                    onValueChange={(v) => updateField('ctaStyle', v as 'banner' | 'floating')}
+                  >
+                    <SelectTrigger className="input-field">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="banner">Bottom Banner</SelectItem>
+                      <SelectItem value="floating">Floating Side Box</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="ctaHeadline">Headline</Label>
+                <Input
+                  id="ctaHeadline"
+                  value={config.ctaHeadline}
+                  onChange={(e) => updateField('ctaHeadline', e.target.value)}
+                  placeholder="e.g., Ready to Transform Your Life?"
+                  className="input-field"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="ctaSubheadline">Subheadline</Label>
+                <Input
+                  id="ctaSubheadline"
+                  value={config.ctaSubheadline}
+                  onChange={(e) => updateField('ctaSubheadline', e.target.value)}
+                  placeholder="e.g., Join thousands of successful students"
+                  className="input-field"
+                />
+              </div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="ctaButtonText">Button Text</Label>
+                  <Input
+                    id="ctaButtonText"
+                    value={config.ctaButtonText}
+                    onChange={(e) => updateField('ctaButtonText', e.target.value)}
+                    placeholder="e.g., Get Instant Access →"
+                    className="input-field"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="ctaButtonUrl">Button URL</Label>
+                  <Input
+                    id="ctaButtonUrl"
+                    type="url"
+                    value={config.ctaButtonUrl}
+                    onChange={(e) => updateField('ctaButtonUrl', e.target.value)}
+                    placeholder="https://your-checkout.com/offer"
+                    className="input-field"
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="ctaButtonColor">Button Color</Label>
+                <div className="flex gap-2">
+                  <input
+                    type="color"
+                    id="ctaButtonColor"
+                    value={config.ctaButtonColor}
+                    onChange={(e) => updateField('ctaButtonColor', e.target.value)}
+                    className="w-12 h-10 rounded cursor-pointer"
+                  />
+                  <Input
+                    value={config.ctaButtonColor}
+                    onChange={(e) => updateField('ctaButtonColor', e.target.value)}
+                    className="input-field flex-1"
+                  />
+                </div>
+              </div>
+              <div className="flex items-center justify-between p-3 rounded-lg bg-secondary/50">
+                <div>
+                  <Label htmlFor="ctaShowUrgency">Show Urgency Text</Label>
+                  <p className="text-xs text-muted-foreground">Display scarcity message</p>
+                </div>
+                <Switch
+                  id="ctaShowUrgency"
+                  checked={config.ctaShowUrgency}
+                  onCheckedChange={(v) => updateField('ctaShowUrgency', v)}
+                />
+              </div>
+              {config.ctaShowUrgency && (
+                <div className="space-y-2">
+                  <Label htmlFor="ctaUrgencyText">Urgency Text</Label>
+                  <Input
+                    id="ctaUrgencyText"
+                    value={config.ctaUrgencyText}
+                    onChange={(e) => updateField('ctaUrgencyText', e.target.value)}
+                    placeholder="e.g., ⚡ Only 7 spots left at this price!"
+                    className="input-field"
+                  />
+                </div>
+              )}
+            </>
+          )}
         </CardContent>
       </Card>
 

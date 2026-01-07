@@ -1,6 +1,266 @@
 import { WebinarConfig } from '@/types/webinar';
 
 export const generateEmbedCode = (config: WebinarConfig): string => {
+  const ctaBannerHtml = config.enableCta ? `
+  <!-- CTA Banner -->
+  <div class="cta-banner hidden" id="ctaBanner">
+    <div class="cta-content">
+      <div class="cta-text">
+        <h3 class="cta-headline">🔥 ${config.ctaHeadline}</h3>
+        <p class="cta-subheadline">${config.ctaSubheadline}</p>
+      </div>
+      <div class="cta-action">
+        <a href="${config.ctaButtonUrl}" target="_blank" class="cta-button" onclick="trackCtaClick()">${config.ctaButtonText}</a>
+        ${config.ctaShowUrgency ? `<span class="cta-urgency">${config.ctaUrgencyText}</span>` : ''}
+      </div>
+    </div>
+  </div>` : '';
+
+  const ctaFloatingHtml = config.enableCta ? `
+  <!-- CTA Floating -->
+  <div class="cta-floating hidden" id="ctaFloating">
+    <button class="cta-close" onclick="closeCta()">×</button>
+    <div class="cta-floating-badge">🎯 SPECIAL OFFER</div>
+    <h3 class="cta-floating-headline">${config.ctaHeadline}</h3>
+    <p class="cta-floating-subheadline">${config.ctaSubheadline}</p>
+    <a href="${config.ctaButtonUrl}" target="_blank" class="cta-button" onclick="trackCtaClick()">${config.ctaButtonText}</a>
+    ${config.ctaShowUrgency ? `<span class="cta-urgency">${config.ctaUrgencyText}</span>` : ''}
+  </div>` : '';
+
+  const ctaStyles = config.enableCta ? `
+    /* CTA Banner Styles */
+    .cta-banner {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(90deg, rgba(20,20,30,0.98) 0%, rgba(30,30,45,0.98) 100%);
+      border-top: 1px solid var(--border);
+      padding: 1rem 2rem;
+      z-index: 150;
+      animation: slideUp 0.5s ease;
+    }
+    
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+    
+    .cta-banner.hidden { display: none; }
+    
+    .cta-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 1200px;
+      margin: 0 auto;
+      gap: 2rem;
+    }
+    
+    .cta-text { flex: 1; }
+    
+    .cta-headline {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+    
+    .cta-subheadline {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+    
+    .cta-action {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    
+    .cta-button {
+      background: ${config.ctaButtonColor};
+      color: white;
+      padding: 0.875rem 2rem;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 1rem;
+      text-decoration: none;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    
+    .cta-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(229,57,53,0.4);
+    }
+    
+    .cta-urgency {
+      color: #fbbf24;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    
+    /* CTA Floating Styles */
+    .cta-floating {
+      position: fixed;
+      right: 1.5rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: linear-gradient(180deg, rgba(30,30,45,0.98) 0%, rgba(20,20,30,0.98) 100%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      width: 280px;
+      z-index: 150;
+      animation: slideInRight 0.5s ease;
+    }
+    
+    @keyframes slideInRight {
+      from { transform: translateY(-50%) translateX(100%); opacity: 0; }
+      to { transform: translateY(-50%) translateX(0); opacity: 1; }
+    }
+    
+    .cta-floating.hidden { display: none; }
+    
+    .cta-close {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.75rem;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 0.25rem;
+    }
+    
+    .cta-close:hover { color: var(--text); }
+    
+    .cta-floating-badge {
+      background: var(--primary);
+      color: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: inline-block;
+      margin-bottom: 1rem;
+    }
+    
+    .cta-floating-headline {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    
+    .cta-floating-subheadline {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      margin-bottom: 1.25rem;
+      line-height: 1.5;
+    }
+    
+    .cta-floating .cta-button {
+      display: block;
+      text-align: center;
+      width: 100%;
+      margin-bottom: 0.75rem;
+    }
+    
+    .cta-floating .cta-urgency {
+      display: block;
+      text-align: center;
+      font-size: 0.8rem;
+    }
+    
+    @media (max-width: 768px) {
+      .cta-banner {
+        padding: 1rem;
+      }
+      
+      .cta-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+      }
+      
+      .cta-action {
+        flex-direction: column;
+        width: 100%;
+      }
+      
+      .cta-button {
+        width: 100%;
+        text-align: center;
+      }
+      
+      .cta-floating {
+        right: 0.5rem;
+        left: 0.5rem;
+        width: auto;
+        top: auto;
+        bottom: 1rem;
+        transform: none;
+      }
+      
+      @keyframes slideInRight {
+        from { transform: translateY(100%); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+      }
+    }
+  ` : '';
+
+  const ctaScript = config.enableCta ? `
+    // CTA Logic
+    let ctaShown = false;
+    let ctaClosed = false;
+    
+    function checkCta() {
+      if (ctaShown || ctaClosed) return;
+      
+      const { state, elapsed } = getWebinarState();
+      if (state !== 'live') return;
+      
+      const elapsedMinutes = (elapsed || 0) / 60;
+      if (elapsedMinutes >= ${config.ctaShowAfterMinutes}) {
+        showCta();
+        ctaShown = true;
+      }
+    }
+    
+    function showCta() {
+      const style = '${config.ctaStyle}';
+      if (style === 'banner') {
+        document.getElementById('ctaBanner').classList.remove('hidden');
+      } else {
+        document.getElementById('ctaFloating').classList.remove('hidden');
+      }
+    }
+    
+    function closeCta() {
+      ctaClosed = true;
+      document.getElementById('ctaFloating').classList.add('hidden');
+    }
+    
+    function trackCtaClick() {
+      const { elapsed } = getWebinarState();
+      const minutesWatched = Math.floor((elapsed || 0) / 60);
+      
+      // Track CTA click (can be extended to send to webhook)
+      console.log('CTA clicked', {
+        type: 'cta_click',
+        userName: userData?.name || 'Guest',
+        userEmail: userData?.email || '',
+        buttonText: '${config.ctaButtonText}',
+        buttonUrl: '${config.ctaButtonUrl}',
+        minutesWatched,
+        timestamp: new Date().toISOString()
+      });
+    }
+    
+    // Check CTA every second during live state
+    setInterval(checkCta, 1000);
+  ` : '';
+
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -475,6 +735,7 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       font-size: 0.85rem;
       margin-top: 1rem;
     }
+    ${ctaStyles}
   </style>
 </head>
 <body>
@@ -579,9 +840,11 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       </div>
     </div>
   </div>
+  ${config.ctaStyle === 'banner' ? ctaBannerHtml : ctaFloatingHtml}
 
   <script>
     const CONFIG = {
+      webinarId: "${config.id}",
       webinarName: "${config.webinarName}",
       videoUrl: "${config.videoUrl}",
       durationMinutes: ${config.durationMinutes},
@@ -595,10 +858,12 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       webhookUrl: "${config.webhookUrl}",
       typingDelayMin: ${config.typingDelayMin},
       typingDelayMax: ${config.typingDelayMax},
-      errorMessage: "${config.errorMessage}",
+      errorMessage: "${config.errorMessage.replace(/"/g, '\\"')}",
       enableLeadCapture: ${config.enableLeadCapture},
-      welcomeMessage: "${config.welcomeMessage}",
-      leadWebhookUrl: "${config.leadWebhookUrl}"
+      welcomeMessage: "${config.welcomeMessage.replace(/"/g, '\\"')}",
+      leadWebhookUrl: "${config.leadWebhookUrl}",
+      enableCta: ${config.enableCta},
+      ctaShowAfterMinutes: ${config.ctaShowAfterMinutes}
     };
 
     let userData = null;
@@ -820,10 +1085,11 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
         });
         
         const data = await response.json();
+        const aiResponse = data.reply || data.message || CONFIG.errorMessage;
         
         setTimeout(() => {
           hideTyping();
-          addMessage(data.reply || data.message || CONFIG.errorMessage, 'bot');
+          addMessage(aiResponse, 'bot');
         }, delay);
       } catch (error) {
         setTimeout(() => {
@@ -840,6 +1106,8 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
 
     // Disable right-click on video
     document.getElementById('webinarVideo').addEventListener('contextmenu', e => e.preventDefault());
+
+    ${ctaScript}
 
     // Initialize
     const { state } = getWebinarState();

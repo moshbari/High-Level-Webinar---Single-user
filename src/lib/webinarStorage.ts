@@ -25,6 +25,16 @@ const rowToConfig = (row: any): WebinarConfig => ({
   requireEmail: row.require_email,
   welcomeMessage: row.welcome_message,
   leadWebhookUrl: row.lead_webhook_url,
+  enableCta: row.enable_cta,
+  ctaShowAfterMinutes: row.cta_show_after_minutes,
+  ctaHeadline: row.cta_headline,
+  ctaSubheadline: row.cta_subheadline,
+  ctaButtonText: row.cta_button_text,
+  ctaButtonUrl: row.cta_button_url,
+  ctaButtonColor: row.cta_button_color,
+  ctaStyle: row.cta_style,
+  ctaShowUrgency: row.cta_show_urgency,
+  ctaUrgencyText: row.cta_urgency_text,
   primaryColor: row.primary_color,
   backgroundColor: row.background_color,
   chatBackground: row.chat_background,
@@ -55,6 +65,16 @@ const configToRow = (config: Omit<WebinarConfig, 'id' | 'createdAt' | 'updatedAt
   require_email: config.requireEmail,
   welcome_message: config.welcomeMessage,
   lead_webhook_url: config.leadWebhookUrl,
+  enable_cta: config.enableCta,
+  cta_show_after_minutes: config.ctaShowAfterMinutes,
+  cta_headline: config.ctaHeadline,
+  cta_subheadline: config.ctaSubheadline,
+  cta_button_text: config.ctaButtonText,
+  cta_button_url: config.ctaButtonUrl,
+  cta_button_color: config.ctaButtonColor,
+  cta_style: config.ctaStyle,
+  cta_show_urgency: config.ctaShowUrgency,
+  cta_urgency_text: config.ctaUrgencyText,
   primary_color: config.primaryColor,
   background_color: config.backgroundColor,
   chat_background: config.chatBackground,
@@ -79,14 +99,14 @@ export const getWebinar = async (id: string): Promise<WebinarConfig | null> => {
     .from('webinars')
     .select('*')
     .eq('id', id)
-    .single();
+    .maybeSingle();
   
   if (error) {
     console.error('Error fetching webinar:', error);
     return null;
   }
   
-  return rowToConfig(data);
+  return data ? rowToConfig(data) : null;
 };
 
 export const saveWebinar = async (config: Omit<WebinarConfig, 'id' | 'createdAt' | 'updatedAt'>): Promise<WebinarConfig | null> => {
@@ -129,6 +149,16 @@ export const updateWebinar = async (id: string, config: Partial<WebinarConfig>):
   if (rest.requireEmail !== undefined) updateData.require_email = rest.requireEmail;
   if (rest.welcomeMessage !== undefined) updateData.welcome_message = rest.welcomeMessage;
   if (rest.leadWebhookUrl !== undefined) updateData.lead_webhook_url = rest.leadWebhookUrl;
+  if (rest.enableCta !== undefined) updateData.enable_cta = rest.enableCta;
+  if (rest.ctaShowAfterMinutes !== undefined) updateData.cta_show_after_minutes = rest.ctaShowAfterMinutes;
+  if (rest.ctaHeadline !== undefined) updateData.cta_headline = rest.ctaHeadline;
+  if (rest.ctaSubheadline !== undefined) updateData.cta_subheadline = rest.ctaSubheadline;
+  if (rest.ctaButtonText !== undefined) updateData.cta_button_text = rest.ctaButtonText;
+  if (rest.ctaButtonUrl !== undefined) updateData.cta_button_url = rest.ctaButtonUrl;
+  if (rest.ctaButtonColor !== undefined) updateData.cta_button_color = rest.ctaButtonColor;
+  if (rest.ctaStyle !== undefined) updateData.cta_style = rest.ctaStyle;
+  if (rest.ctaShowUrgency !== undefined) updateData.cta_show_urgency = rest.ctaShowUrgency;
+  if (rest.ctaUrgencyText !== undefined) updateData.cta_urgency_text = rest.ctaUrgencyText;
   if (rest.primaryColor !== undefined) updateData.primary_color = rest.primaryColor;
   if (rest.backgroundColor !== undefined) updateData.background_color = rest.backgroundColor;
   if (rest.chatBackground !== undefined) updateData.chat_background = rest.chatBackground;
