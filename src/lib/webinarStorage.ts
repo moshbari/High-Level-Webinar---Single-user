@@ -8,7 +8,7 @@ const rowToConfig = (row: any): WebinarConfig => ({
   headerTitle: row.header_title,
   logoText: row.logo_text,
   videoUrl: row.video_url,
-  durationMinutes: row.duration_minutes,
+  durationSeconds: row.duration_minutes * 60, // Convert from DB minutes to seconds
   startHour: row.start_hour,
   startMinute: row.start_minute,
   timezone: row.timezone,
@@ -48,7 +48,7 @@ const configToRow = (config: Omit<WebinarConfig, 'id' | 'createdAt' | 'updatedAt
   header_title: config.headerTitle,
   logo_text: config.logoText,
   video_url: config.videoUrl,
-  duration_minutes: config.durationMinutes,
+  duration_minutes: Math.ceil(config.durationSeconds / 60), // Convert seconds to minutes for DB
   start_hour: config.startHour,
   start_minute: config.startMinute,
   timezone: config.timezone,
@@ -132,7 +132,7 @@ export const updateWebinar = async (id: string, config: Partial<WebinarConfig>):
   if (rest.headerTitle !== undefined) updateData.header_title = rest.headerTitle;
   if (rest.logoText !== undefined) updateData.logo_text = rest.logoText;
   if (rest.videoUrl !== undefined) updateData.video_url = rest.videoUrl;
-  if (rest.durationMinutes !== undefined) updateData.duration_minutes = rest.durationMinutes;
+  if (rest.durationSeconds !== undefined) updateData.duration_minutes = Math.ceil(rest.durationSeconds / 60);
   if (rest.startHour !== undefined) updateData.start_hour = rest.startHour;
   if (rest.startMinute !== undefined) updateData.start_minute = rest.startMinute;
   if (rest.timezone !== undefined) updateData.timezone = rest.timezone;

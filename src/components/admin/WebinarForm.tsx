@@ -98,15 +98,59 @@ export function WebinarForm({ config, onChange }: WebinarFormProps) {
             <p className="text-xs text-muted-foreground">Direct MP4 link to your webinar video</p>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="durationMinutes">Duration (minutes)</Label>
-            <Input
-              id="durationMinutes"
-              type="number"
-              value={config.durationMinutes}
-              onChange={(e) => updateField('durationMinutes', parseInt(e.target.value) || 60)}
-              className="input-field w-32"
-              min={1}
-            />
+            <Label>Duration</Label>
+            <div className="grid grid-cols-3 gap-3">
+              <div className="space-y-1">
+                <Label htmlFor="durationHours" className="text-xs text-muted-foreground">Hours</Label>
+                <Input
+                  id="durationHours"
+                  type="number"
+                  value={Math.floor((config.durationSeconds || 0) / 3600)}
+                  onChange={(e) => {
+                    const hours = parseInt(e.target.value) || 0;
+                    const currentMinutes = Math.floor(((config.durationSeconds || 0) % 3600) / 60);
+                    const currentSeconds = (config.durationSeconds || 0) % 60;
+                    updateField('durationSeconds', hours * 3600 + currentMinutes * 60 + currentSeconds);
+                  }}
+                  className="input-field"
+                  min={0}
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="durationMinutes" className="text-xs text-muted-foreground">Minutes</Label>
+                <Input
+                  id="durationMinutes"
+                  type="number"
+                  value={Math.floor(((config.durationSeconds || 0) % 3600) / 60)}
+                  onChange={(e) => {
+                    const minutes = Math.min(59, parseInt(e.target.value) || 0);
+                    const currentHours = Math.floor((config.durationSeconds || 0) / 3600);
+                    const currentSeconds = (config.durationSeconds || 0) % 60;
+                    updateField('durationSeconds', currentHours * 3600 + minutes * 60 + currentSeconds);
+                  }}
+                  className="input-field"
+                  min={0}
+                  max={59}
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="durationSecs" className="text-xs text-muted-foreground">Seconds</Label>
+                <Input
+                  id="durationSecs"
+                  type="number"
+                  value={(config.durationSeconds || 0) % 60}
+                  onChange={(e) => {
+                    const seconds = Math.min(59, parseInt(e.target.value) || 0);
+                    const currentHours = Math.floor((config.durationSeconds || 0) / 3600);
+                    const currentMinutes = Math.floor(((config.durationSeconds || 0) % 3600) / 60);
+                    updateField('durationSeconds', currentHours * 3600 + currentMinutes * 60 + seconds);
+                  }}
+                  className="input-field"
+                  min={0}
+                  max={59}
+                />
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>
