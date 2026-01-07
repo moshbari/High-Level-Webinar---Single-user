@@ -176,24 +176,35 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       .cta-banner {
         right: 0;
         left: 0;
-        bottom: 50vh;
+        bottom: 0;
         padding: 1rem;
+        z-index: 200;
       }
       
       .cta-content {
         flex-direction: column;
         text-align: center;
-        gap: 1rem;
+        gap: 0.75rem;
+      }
+      
+      .cta-headline {
+        font-size: 1rem;
+      }
+      
+      .cta-subheadline {
+        font-size: 0.8rem;
       }
       
       .cta-action {
         flex-direction: column;
         width: 100%;
+        gap: 0.5rem;
       }
       
       .cta-button {
         width: 100%;
         text-align: center;
+        padding: 0.75rem 1.5rem;
       }
       
       .cta-floating {
