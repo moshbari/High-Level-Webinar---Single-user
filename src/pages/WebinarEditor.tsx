@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, Save, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
+import { generateEmbedCode } from '@/lib/generateEmbedCode';
 
 export default function WebinarEditor() {
   const navigate = useNavigate();
@@ -43,19 +44,31 @@ export default function WebinarEditor() {
       if (isEditing) {
         const result = await updateWebinarMutation.mutateAsync({ id, config });
         if (result) {
+          // Generate and copy code to clipboard
+          const fullConfig = { ...config, id, createdAt: existingWebinar?.createdAt || '', updatedAt: new Date().toISOString() } as WebinarConfig;
+          const code = generateEmbedCode(fullConfig);
+          await navigator.clipboard.writeText(code);
+          
           toast({
-            title: 'Webinar updated',
-            description: 'Your changes have been saved',
+            title: 'Saved & Copied!',
+            description: 'Changes saved and code copied to clipboard',
           });
+          
+          // Navigate to code page
+          navigate(`/webinar/${id}/code`);
         } else {
           throw new Error('Failed to update');
         }
       } else {
         const newWebinar = await saveWebinarMutation.mutateAsync(config);
         if (newWebinar) {
+          // Generate and copy code to clipboard
+          const code = generateEmbedCode(newWebinar);
+          await navigator.clipboard.writeText(code);
+          
           toast({
-            title: 'Webinar created',
-            description: 'Your webinar is ready to use',
+            title: 'Created & Copied!',
+            description: 'Webinar created and code copied to clipboard',
           });
           navigate(`/webinar/${newWebinar.id}/code`);
           return;
