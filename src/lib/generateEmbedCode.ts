@@ -896,6 +896,7 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
           Click to unmute
         </div>
       </div>
+      ${config.ctaStyle === 'banner' ? ctaBannerHtml : ''}
     </div>
     
     <div class="chat-section">
@@ -913,7 +914,7 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       </div>
     </div>
   </div>
-  ${config.ctaStyle === 'banner' ? ctaBannerHtml : ctaFloatingHtml}
+  ${config.ctaStyle === 'floating' ? ctaFloatingHtml : ''}
 
   <script>
     const CONFIG = {
