@@ -26,7 +26,7 @@ const rowToConfig = (row: any): WebinarConfig => ({
   welcomeMessage: row.welcome_message,
   leadWebhookUrl: row.lead_webhook_url,
   enableCta: row.enable_cta,
-  ctaShowAfterMinutes: row.cta_show_after_minutes,
+  ctaShowAfterSeconds: row.cta_show_after_minutes * 60, // Convert from DB minutes to seconds
   ctaHeadline: row.cta_headline,
   ctaSubheadline: row.cta_subheadline,
   ctaButtonText: row.cta_button_text,
@@ -66,7 +66,7 @@ const configToRow = (config: Omit<WebinarConfig, 'id' | 'createdAt' | 'updatedAt
   welcome_message: config.welcomeMessage,
   lead_webhook_url: config.leadWebhookUrl,
   enable_cta: config.enableCta,
-  cta_show_after_minutes: config.ctaShowAfterMinutes,
+  cta_show_after_minutes: Math.ceil(config.ctaShowAfterSeconds / 60), // Convert seconds to minutes for DB
   cta_headline: config.ctaHeadline,
   cta_subheadline: config.ctaSubheadline,
   cta_button_text: config.ctaButtonText,
@@ -150,7 +150,7 @@ export const updateWebinar = async (id: string, config: Partial<WebinarConfig>):
   if (rest.welcomeMessage !== undefined) updateData.welcome_message = rest.welcomeMessage;
   if (rest.leadWebhookUrl !== undefined) updateData.lead_webhook_url = rest.leadWebhookUrl;
   if (rest.enableCta !== undefined) updateData.enable_cta = rest.enableCta;
-  if (rest.ctaShowAfterMinutes !== undefined) updateData.cta_show_after_minutes = rest.ctaShowAfterMinutes;
+  if (rest.ctaShowAfterSeconds !== undefined) updateData.cta_show_after_minutes = Math.ceil(rest.ctaShowAfterSeconds / 60);
   if (rest.ctaHeadline !== undefined) updateData.cta_headline = rest.ctaHeadline;
   if (rest.ctaSubheadline !== undefined) updateData.cta_subheadline = rest.ctaSubheadline;
   if (rest.ctaButtonText !== undefined) updateData.cta_button_text = rest.ctaButtonText;
