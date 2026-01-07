@@ -854,11 +854,24 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
     <p class="overlay-message">Please stay on this page. The session will begin automatically.</p>
   </div>
 
-  <!-- Ended Overlay -->
+  <!-- Next Session Countdown Overlay (replaces "ended" message) -->
   <div class="overlay hidden" id="endedOverlay">
-    <div class="ended-icon">⏰</div>
-    <h2 class="ended-title">This Session Has Ended</h2>
-    <p class="overlay-message">Thank you for watching! The next session will begin at <span id="nextSession"></span>.</p>
+    <h2 class="countdown-title">Next Session Starting In...</h2>
+    <div class="countdown-timer">
+      <div class="countdown-unit">
+        <span class="countdown-value" id="nextHours">00</span>
+        <span class="countdown-label">Hours</span>
+      </div>
+      <div class="countdown-unit">
+        <span class="countdown-value" id="nextMinutes">00</span>
+        <span class="countdown-label">Minutes</span>
+      </div>
+      <div class="countdown-unit">
+        <span class="countdown-value" id="nextSeconds">00</span>
+        <span class="countdown-label">Seconds</span>
+      </div>
+    </div>
+    <p class="overlay-message">Please stay on this page. The session will begin automatically.</p>
   </div>
 
   <!-- Main Webinar Room -->
@@ -1110,12 +1123,34 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       document.getElementById('webinarRoom').style.display = 'none';
       document.getElementById('endedOverlay').classList.remove('hidden');
       
+      // Calculate next session time (tomorrow at the same time)
       const nextStart = new Date(startTime);
       nextStart.setDate(nextStart.getDate() + 1);
-      document.getElementById('nextSession').textContent = nextStart.toLocaleTimeString([], { 
-        hour: '2-digit', 
-        minute: '2-digit' 
-      }) + ' tomorrow';
+      
+      // Start countdown to next session
+      function updateNextCountdown() {
+        const now = new Date();
+        const options = { timeZone: CONFIG.timezone };
+        const localTime = new Date(now.toLocaleString('en-US', options));
+        const diff = nextStart - localTime;
+        
+        if (diff <= 0) {
+          // Next session started, reload page
+          location.reload();
+          return;
+        }
+        
+        const hours = Math.floor(diff / 3600000);
+        const minutes = Math.floor((diff % 3600000) / 60000);
+        const seconds = Math.floor((diff % 60000) / 1000);
+        
+        document.getElementById('nextHours').textContent = String(hours).padStart(2, '0');
+        document.getElementById('nextMinutes').textContent = String(minutes).padStart(2, '0');
+        document.getElementById('nextSeconds').textContent = String(seconds).padStart(2, '0');
+      }
+      
+      updateNextCountdown();
+      setInterval(updateNextCountdown, 1000);
     }
 
     function updateViewerCount() {
