@@ -33,6 +33,18 @@ export interface WebinarConfig {
   welcomeMessage: string;
   leadWebhookUrl: string;
   
+  // CTA Settings
+  enableCta: boolean;
+  ctaShowAfterMinutes: number;
+  ctaHeadline: string;
+  ctaSubheadline: string;
+  ctaButtonText: string;
+  ctaButtonUrl: string;
+  ctaButtonColor: string;
+  ctaStyle: 'banner' | 'floating';
+  ctaShowUrgency: boolean;
+  ctaUrgencyText: string;
+  
   // Branding
   primaryColor: string;
   backgroundColor: string;
@@ -57,6 +69,28 @@ export interface LeadData {
   timestamp: string;
   webinarName: string;
   source: string;
+}
+
+export interface DbChatMessage {
+  id: string;
+  webinar_id: string;
+  lead_id: string | null;
+  user_name: string;
+  user_email: string;
+  user_message: string;
+  ai_response: string;
+  sent_at: string;
+  session_date: string;
+}
+
+export interface DbLead {
+  id: string;
+  webinar_id: string;
+  name: string;
+  email: string;
+  captured_at: string;
+  ip_address: string | null;
+  user_agent: string | null;
 }
 
 export type WebinarState = 'countdown' | 'live' | 'ended';
@@ -99,6 +133,16 @@ export const DEFAULT_WEBINAR_CONFIG: Omit<WebinarConfig, 'id' | 'createdAt' | 'u
   requireEmail: true,
   welcomeMessage: "Hi {name}! 👋 Ask me anything about the training.",
   leadWebhookUrl: '',
+  enableCta: false,
+  ctaShowAfterMinutes: 45,
+  ctaHeadline: 'Ready to Transform Your Life?',
+  ctaSubheadline: 'Join thousands of successful students',
+  ctaButtonText: 'Get Instant Access →',
+  ctaButtonUrl: '',
+  ctaButtonColor: '#e53935',
+  ctaStyle: 'banner',
+  ctaShowUrgency: false,
+  ctaUrgencyText: '⚡ Limited spots available!',
   primaryColor: '#e53935',
   backgroundColor: '#0a0a0f',
   chatBackground: '#12121a',
