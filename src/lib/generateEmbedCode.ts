@@ -19,7 +19,6 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
   const ctaFloatingHtml = config.enableCta ? `
   <!-- CTA Floating -->
   <div class="cta-floating hidden" id="ctaFloating">
-    <button class="cta-close" onclick="closeCta()">×</button>
     <div class="cta-floating-badge">🎯 SPECIAL OFFER</div>
     <h3 class="cta-floating-headline">${config.ctaHeadline}</h3>
     <p class="cta-floating-subheadline">${config.ctaSubheadline}</p>
@@ -102,38 +101,18 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
     /* CTA Floating Styles */
     .cta-floating {
       position: fixed;
-      right: 1.5rem;
-      top: 50%;
-      transform: translateY(-50%);
+      right: 400px;
+      bottom: 1rem;
       background: linear-gradient(180deg, rgba(30,30,45,0.98) 0%, rgba(20,20,30,0.98) 100%);
       border: 1px solid var(--border);
       border-radius: 16px;
       padding: 1.5rem;
       width: 280px;
       z-index: 150;
-      animation: slideInRight 0.5s ease;
-    }
-    
-    @keyframes slideInRight {
-      from { transform: translateY(-50%) translateX(100%); opacity: 0; }
-      to { transform: translateY(-50%) translateX(0); opacity: 1; }
+      animation: slideUp 0.5s ease;
     }
     
     .cta-floating.hidden { display: none; }
-    
-    .cta-close {
-      position: absolute;
-      top: 0.5rem;
-      right: 0.75rem;
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      font-size: 1.5rem;
-      cursor: pointer;
-      padding: 0.25rem;
-    }
-    
-    .cta-close:hover { color: var(--text); }
     
     .cta-floating-badge {
       background: var(--primary);
@@ -225,14 +204,7 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
         right: 0.5rem;
         left: 0.5rem;
         width: auto;
-        top: auto;
-        bottom: 1rem;
-        transform: none;
-      }
-      
-      @keyframes slideInRight {
-        from { transform: translateY(100%); opacity: 0; }
-        to { transform: translateY(0); opacity: 1; }
+        bottom: calc(55dvh + 0.5rem);
       }
     }
   ` : '';
@@ -240,10 +212,9 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
   const ctaScript = config.enableCta ? `
     // CTA Logic
     let ctaShown = false;
-    let ctaClosed = false;
     
     function checkCta() {
-      if (ctaShown || ctaClosed) return;
+      if (ctaShown) return;
       
       const { state, elapsed } = getWebinarState();
       if (state !== 'live') return;
@@ -262,11 +233,6 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       } else {
         document.getElementById('ctaFloating').classList.remove('hidden');
       }
-    }
-    
-    function closeCta() {
-      ctaClosed = true;
-      document.getElementById('ctaFloating').classList.add('hidden');
     }
     
     async function trackCtaClick() {
