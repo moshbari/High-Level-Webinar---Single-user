@@ -33,7 +33,7 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       position: fixed;
       bottom: 0;
       left: 0;
-      right: 0;
+      right: 380px;
       background: linear-gradient(90deg, rgba(20,20,30,0.98) 0%, rgba(30,30,45,0.98) 100%);
       border-top: 1px solid var(--border);
       padding: 1rem 2rem;
@@ -174,6 +174,9 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
     
     @media (max-width: 768px) {
       .cta-banner {
+        right: 0;
+        left: 0;
+        bottom: 50vh;
         padding: 1rem;
       }
       
@@ -290,16 +293,22 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       font-family: 'Inter', system-ui, sans-serif;
       background: var(--bg);
       color: var(--text);
-      min-height: 100vh;
-      overflow-x: hidden;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
     }
     
     h1, h2, h3 { font-family: 'Space Grotesk', system-ui, sans-serif; }
     
     .webinar-container {
       display: flex;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100vw;
       height: 100vh;
-      width: 100%;
     }
     
     @media (max-width: 768px) {
@@ -312,7 +321,9 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       flex: 1;
       display: flex;
       flex-direction: column;
-      background: linear-gradient(180deg, rgba(20,20,30,1) 0%, var(--bg) 100%);
+      background: var(--bg);
+      min-width: 0;
+      position: relative;
     }
     
     .header {
@@ -380,17 +391,15 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
     
     .video-wrapper {
       flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 1rem;
       position: relative;
+      overflow: hidden;
+      background: #000;
     }
     
     .video-wrapper video {
       width: 100%;
-      max-height: 100%;
-      border-radius: 12px;
+      height: 100%;
+      object-fit: contain;
       background: #000;
     }
     
@@ -415,6 +424,9 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
     
     .chat-section {
       width: 380px;
+      min-width: 380px;
+      max-width: 380px;
+      flex-shrink: 0;
       background: var(--chat-bg);
       display: flex;
       flex-direction: column;
@@ -422,9 +434,21 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
     }
     
     @media (max-width: 768px) {
+      .webinar-container {
+        flex-direction: column;
+      }
+      
+      .video-section {
+        height: 50vh;
+        flex: none;
+      }
+      
       .chat-section {
         width: 100%;
+        min-width: 100%;
+        max-width: 100%;
         height: 50vh;
+        flex: none;
         border-left: none;
         border-top: 1px solid var(--border);
       }
@@ -1143,7 +1167,28 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
         });
         
         const data = await response.json();
-        aiResponse = data.reply || data.message || CONFIG.errorMessage;
+        
+        // Handle different response formats from N8N/webhooks
+        if (typeof data === 'string') {
+          aiResponse = data;
+        } else if (data.output?.[0]?.content?.[0]?.text) {
+          // N8N OpenAI node format
+          aiResponse = data.output[0].content[0].text;
+        } else if (data.output) {
+          aiResponse = data.output;
+        } else if (data.reply) {
+          aiResponse = data.reply;
+        } else if (data.response) {
+          aiResponse = data.response;
+        } else if (data.message) {
+          aiResponse = data.message;
+        } else if (data.text) {
+          aiResponse = data.text;
+        } else if (data.content) {
+          aiResponse = data.content;
+        } else {
+          aiResponse = CONFIG.errorMessage;
+        }
       } catch (error) {
         console.error('Webhook error:', error);
       }
