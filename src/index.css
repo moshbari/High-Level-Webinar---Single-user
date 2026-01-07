@@ -6,6 +6,61 @@
 
 @layer base {
   :root {
+    /* Light Admin Theme */
+    --background: 0 0% 100%;
+    --foreground: 240 10% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 10%;
+
+    --primary: 0 75% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 240 5% 96%;
+    --secondary-foreground: 240 10% 10%;
+
+    --muted: 240 5% 96%;
+    --muted-foreground: 240 4% 46%;
+
+    --accent: 240 5% 96%;
+    --accent-foreground: 240 10% 10%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 240 6% 90%;
+    --input: 240 6% 90%;
+    --ring: 0 75% 50%;
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 10% 10%;
+    --sidebar-primary: 0 75% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 5% 96%;
+    --sidebar-accent-foreground: 240 10% 10%;
+    --sidebar-border: 240 6% 90%;
+    --sidebar-ring: 0 75% 50%;
+
+    /* Custom tokens for light theme */
+    --gradient-dark: linear-gradient(135deg, hsl(0 0% 100%) 0%, hsl(240 5% 98%) 50%, hsl(0 0% 100%) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%) 0%, hsl(240 5% 98%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(0 75% 50%) 0%, hsl(350 80% 45%) 100%);
+    --gradient-live: linear-gradient(90deg, hsl(0 75% 50%) 0%, hsl(350 80% 45%) 100%);
+    
+    --glow-primary: 0 0 40px hsl(0 75% 50% / 0.2);
+    --glow-card: 0 4px 20px hsl(0 0% 0% / 0.08);
+    
+    --chat-bg: 240 5% 96%;
+    --chat-message-user: 240 5% 92%;
+    --chat-message-bot: 240 5% 96%;
+  }
+
+  .dark {
     --background: 250 20% 4%;
     --foreground: 0 0% 98%;
 
@@ -34,8 +89,6 @@
     --input: 250 15% 15%;
     --ring: 0 75% 55%;
 
-    --radius: 0.75rem;
-
     --sidebar-background: 250 20% 5%;
     --sidebar-foreground: 0 0% 95%;
     --sidebar-primary: 0 75% 55%;
@@ -45,7 +98,6 @@
     --sidebar-border: 250 15% 18%;
     --sidebar-ring: 0 75% 55%;
 
-    /* Custom tokens */
     --gradient-dark: linear-gradient(135deg, hsl(250 20% 4%) 0%, hsl(260 25% 8%) 50%, hsl(250 20% 4%) 100%);
     --gradient-card: linear-gradient(145deg, hsl(250 20% 9%) 0%, hsl(250 20% 6%) 100%);
     --gradient-accent: linear-gradient(135deg, hsl(0 75% 55%) 0%, hsl(350 80% 45%) 100%);
@@ -58,11 +110,6 @@
     --chat-message-user: 250 25% 18%;
     --chat-message-bot: 250 15% 12%;
   }
-
-  .dark {
-    --background: 250 20% 4%;
-    --foreground: 0 0% 98%;
-  }
 }
 
 @layer base {
@@ -73,7 +120,6 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-family: 'Inter', system-ui, sans-serif;
-    background: var(--gradient-dark);
     min-height: 100vh;
   }
 
@@ -84,23 +130,21 @@
 
 @layer components {
   .glass-card {
-    @apply bg-card/80 backdrop-blur-xl border border-border/50 rounded-xl;
-    box-shadow: var(--glow-card);
+    @apply bg-card border border-border rounded-xl shadow-sm;
   }
 
   .glow-button {
-    @apply bg-primary text-primary-foreground font-semibold px-6 py-3 rounded-lg;
-    box-shadow: var(--glow-primary);
+    @apply bg-primary text-primary-foreground font-semibold px-6 py-3 rounded-lg shadow-md;
     transition: all 0.3s ease;
   }
 
   .glow-button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 0 60px hsl(0 75% 55% / 0.4);
+    @apply shadow-lg;
   }
 
   .live-badge {
-    @apply inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-semibold;
+    @apply inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-semibold text-white;
     background: var(--gradient-live);
   }
 
