@@ -177,7 +177,8 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
         position: absolute;
         right: 0;
         left: 0;
-        bottom: 0;
+        bottom: -5vh;
+        bottom: -5dvh;
         padding: 0.5rem 0.75rem;
         z-index: 100;
       }
