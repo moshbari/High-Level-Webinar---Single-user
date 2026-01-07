@@ -174,37 +174,51 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
     
     @media (max-width: 768px) {
       .cta-banner {
+        position: absolute;
         right: 0;
         left: 0;
-        bottom: 55vh;
-        padding: 0.75rem 1rem;
-        z-index: 200;
+        bottom: 0;
+        padding: 0.5rem 0.75rem;
+        z-index: 100;
       }
       
       .cta-content {
-        flex-direction: column;
-        text-align: center;
-        gap: 0.75rem;
+        flex-direction: row;
+        flex-wrap: wrap;
+        text-align: left;
+        gap: 0.5rem;
+        align-items: center;
+      }
+      
+      .cta-text {
+        flex: 1;
+        min-width: 0;
       }
       
       .cta-headline {
-        font-size: 1rem;
+        font-size: 0.85rem;
+        margin-bottom: 0;
       }
       
       .cta-subheadline {
-        font-size: 0.8rem;
+        display: none;
       }
       
       .cta-action {
-        flex-direction: column;
-        width: 100%;
+        flex-direction: row;
+        width: auto;
         gap: 0.5rem;
+        align-items: center;
       }
       
       .cta-button {
-        width: 100%;
-        text-align: center;
-        padding: 0.75rem 1.5rem;
+        padding: 0.5rem 1rem;
+        font-size: 0.8rem;
+        white-space: nowrap;
+      }
+      
+      .cta-urgency {
+        font-size: 0.7rem;
       }
       
       .cta-floating {
