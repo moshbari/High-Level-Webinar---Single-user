@@ -4,6 +4,9 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
+import WebinarEditor from "./pages/WebinarEditor";
+import WebinarCode from "./pages/WebinarCode";
+import WebinarPreviewPage from "./pages/WebinarPreviewPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -16,6 +19,10 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/webinar/new" element={<WebinarEditor />} />
+          <Route path="/webinar/:id/edit" element={<WebinarEditor />} />
+          <Route path="/webinar/:id/code" element={<WebinarCode />} />
+          <Route path="/webinar/:id/preview" element={<WebinarPreviewPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -1,0 +1,860 @@
+import { WebinarConfig } from '@/types/webinar';
+
+export const generateEmbedCode = (config: WebinarConfig): string => {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${config.headerTitle}</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+    
+    :root {
+      --primary: ${config.primaryColor};
+      --bg: ${config.backgroundColor};
+      --chat-bg: ${config.chatBackground};
+      --text: #ffffff;
+      --text-muted: #9ca3af;
+      --border: rgba(255,255,255,0.1);
+    }
+    
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    
+    h1, h2, h3 { font-family: 'Space Grotesk', system-ui, sans-serif; }
+    
+    .webinar-container {
+      display: flex;
+      height: 100vh;
+      width: 100%;
+    }
+    
+    @media (max-width: 768px) {
+      .webinar-container {
+        flex-direction: column;
+      }
+    }
+    
+    .video-section {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: linear-gradient(180deg, rgba(20,20,30,1) 0%, var(--bg) 100%);
+    }
+    
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .logo-section {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    
+    .logo-circle {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+    
+    .header-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+    
+    .live-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: linear-gradient(90deg, var(--primary) 0%, #c62828 100%);
+      padding: 0.4rem 1rem;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+    
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      background: white;
+      border-radius: 50%;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+    
+    .viewer-count {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+    
+    .video-wrapper {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      position: relative;
+    }
+    
+    .video-wrapper video {
+      width: 100%;
+      max-height: 100%;
+      border-radius: 12px;
+      background: #000;
+    }
+    
+    .unmute-notice {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.8);
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .unmute-notice:hover {
+      background: rgba(0,0,0,0.9);
+    }
+    
+    .chat-section {
+      width: 380px;
+      background: var(--chat-bg);
+      display: flex;
+      flex-direction: column;
+      border-left: 1px solid var(--border);
+    }
+    
+    @media (max-width: 768px) {
+      .chat-section {
+        width: 100%;
+        height: 50vh;
+        border-left: none;
+        border-top: 1px solid var(--border);
+      }
+    }
+    
+    .chat-header {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      font-weight: 600;
+    }
+    
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    
+    .message {
+      display: flex;
+      gap: 0.75rem;
+      animation: fadeIn 0.3s ease;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .message.user {
+      flex-direction: row-reverse;
+    }
+    
+    .message-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+    
+    .message.bot .message-avatar {
+      background: var(--primary);
+    }
+    
+    .message.user .message-avatar {
+      background: #374151;
+    }
+    
+    .message-content {
+      max-width: 75%;
+      padding: 0.75rem 1rem;
+      border-radius: 16px;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+    
+    .message.bot .message-content {
+      background: rgba(255,255,255,0.05);
+      border-bottom-left-radius: 4px;
+    }
+    
+    .message.user .message-content {
+      background: var(--primary);
+      border-bottom-right-radius: 4px;
+    }
+    
+    .typing-indicator {
+      display: flex;
+      gap: 0.75rem;
+      padding: 0 1rem;
+    }
+    
+    .typing-dots {
+      display: flex;
+      gap: 4px;
+      padding: 0.75rem 1rem;
+      background: rgba(255,255,255,0.05);
+      border-radius: 16px;
+    }
+    
+    .typing-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--text-muted);
+      border-radius: 50%;
+      animation: bounce 1.4s ease-in-out infinite;
+    }
+    
+    .typing-dot:nth-child(1) { animation-delay: 0s; }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+    
+    @keyframes bounce {
+      0%, 60%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-6px); }
+    }
+    
+    .chat-input-area {
+      padding: 1rem;
+      border-top: 1px solid var(--border);
+    }
+    
+    .chat-input-wrapper {
+      display: flex;
+      gap: 0.5rem;
+    }
+    
+    .chat-input {
+      flex: 1;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.75rem 1rem;
+      color: var(--text);
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    
+    .chat-input:focus {
+      border-color: var(--primary);
+    }
+    
+    .chat-input::placeholder {
+      color: var(--text-muted);
+    }
+    
+    .send-btn {
+      background: var(--primary);
+      border: none;
+      border-radius: 12px;
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .send-btn:hover {
+      transform: scale(1.05);
+    }
+    
+    .send-btn svg {
+      width: 20px;
+      height: 20px;
+      fill: white;
+    }
+    
+    /* Overlays */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      text-align: center;
+      padding: 2rem;
+    }
+    
+    .overlay.hidden { display: none; }
+    
+    .countdown-title {
+      font-size: 1.5rem;
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+    }
+    
+    .countdown-timer {
+      display: flex;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    
+    .countdown-unit {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .countdown-value {
+      font-size: 4rem;
+      font-weight: 700;
+      font-family: 'Space Grotesk', sans-serif;
+      background: linear-gradient(180deg, #fff 0%, #999 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .countdown-label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    
+    .overlay-message {
+      color: var(--text-muted);
+      max-width: 400px;
+      line-height: 1.6;
+    }
+    
+    .ended-icon {
+      font-size: 4rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .ended-title {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+    
+    /* Lead Capture Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      padding: 1rem;
+    }
+    
+    .modal-overlay.hidden { display: none; }
+    
+    .modal {
+      background: var(--chat-bg);
+      border-radius: 20px;
+      padding: 2rem;
+      max-width: 400px;
+      width: 100%;
+      border: 1px solid var(--border);
+      animation: scaleIn 0.3s ease;
+    }
+    
+    @keyframes scaleIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    
+    .modal-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+    
+    .modal-title span { margin-right: 0.5rem; }
+    
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    
+    .form-input {
+      width: 100%;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.875rem 1rem;
+      color: var(--text);
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    
+    .form-input:focus {
+      border-color: var(--primary);
+    }
+    
+    .form-input::placeholder {
+      color: var(--text-muted);
+    }
+    
+    .submit-btn {
+      width: 100%;
+      background: var(--primary);
+      border: none;
+      border-radius: 10px;
+      padding: 1rem;
+      color: white;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: all 0.2s;
+      margin-top: 1.5rem;
+    }
+    
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(229,57,53,0.3);
+    }
+    
+    .privacy-note {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <!-- Lead Capture Modal -->
+  <div class="modal-overlay" id="leadModal">
+    <div class="modal">
+      <h2 class="modal-title"><span>💬</span>Join the Chat!</h2>
+      <form id="leadForm">
+        <div class="form-group">
+          <input type="text" class="form-input" id="leadName" placeholder="Your Name" ${config.requireName ? 'required' : ''}>
+        </div>
+        <div class="form-group">
+          <input type="email" class="form-input" id="leadEmail" placeholder="Your Email" ${config.requireEmail ? 'required' : ''}>
+        </div>
+        <button type="submit" class="submit-btn">
+          Start Chatting
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </button>
+      </form>
+      <p class="privacy-note">🔒 Your info is safe with us</p>
+    </div>
+  </div>
+
+  <!-- Countdown Overlay -->
+  <div class="overlay" id="countdownOverlay">
+    <h2 class="countdown-title">Webinar Starting In...</h2>
+    <div class="countdown-timer">
+      <div class="countdown-unit">
+        <span class="countdown-value" id="hours">00</span>
+        <span class="countdown-label">Hours</span>
+      </div>
+      <div class="countdown-unit">
+        <span class="countdown-value" id="minutes">00</span>
+        <span class="countdown-label">Minutes</span>
+      </div>
+      <div class="countdown-unit">
+        <span class="countdown-value" id="seconds">00</span>
+        <span class="countdown-label">Seconds</span>
+      </div>
+    </div>
+    <p class="overlay-message">Please stay on this page. The session will begin automatically.</p>
+  </div>
+
+  <!-- Ended Overlay -->
+  <div class="overlay hidden" id="endedOverlay">
+    <div class="ended-icon">⏰</div>
+    <h2 class="ended-title">This Session Has Ended</h2>
+    <p class="overlay-message">Thank you for watching! The next session will begin at <span id="nextSession"></span>.</p>
+  </div>
+
+  <!-- Main Webinar Room -->
+  <div class="webinar-container" id="webinarRoom" style="display: none;">
+    <div class="video-section">
+      <div class="header">
+        <div class="logo-section">
+          <div class="logo-circle">${config.logoText}</div>
+          <span class="header-title">${config.headerTitle}</span>
+        </div>
+        <div class="live-badge">
+          <span class="live-dot"></span>
+          LIVE
+        </div>
+        <div class="viewer-count">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+          <span id="viewerCount">${config.minViewers}</span> watching
+        </div>
+      </div>
+      <div class="video-wrapper">
+        <video id="webinarVideo" playsinline>
+          <source src="${config.videoUrl}" type="video/mp4">
+        </video>
+        <div class="unmute-notice" id="unmuteNotice" onclick="unmuteVideo()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M11 5L6 9H2v6h4l5 4V5z"/>
+            <line x1="23" y1="9" x2="17" y2="15"/>
+            <line x1="17" y1="9" x2="23" y2="15"/>
+          </svg>
+          Click to unmute
+        </div>
+      </div>
+    </div>
+    
+    <div class="chat-section">
+      <div class="chat-header">💬 Live Chat</div>
+      <div class="chat-messages" id="chatMessages"></div>
+      <div class="chat-input-area">
+        <div class="chat-input-wrapper">
+          <input type="text" class="chat-input" id="chatInput" placeholder="Type a message...">
+          <button class="send-btn" onclick="sendMessage()">
+            <svg viewBox="0 0 24 24">
+              <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const CONFIG = {
+      webinarName: "${config.webinarName}",
+      videoUrl: "${config.videoUrl}",
+      durationMinutes: ${config.durationMinutes},
+      startHour: ${config.startHour},
+      startMinute: ${config.startMinute},
+      timezone: "${config.timezone}",
+      minViewers: ${config.minViewers},
+      maxViewers: ${config.maxViewers},
+      botName: "${config.botName}",
+      botAvatar: "${config.botAvatar}",
+      webhookUrl: "${config.webhookUrl}",
+      typingDelayMin: ${config.typingDelayMin},
+      typingDelayMax: ${config.typingDelayMax},
+      errorMessage: "${config.errorMessage}",
+      enableLeadCapture: ${config.enableLeadCapture},
+      welcomeMessage: "${config.welcomeMessage}",
+      leadWebhookUrl: "${config.leadWebhookUrl}"
+    };
+
+    let userData = null;
+    let isTyping = false;
+    
+    // Check for stored lead data
+    const storedLead = localStorage.getItem('webinar_lead_' + CONFIG.webinarName);
+    if (storedLead) {
+      userData = JSON.parse(storedLead);
+      document.getElementById('leadModal').classList.add('hidden');
+    } else if (!CONFIG.enableLeadCapture) {
+      document.getElementById('leadModal').classList.add('hidden');
+    }
+
+    // Lead form submission
+    document.getElementById('leadForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const name = document.getElementById('leadName').value.trim();
+      const email = document.getElementById('leadEmail').value.trim();
+      
+      userData = { name, email };
+      localStorage.setItem('webinar_lead_' + CONFIG.webinarName, JSON.stringify(userData));
+      
+      document.getElementById('leadModal').classList.add('hidden');
+      
+      // Send to webhook if configured
+      if (CONFIG.leadWebhookUrl) {
+        fetch(CONFIG.leadWebhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'lead_capture',
+            name,
+            email,
+            webinarName: CONFIG.webinarName,
+            timestamp: new Date().toISOString(),
+            source: 'webinar-chat'
+          })
+        }).catch(() => {});
+      }
+      
+      // Show welcome message
+      const welcome = CONFIG.welcomeMessage.replace('{name}', name);
+      addMessage(welcome, 'bot');
+    });
+
+    // Calculate webinar state
+    function getWebinarState() {
+      const now = new Date();
+      const options = { timeZone: CONFIG.timezone };
+      const localTime = new Date(now.toLocaleString('en-US', options));
+      
+      const startTime = new Date(localTime);
+      startTime.setHours(CONFIG.startHour, CONFIG.startMinute, 0, 0);
+      
+      const endTime = new Date(startTime.getTime() + CONFIG.durationMinutes * 60000);
+      
+      if (localTime < startTime) {
+        return { state: 'countdown', startTime, endTime };
+      } else if (localTime >= startTime && localTime < endTime) {
+        const elapsed = (localTime - startTime) / 1000;
+        return { state: 'live', startTime, endTime, elapsed };
+      } else {
+        return { state: 'ended', startTime, endTime };
+      }
+    }
+
+    function updateCountdown() {
+      const { state, startTime } = getWebinarState();
+      
+      if (state !== 'countdown') {
+        document.getElementById('countdownOverlay').classList.add('hidden');
+        if (state === 'live') {
+          startWebinar();
+        } else {
+          showEnded(startTime);
+        }
+        return;
+      }
+      
+      const now = new Date();
+      const options = { timeZone: CONFIG.timezone };
+      const localTime = new Date(now.toLocaleString('en-US', options));
+      const diff = startTime - localTime;
+      
+      const hours = Math.floor(diff / 3600000);
+      const minutes = Math.floor((diff % 3600000) / 60000);
+      const seconds = Math.floor((diff % 60000) / 1000);
+      
+      document.getElementById('hours').textContent = String(hours).padStart(2, '0');
+      document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
+      document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+    }
+
+    function startWebinar() {
+      document.getElementById('countdownOverlay').classList.add('hidden');
+      document.getElementById('webinarRoom').style.display = 'flex';
+      
+      const { elapsed } = getWebinarState();
+      const video = document.getElementById('webinarVideo');
+      
+      video.currentTime = elapsed || 0;
+      video.muted = true;
+      video.play().catch(() => {});
+      
+      updateViewerCount();
+      setInterval(updateViewerCount, 30000);
+      
+      // Check for ended state
+      setInterval(() => {
+        const { state, startTime } = getWebinarState();
+        if (state === 'ended') {
+          showEnded(startTime);
+        }
+      }, 1000);
+    }
+
+    function showEnded(startTime) {
+      document.getElementById('webinarRoom').style.display = 'none';
+      document.getElementById('endedOverlay').classList.remove('hidden');
+      
+      const nextStart = new Date(startTime);
+      nextStart.setDate(nextStart.getDate() + 1);
+      document.getElementById('nextSession').textContent = nextStart.toLocaleTimeString([], { 
+        hour: '2-digit', 
+        minute: '2-digit' 
+      }) + ' tomorrow';
+    }
+
+    function updateViewerCount() {
+      const count = Math.floor(Math.random() * (CONFIG.maxViewers - CONFIG.minViewers + 1)) + CONFIG.minViewers;
+      document.getElementById('viewerCount').textContent = count;
+    }
+
+    function unmuteVideo() {
+      const video = document.getElementById('webinarVideo');
+      video.muted = false;
+      document.getElementById('unmuteNotice').style.display = 'none';
+    }
+
+    function addMessage(content, sender, userName) {
+      const container = document.getElementById('chatMessages');
+      const div = document.createElement('div');
+      div.className = 'message ' + sender;
+      
+      const avatar = document.createElement('div');
+      avatar.className = 'message-avatar';
+      avatar.textContent = sender === 'bot' ? CONFIG.botAvatar : (userName ? userName[0].toUpperCase() : 'U');
+      
+      const msg = document.createElement('div');
+      msg.className = 'message-content';
+      msg.textContent = content;
+      
+      div.appendChild(avatar);
+      div.appendChild(msg);
+      container.appendChild(div);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function showTyping() {
+      if (isTyping) return;
+      isTyping = true;
+      
+      const container = document.getElementById('chatMessages');
+      const div = document.createElement('div');
+      div.className = 'typing-indicator';
+      div.id = 'typingIndicator';
+      
+      const avatar = document.createElement('div');
+      avatar.className = 'message-avatar';
+      avatar.style.background = 'var(--primary)';
+      avatar.textContent = CONFIG.botAvatar;
+      
+      const dots = document.createElement('div');
+      dots.className = 'typing-dots';
+      dots.innerHTML = '<span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>';
+      
+      div.appendChild(avatar);
+      div.appendChild(dots);
+      container.appendChild(div);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function hideTyping() {
+      isTyping = false;
+      const indicator = document.getElementById('typingIndicator');
+      if (indicator) indicator.remove();
+    }
+
+    async function sendMessage() {
+      const input = document.getElementById('chatInput');
+      const message = input.value.trim();
+      if (!message) return;
+      
+      // Check if lead capture needed
+      if (CONFIG.enableLeadCapture && !userData) {
+        document.getElementById('leadModal').classList.remove('hidden');
+        return;
+      }
+      
+      input.value = '';
+      addMessage(message, 'user', userData?.name);
+      
+      // Show typing indicator
+      const delay = (Math.random() * (CONFIG.typingDelayMax - CONFIG.typingDelayMin) + CONFIG.typingDelayMin) * 1000;
+      showTyping();
+      
+      try {
+        const response = await fetch(CONFIG.webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'chat_message',
+            message,
+            userName: userData?.name || 'Guest',
+            userEmail: userData?.email || '',
+            timestamp: new Date().toISOString()
+          })
+        });
+        
+        const data = await response.json();
+        
+        setTimeout(() => {
+          hideTyping();
+          addMessage(data.reply || data.message || CONFIG.errorMessage, 'bot');
+        }, delay);
+      } catch (error) {
+        setTimeout(() => {
+          hideTyping();
+          addMessage(CONFIG.errorMessage, 'bot');
+        }, delay);
+      }
+    }
+
+    // Enter key to send
+    document.getElementById('chatInput').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') sendMessage();
+    });
+
+    // Disable right-click on video
+    document.getElementById('webinarVideo').addEventListener('contextmenu', e => e.preventDefault());
+
+    // Initialize
+    const { state } = getWebinarState();
+    if (state === 'countdown') {
+      updateCountdown();
+      setInterval(updateCountdown, 1000);
+    } else if (state === 'live') {
+      document.getElementById('countdownOverlay').classList.add('hidden');
+      startWebinar();
+    } else {
+      const { startTime } = getWebinarState();
+      document.getElementById('countdownOverlay').classList.add('hidden');
+      showEnded(startTime);
+    }
+  </script>
+</body>
+</html>`;
+};
