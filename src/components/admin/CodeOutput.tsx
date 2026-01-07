@@ -3,7 +3,7 @@ import { WebinarConfig } from '@/types/webinar';
 import { generateEmbedCode } from '@/lib/generateEmbedCode';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Copy, Check, ExternalLink, Code } from 'lucide-react';
+import { Copy, Check, ExternalLink, Code, Download } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
 interface CodeOutputProps {
@@ -38,6 +38,22 @@ export function CodeOutput({ webinar }: CodeOutputProps) {
     window.open(url, '_blank');
   };
 
+  const handleDownload = () => {
+    const blob = new Blob([code], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${webinar.webinarName.replace(/[^a-z0-9]/gi, '-').toLowerCase() || 'webinar'}.html`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast({
+      title: 'Downloaded!',
+      description: 'HTML file saved to your downloads',
+    });
+  };
+
   return (
     <div className="space-y-6">
       <Card className="glass-card">
@@ -48,7 +64,7 @@ export function CodeOutput({ webinar }: CodeOutputProps) {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex gap-3">
+          <div className="flex gap-3 flex-wrap">
             <Button onClick={handleCopy} className="glow-button">
               {copied ? (
                 <>
@@ -61,6 +77,10 @@ export function CodeOutput({ webinar }: CodeOutputProps) {
                   Copy Code
                 </>
               )}
+            </Button>
+            <Button variant="secondary" onClick={handleDownload}>
+              <Download className="w-4 h-4 mr-2" />
+              Download HTML
             </Button>
             <Button variant="secondary" onClick={handlePreview}>
               <ExternalLink className="w-4 h-4 mr-2" />

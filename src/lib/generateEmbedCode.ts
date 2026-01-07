@@ -241,20 +241,25 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       document.getElementById('ctaFloating').classList.add('hidden');
     }
     
-    function trackCtaClick() {
+    async function trackCtaClick() {
       const { elapsed } = getWebinarState();
       const minutesWatched = Math.floor((elapsed || 0) / 60);
       
-      // Track CTA click (can be extended to send to webhook)
-      console.log('CTA clicked', {
-        type: 'cta_click',
-        userName: userData?.name || 'Guest',
-        userEmail: userData?.email || '',
-        buttonText: '${config.ctaButtonText}',
-        buttonUrl: '${config.ctaButtonUrl}',
-        minutesWatched,
-        timestamp: new Date().toISOString()
-      });
+      try {
+        await fetch(CONFIG.supabaseUrl + '/functions/v1/save-cta-click', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            webinar_id: CONFIG.webinarId,
+            lead_id: leadId,
+            button_text: CONFIG.ctaButtonText,
+            button_url: CONFIG.ctaButtonUrl,
+            minutes_watched: minutesWatched
+          })
+        });
+      } catch (error) {
+        console.error('Failed to track CTA:', error);
+      }
     }
     
     // Check CTA every second during live state
@@ -863,29 +868,80 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       welcomeMessage: "${config.welcomeMessage.replace(/"/g, '\\"')}",
       leadWebhookUrl: "${config.leadWebhookUrl}",
       enableCta: ${config.enableCta},
-      ctaShowAfterMinutes: ${config.ctaShowAfterMinutes}
+      ctaShowAfterMinutes: ${config.ctaShowAfterMinutes},
+      ctaButtonText: "${config.ctaButtonText.replace(/"/g, '\\"')}",
+      ctaButtonUrl: "${config.ctaButtonUrl}",
+      supabaseUrl: "https://ygtyteykrzrorlzbwlpl.supabase.co"
     };
 
     let userData = null;
+    let leadId = null;
     let isTyping = false;
     
     // Check for stored lead data
-    const storedLead = localStorage.getItem('webinar_lead_' + CONFIG.webinarName);
+    const storedLead = localStorage.getItem('webinar_lead_' + CONFIG.webinarId);
     if (storedLead) {
-      userData = JSON.parse(storedLead);
+      const parsed = JSON.parse(storedLead);
+      userData = parsed.userData;
+      leadId = parsed.leadId;
       document.getElementById('leadModal').classList.add('hidden');
     } else if (!CONFIG.enableLeadCapture) {
       document.getElementById('leadModal').classList.add('hidden');
     }
 
+    // Save lead to database
+    async function saveLeadToDb(name, email) {
+      try {
+        const response = await fetch(CONFIG.supabaseUrl + '/functions/v1/save-lead', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            webinar_id: CONFIG.webinarId,
+            name,
+            email,
+            user_agent: navigator.userAgent
+          })
+        });
+        const data = await response.json();
+        return data.lead_id || null;
+      } catch (error) {
+        console.error('Failed to save lead:', error);
+        return null;
+      }
+    }
+
+    // Save chat message to database
+    async function saveChatToDb(userMessage, aiResponse) {
+      try {
+        await fetch(CONFIG.supabaseUrl + '/functions/v1/save-chat-message', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            webinar_id: CONFIG.webinarId,
+            lead_id: leadId,
+            user_name: userData?.name || 'Guest',
+            user_email: userData?.email || '',
+            user_message: userMessage,
+            ai_response: aiResponse
+          })
+        });
+      } catch (error) {
+        console.error('Failed to save chat:', error);
+      }
+    }
+
     // Lead form submission
-    document.getElementById('leadForm').addEventListener('submit', function(e) {
+    document.getElementById('leadForm').addEventListener('submit', async function(e) {
       e.preventDefault();
       const name = document.getElementById('leadName').value.trim();
       const email = document.getElementById('leadEmail').value.trim();
       
       userData = { name, email };
-      localStorage.setItem('webinar_lead_' + CONFIG.webinarName, JSON.stringify(userData));
+      
+      // Save to database
+      leadId = await saveLeadToDb(name, email);
+      
+      localStorage.setItem('webinar_lead_' + CONFIG.webinarId, JSON.stringify({ userData, leadId }));
       
       document.getElementById('leadModal').classList.add('hidden');
       
@@ -1071,6 +1127,8 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       const delay = (Math.random() * (CONFIG.typingDelayMax - CONFIG.typingDelayMin) + CONFIG.typingDelayMin) * 1000;
       showTyping();
       
+      let aiResponse = CONFIG.errorMessage;
+      
       try {
         const response = await fetch(CONFIG.webhookUrl, {
           method: 'POST',
@@ -1085,18 +1143,18 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
         });
         
         const data = await response.json();
-        const aiResponse = data.reply || data.message || CONFIG.errorMessage;
-        
-        setTimeout(() => {
-          hideTyping();
-          addMessage(aiResponse, 'bot');
-        }, delay);
+        aiResponse = data.reply || data.message || CONFIG.errorMessage;
       } catch (error) {
-        setTimeout(() => {
-          hideTyping();
-          addMessage(CONFIG.errorMessage, 'bot');
-        }, delay);
+        console.error('Webhook error:', error);
       }
+      
+      // Save to database
+      saveChatToDb(message, aiResponse);
+      
+      setTimeout(() => {
+        hideTyping();
+        addMessage(aiResponse, 'bot');
+      }, delay);
     }
 
     // Enter key to send

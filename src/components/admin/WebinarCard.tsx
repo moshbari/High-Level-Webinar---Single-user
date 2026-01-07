@@ -1,7 +1,7 @@
 import { WebinarConfig } from '@/types/webinar';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Edit, Trash2, Code, Eye, Clock, Users } from 'lucide-react';
+import { Edit, Trash2, Code, Eye, Clock, Users, Copy } from 'lucide-react';
 import { format } from 'date-fns';
 import { motion } from 'framer-motion';
 
@@ -11,9 +11,10 @@ interface WebinarCardProps {
   onDelete: (id: string) => void;
   onViewCode: (id: string) => void;
   onPreview: (id: string) => void;
+  onDuplicate?: (id: string) => void;
 }
 
-export function WebinarCard({ webinar, onEdit, onDelete, onViewCode, onPreview }: WebinarCardProps) {
+export function WebinarCard({ webinar, onEdit, onDelete, onViewCode, onPreview, onDuplicate }: WebinarCardProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -56,12 +57,11 @@ export function WebinarCard({ webinar, onEdit, onDelete, onViewCode, onPreview }
               Created {format(new Date(webinar.createdAt), 'MMM d, yyyy')}
             </div>
             
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap">
               <Button
                 variant="secondary"
                 size="sm"
                 onClick={() => onEdit(webinar.id)}
-                className="flex-1"
               >
                 <Edit className="w-4 h-4 mr-1" />
                 Edit
@@ -70,7 +70,6 @@ export function WebinarCard({ webinar, onEdit, onDelete, onViewCode, onPreview }
                 variant="secondary"
                 size="sm"
                 onClick={() => onPreview(webinar.id)}
-                className="flex-1"
               >
                 <Eye className="w-4 h-4 mr-1" />
                 Preview
@@ -79,11 +78,20 @@ export function WebinarCard({ webinar, onEdit, onDelete, onViewCode, onPreview }
                 variant="secondary"
                 size="sm"
                 onClick={() => onViewCode(webinar.id)}
-                className="flex-1"
               >
                 <Code className="w-4 h-4 mr-1" />
                 Code
               </Button>
+              {onDuplicate && (
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => onDuplicate(webinar.id)}
+                >
+                  <Copy className="w-4 h-4 mr-1" />
+                  Duplicate
+                </Button>
+              )}
               <Button
                 variant="destructive"
                 size="sm"

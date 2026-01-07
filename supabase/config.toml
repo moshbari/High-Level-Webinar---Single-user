@@ -1,1 +1,10 @@
 project_id = "ygtyteykrzrorlzbwlpl"
+
+[functions.save-lead]
+verify_jwt = false
+
+[functions.save-chat-message]
+verify_jwt = false
+
+[functions.save-cta-click]
+verify_jwt = false

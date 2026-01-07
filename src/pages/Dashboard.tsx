@@ -1,8 +1,9 @@
 import { useNavigate } from 'react-router-dom';
-import { useWebinars, useDeleteWebinar } from '@/hooks/useWebinars';
+import { useWebinars, useDeleteWebinar, useSaveWebinar } from '@/hooks/useWebinars';
+import { getWebinar } from '@/lib/webinarStorage';
 import { WebinarCard } from '@/components/admin/WebinarCard';
 import { Button } from '@/components/ui/button';
-import { Plus, Radio, Loader2 } from 'lucide-react';
+import { Plus, Radio, Loader2, MessageSquare } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from '@/hooks/use-toast';
 import { useState } from 'react';
@@ -19,9 +20,11 @@ import {
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const { data: webinars = [], isLoading } = useWebinars();
+  const { data: webinars = [], isLoading, refetch } = useWebinars();
   const deleteWebinarMutation = useDeleteWebinar();
+  const saveWebinarMutation = useSaveWebinar();
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [duplicating, setDuplicating] = useState(false);
 
   const handleDelete = async () => {
     if (deleteId) {
@@ -39,6 +42,36 @@ export default function Dashboard() {
         });
       }
       setDeleteId(null);
+    }
+  };
+
+  const handleDuplicate = async (id: string) => {
+    setDuplicating(true);
+    try {
+      const webinar = await getWebinar(id);
+      if (!webinar) {
+        toast({ title: 'Error', description: 'Webinar not found', variant: 'destructive' });
+        return;
+      }
+
+      const { id: _, createdAt, updatedAt, ...config } = webinar;
+      const duplicatedConfig = {
+        ...config,
+        webinarName: `${config.webinarName} (Copy)`,
+      };
+
+      const newWebinar = await saveWebinarMutation.mutateAsync(duplicatedConfig);
+      if (newWebinar) {
+        toast({
+          title: 'Webinar duplicated',
+          description: 'A copy has been created',
+        });
+        refetch();
+      }
+    } catch (error) {
+      toast({ title: 'Error', description: 'Failed to duplicate', variant: 'destructive' });
+    } finally {
+      setDuplicating(false);
     }
   };
 
@@ -64,16 +97,22 @@ export default function Dashboard() {
               <p className="text-xs text-muted-foreground">Setup & Embed Generator</p>
             </div>
           </div>
-          <Button onClick={() => navigate('/webinar/new')} className="glow-button">
-            <Plus className="w-4 h-4 mr-2" />
-            New Webinar
-          </Button>
+          <div className="flex gap-3">
+            <Button variant="secondary" onClick={() => navigate('/chat-history')}>
+              <MessageSquare className="w-4 h-4 mr-2" />
+              Chat History
+            </Button>
+            <Button onClick={() => navigate('/webinar/new')} className="glow-button">
+              <Plus className="w-4 h-4 mr-2" />
+              New Webinar
+            </Button>
+          </div>
         </div>
       </header>
 
       {/* Main Content */}
       <main className="container mx-auto px-6 py-8">
-        {isLoading ? (
+        {isLoading || duplicating ? (
           <div className="flex items-center justify-center py-20">
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
           </div>
@@ -110,6 +149,7 @@ export default function Dashboard() {
                   onDelete={setDeleteId}
                   onViewCode={handleViewCode}
                   onPreview={handlePreview}
+                  onDuplicate={handleDuplicate}
                 />
               ))}
             </div>
