@@ -1,12 +1,11 @@
-import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { WebinarConfig } from '@/types/webinar';
-import { getWebinars, deleteWebinar } from '@/lib/webinarStorage';
+import { useWebinars, useDeleteWebinar } from '@/hooks/useWebinars';
 import { WebinarCard } from '@/components/admin/WebinarCard';
 import { Button } from '@/components/ui/button';
-import { Plus, Radio } from 'lucide-react';
+import { Plus, Radio, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from '@/hooks/use-toast';
+import { useState } from 'react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,22 +19,26 @@ import {
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const [webinars, setWebinars] = useState<WebinarConfig[]>([]);
+  const { data: webinars = [], isLoading } = useWebinars();
+  const deleteWebinarMutation = useDeleteWebinar();
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
-  useEffect(() => {
-    setWebinars(getWebinars());
-  }, []);
-
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (deleteId) {
-      deleteWebinar(deleteId);
-      setWebinars(getWebinars());
+      const success = await deleteWebinarMutation.mutateAsync(deleteId);
+      if (success) {
+        toast({
+          title: 'Webinar deleted',
+          description: 'The webinar has been removed',
+        });
+      } else {
+        toast({
+          title: 'Error',
+          description: 'Failed to delete webinar',
+          variant: 'destructive',
+        });
+      }
       setDeleteId(null);
-      toast({
-        title: 'Webinar deleted',
-        description: 'The webinar has been removed',
-      });
     }
   };
 
@@ -70,7 +73,11 @@ export default function Dashboard() {
 
       {/* Main Content */}
       <main className="container mx-auto px-6 py-8">
-        {webinars.length === 0 ? (
+        {isLoading ? (
+          <div className="flex items-center justify-center py-20">
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          </div>
+        ) : webinars.length === 0 ? (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -121,8 +128,12 @@ export default function Dashboard() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              Delete
+            <AlertDialogAction 
+              onClick={handleDelete} 
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={deleteWebinarMutation.isPending}
+            >
+              {deleteWebinarMutation.isPending ? 'Deleting...' : 'Delete'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -1,27 +1,29 @@
-import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { WebinarConfig } from '@/types/webinar';
-import { getWebinar } from '@/lib/webinarStorage';
+import { useWebinar } from '@/hooks/useWebinars';
 import { CodeOutput } from '@/components/admin/CodeOutput';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Edit } from 'lucide-react';
+import { ArrowLeft, Edit, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useEffect } from 'react';
 
 export default function WebinarCode() {
   const navigate = useNavigate();
   const { id } = useParams();
-  const [webinar, setWebinar] = useState<WebinarConfig | null>(null);
+  const { data: webinar, isLoading, error } = useWebinar(id);
 
   useEffect(() => {
-    if (id) {
-      const found = getWebinar(id);
-      if (found) {
-        setWebinar(found);
-      } else {
-        navigate('/');
-      }
+    if (!isLoading && !webinar && !error) {
+      navigate('/');
     }
-  }, [id, navigate]);
+  }, [isLoading, webinar, error, navigate]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   if (!webinar) return null;
 

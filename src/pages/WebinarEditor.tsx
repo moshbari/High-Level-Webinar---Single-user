@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { WebinarConfig, DEFAULT_WEBINAR_CONFIG } from '@/types/webinar';
-import { getWebinar, saveWebinar, updateWebinar, createDefaultWebinar } from '@/lib/webinarStorage';
+import { WebinarConfig } from '@/types/webinar';
+import { createDefaultWebinar } from '@/lib/webinarStorage';
+import { useWebinar, useSaveWebinar, useUpdateWebinar } from '@/hooks/useWebinars';
 import { WebinarForm } from '@/components/admin/WebinarForm';
 import { WebinarPreview } from '@/components/admin/WebinarPreview';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Save, Eye, EyeOff } from 'lucide-react';
+import { ArrowLeft, Save, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
 
@@ -14,21 +15,19 @@ export default function WebinarEditor() {
   const { id } = useParams();
   const isEditing = id && id !== 'new';
   
+  const { data: existingWebinar, isLoading } = useWebinar(isEditing ? id : undefined);
+  const saveWebinarMutation = useSaveWebinar();
+  const updateWebinarMutation = useUpdateWebinar();
+  
   const [config, setConfig] = useState<Omit<WebinarConfig, 'id' | 'createdAt' | 'updatedAt'>>(createDefaultWebinar());
   const [showPreview, setShowPreview] = useState(true);
-  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (isEditing) {
-      const existing = getWebinar(id);
-      if (existing) {
-        const { id: _, createdAt, updatedAt, ...rest } = existing;
-        setConfig(rest);
-      } else {
-        navigate('/');
-      }
+    if (isEditing && existingWebinar) {
+      const { id: _, createdAt, updatedAt, ...rest } = existingWebinar;
+      setConfig(rest);
     }
-  }, [id, isEditing, navigate]);
+  }, [isEditing, existingWebinar]);
 
   const handleSave = async () => {
     if (!config.webinarName.trim()) {
@@ -40,23 +39,29 @@ export default function WebinarEditor() {
       return;
     }
 
-    setSaving(true);
-    
     try {
       if (isEditing) {
-        updateWebinar(id, config);
-        toast({
-          title: 'Webinar updated',
-          description: 'Your changes have been saved',
-        });
+        const result = await updateWebinarMutation.mutateAsync({ id, config });
+        if (result) {
+          toast({
+            title: 'Webinar updated',
+            description: 'Your changes have been saved',
+          });
+        } else {
+          throw new Error('Failed to update');
+        }
       } else {
-        const newWebinar = saveWebinar(config);
-        toast({
-          title: 'Webinar created',
-          description: 'Your webinar is ready to use',
-        });
-        navigate(`/webinar/${newWebinar.id}/code`);
-        return;
+        const newWebinar = await saveWebinarMutation.mutateAsync(config);
+        if (newWebinar) {
+          toast({
+            title: 'Webinar created',
+            description: 'Your webinar is ready to use',
+          });
+          navigate(`/webinar/${newWebinar.id}/code`);
+          return;
+        } else {
+          throw new Error('Failed to save');
+        }
       }
     } catch (error) {
       toast({
@@ -64,10 +69,18 @@ export default function WebinarEditor() {
         description: 'Please try again',
         variant: 'destructive',
       });
-    } finally {
-      setSaving(false);
     }
   };
+
+  const isSaving = saveWebinarMutation.isPending || updateWebinarMutation.isPending;
+
+  if (isEditing && isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen">
@@ -96,9 +109,13 @@ export default function WebinarEditor() {
               {showPreview ? <EyeOff className="w-4 h-4 mr-2" /> : <Eye className="w-4 h-4 mr-2" />}
               {showPreview ? 'Hide Preview' : 'Show Preview'}
             </Button>
-            <Button onClick={handleSave} disabled={saving} className="glow-button">
-              <Save className="w-4 h-4 mr-2" />
-              {saving ? 'Saving...' : isEditing ? 'Save Changes' : 'Create Webinar'}
+            <Button onClick={handleSave} disabled={isSaving} className="glow-button">
+              {isSaving ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <Save className="w-4 h-4 mr-2" />
+              )}
+              {isSaving ? 'Saving...' : isEditing ? 'Save Changes' : 'Create Webinar'}
             </Button>
           </div>
         </div>
