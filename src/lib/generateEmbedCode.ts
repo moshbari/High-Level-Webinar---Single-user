@@ -934,7 +934,7 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       webinarId: "${config.id}",
       webinarName: "${config.webinarName}",
       videoUrl: "${config.videoUrl}",
-      durationMinutes: ${config.durationMinutes},
+      durationSeconds: ${config.durationSeconds},
       startHour: ${config.startHour},
       startMinute: ${config.startMinute},
       timezone: "${config.timezone}",
@@ -1057,7 +1057,7 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       const startTime = new Date(localTime);
       startTime.setHours(CONFIG.startHour, CONFIG.startMinute, 0, 0);
       
-      const endTime = new Date(startTime.getTime() + CONFIG.durationMinutes * 60000);
+      const endTime = new Date(startTime.getTime() + CONFIG.durationSeconds * 1000);
       
       if (localTime < startTime) {
         return { state: 'countdown', startTime, endTime };

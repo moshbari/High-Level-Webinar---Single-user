@@ -7,7 +7,7 @@ export interface WebinarConfig {
   
   // Video
   videoUrl: string;
-  durationMinutes: number;
+  durationSeconds: number;
   
   // Schedule
   startHour: number;
@@ -116,7 +116,7 @@ export const DEFAULT_WEBINAR_CONFIG: Omit<WebinarConfig, 'id' | 'createdAt' | 'u
   headerTitle: 'Exclusive Training Session',
   logoText: 'W',
   videoUrl: '',
-  durationMinutes: 60,
+  durationSeconds: 3600,
   startHour: 12,
   startMinute: 0,
   timezone: 'America/New_York',
