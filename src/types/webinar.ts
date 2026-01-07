@@ -35,7 +35,7 @@ export interface WebinarConfig {
   
   // CTA Settings
   enableCta: boolean;
-  ctaShowAfterMinutes: number;
+  ctaShowAfterSeconds: number;
   ctaHeadline: string;
   ctaSubheadline: string;
   ctaButtonText: string;
@@ -134,7 +134,7 @@ export const DEFAULT_WEBINAR_CONFIG: Omit<WebinarConfig, 'id' | 'createdAt' | 'u
   welcomeMessage: "Hi {name}! 👋 Ask me anything about the training.",
   leadWebhookUrl: '',
   enableCta: false,
-  ctaShowAfterMinutes: 45,
+  ctaShowAfterSeconds: 2700, // 45 minutes in seconds
   ctaHeadline: 'Ready to Transform Your Life?',
   ctaSubheadline: 'Join thousands of successful students',
   ctaButtonText: 'Get Instant Access →',

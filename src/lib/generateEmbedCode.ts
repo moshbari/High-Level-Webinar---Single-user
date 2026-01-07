@@ -248,8 +248,8 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       const { state, elapsed } = getWebinarState();
       if (state !== 'live') return;
       
-      const elapsedMinutes = (elapsed || 0) / 60;
-      if (elapsedMinutes >= ${config.ctaShowAfterMinutes}) {
+      const elapsedSeconds = elapsed || 0;
+      if (elapsedSeconds >= ${config.ctaShowAfterSeconds}) {
         showCta();
         ctaShown = true;
       }
@@ -950,7 +950,7 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       welcomeMessage: "${config.welcomeMessage.replace(/"/g, '\\"')}",
       leadWebhookUrl: "${config.leadWebhookUrl}",
       enableCta: ${config.enableCta},
-      ctaShowAfterMinutes: ${config.ctaShowAfterMinutes},
+      ctaShowAfterSeconds: ${config.ctaShowAfterSeconds},
       ctaButtonText: "${config.ctaButtonText.replace(/"/g, '\\"')}",
       ctaButtonUrl: "${config.ctaButtonUrl}",
       supabaseUrl: "https://ygtyteykrzrorlzbwlpl.supabase.co"

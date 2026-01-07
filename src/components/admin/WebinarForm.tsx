@@ -364,34 +364,76 @@ export function WebinarForm({ config, onChange }: WebinarFormProps) {
           
           {config.enableCta && (
             <>
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="ctaShowAfterMinutes">Show After (minutes)</Label>
-                  <Input
-                    id="ctaShowAfterMinutes"
-                    type="number"
-                    value={config.ctaShowAfterMinutes}
-                    onChange={(e) => updateField('ctaShowAfterMinutes', parseInt(e.target.value) || 45)}
-                    className="input-field"
-                    min={0}
-                  />
-                  <p className="text-xs text-muted-foreground">Minutes into webinar before CTA appears</p>
+              <div className="space-y-2">
+                <Label>Show After</Label>
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="space-y-1">
+                    <Label htmlFor="ctaShowAfterHours" className="text-xs text-muted-foreground">Hours</Label>
+                    <Input
+                      id="ctaShowAfterHours"
+                      type="number"
+                      value={Math.floor((config.ctaShowAfterSeconds || 0) / 3600)}
+                      onChange={(e) => {
+                        const hours = parseInt(e.target.value) || 0;
+                        const currentMinutes = Math.floor(((config.ctaShowAfterSeconds || 0) % 3600) / 60);
+                        const currentSeconds = (config.ctaShowAfterSeconds || 0) % 60;
+                        updateField('ctaShowAfterSeconds', hours * 3600 + currentMinutes * 60 + currentSeconds);
+                      }}
+                      className="input-field"
+                      min={0}
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="ctaShowAfterMins" className="text-xs text-muted-foreground">Minutes</Label>
+                    <Input
+                      id="ctaShowAfterMins"
+                      type="number"
+                      value={Math.floor(((config.ctaShowAfterSeconds || 0) % 3600) / 60)}
+                      onChange={(e) => {
+                        const minutes = Math.min(59, parseInt(e.target.value) || 0);
+                        const currentHours = Math.floor((config.ctaShowAfterSeconds || 0) / 3600);
+                        const currentSeconds = (config.ctaShowAfterSeconds || 0) % 60;
+                        updateField('ctaShowAfterSeconds', currentHours * 3600 + minutes * 60 + currentSeconds);
+                      }}
+                      className="input-field"
+                      min={0}
+                      max={59}
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="ctaShowAfterSecs" className="text-xs text-muted-foreground">Seconds</Label>
+                    <Input
+                      id="ctaShowAfterSecs"
+                      type="number"
+                      value={(config.ctaShowAfterSeconds || 0) % 60}
+                      onChange={(e) => {
+                        const seconds = Math.min(59, parseInt(e.target.value) || 0);
+                        const currentHours = Math.floor((config.ctaShowAfterSeconds || 0) / 3600);
+                        const currentMinutes = Math.floor(((config.ctaShowAfterSeconds || 0) % 3600) / 60);
+                        updateField('ctaShowAfterSeconds', currentHours * 3600 + currentMinutes * 60 + seconds);
+                      }}
+                      className="input-field"
+                      min={0}
+                      max={59}
+                    />
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="ctaStyle">CTA Style</Label>
-                  <Select
-                    value={config.ctaStyle}
-                    onValueChange={(v) => updateField('ctaStyle', v as 'banner' | 'floating')}
-                  >
-                    <SelectTrigger className="input-field">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="banner">Bottom Banner</SelectItem>
-                      <SelectItem value="floating">Floating Side Box</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                <p className="text-xs text-muted-foreground">Time into webinar before CTA appears</p>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="ctaStyle">CTA Style</Label>
+                <Select
+                  value={config.ctaStyle}
+                  onValueChange={(v) => updateField('ctaStyle', v as 'banner' | 'floating')}
+                >
+                  <SelectTrigger className="input-field">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="banner">Bottom Banner</SelectItem>
+                    <SelectItem value="floating">Floating Side Box</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="ctaHeadline">Headline</Label>
