@@ -314,6 +314,11 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       --border: rgba(255,255,255,0.1);
     }
     
+    html, body {
+      height: 100%;
+      height: -webkit-fill-available;
+    }
+
     body {
       font-family: 'Inter', system-ui, sans-serif;
       background: var(--bg);
@@ -321,6 +326,8 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       margin: 0;
       padding: 0;
       overflow: hidden;
+      min-height: 100vh;
+      min-height: 100dvh;
     }
     
     h1, h2, h3 { font-family: 'Space Grotesk', system-ui, sans-serif; }
@@ -334,6 +341,7 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       bottom: 0;
       width: 100vw;
       height: 100vh;
+      height: 100dvh;
     }
     
     @media (max-width: 768px) {
@@ -471,6 +479,7 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       
       .video-section {
         height: 45vh;
+        height: 45dvh;
         flex: none;
       }
       
@@ -479,6 +488,7 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
         min-width: 100%;
         max-width: 100%;
         height: 55vh;
+        height: 55dvh;
         flex: none;
         border-left: none;
         border-top: 1px solid var(--border);
@@ -588,6 +598,7 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
     
     .chat-input-area {
       padding: 1rem;
+      padding-bottom: calc(1rem + env(safe-area-inset-bottom));
       border-top: 1px solid var(--border);
     }
     
