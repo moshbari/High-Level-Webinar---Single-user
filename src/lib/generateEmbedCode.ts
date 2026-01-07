@@ -444,21 +444,30 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
     
     .unmute-notice {
       position: absolute;
-      bottom: 2rem;
+      top: 50%;
       left: 50%;
-      transform: translateX(-50%);
+      transform: translate(-50%, -50%);
       background: rgba(0,0,0,0.8);
-      padding: 0.75rem 1.5rem;
-      border-radius: 8px;
+      padding: 1rem 2rem;
+      border-radius: 12px;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.75rem;
       cursor: pointer;
       transition: all 0.2s;
+      font-size: 1rem;
+      text-align: center;
+    }
+    
+    .unmute-notice svg {
+      width: 32px;
+      height: 32px;
     }
     
     .unmute-notice:hover {
       background: rgba(0,0,0,0.9);
+      transform: translate(-50%, -50%) scale(1.05);
     }
     
     .chat-section {
@@ -901,12 +910,12 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
           <source src="${config.videoUrl}" type="video/mp4">
         </video>
         <div class="unmute-notice" id="unmuteNotice" onclick="unmuteVideo()">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M11 5L6 9H2v6h4l5 4V5z"/>
             <line x1="23" y1="9" x2="17" y2="15"/>
             <line x1="17" y1="9" x2="23" y2="15"/>
           </svg>
-          Click to unmute
+          <span>Click to unmute</span>
         </div>
       </div>
       ${config.ctaStyle === 'banner' ? ctaBannerHtml : ''}
