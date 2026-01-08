@@ -120,7 +120,7 @@ export const DEFAULT_WEBINAR_CONFIG: Omit<WebinarConfig, 'id' | 'createdAt' | 'u
   headerTitle: 'Exclusive Training Session',
   logoText: 'W',
   videoUrl: '',
-  durationSeconds: 3600,
+  durationSeconds: 13200, // 3 hours 40 minutes
   startHour: 12,
   startMinute: 0,
   timezone: 'America/New_York',
