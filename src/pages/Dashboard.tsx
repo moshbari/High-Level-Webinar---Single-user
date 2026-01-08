@@ -4,7 +4,7 @@ import { getWebinar } from '@/lib/webinarStorage';
 import { generateEmbedCode } from '@/lib/generateEmbedCode';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, Radio, Loader2, MessageSquare, Edit, Eye, Code, Copy, Clipboard, Trash2, Clock, Users } from 'lucide-react';
+import { Plus, Radio, Loader2, MessageSquare, Edit, Eye, Code, Copy, Clipboard, Trash2, Clock, Users, BarChart3 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from '@/hooks/use-toast';
 import { useState } from 'react';
@@ -128,6 +128,10 @@ export default function Dashboard() {
             </div>
           </div>
           <div className="flex gap-2 sm:gap-3">
+            <Button variant="secondary" size="sm" onClick={() => navigate('/dashboard')} className="h-8 sm:h-9 px-2 sm:px-3">
+              <BarChart3 className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Analytics</span>
+            </Button>
             <Button variant="secondary" size="sm" onClick={() => navigate('/chat-history')} className="h-8 sm:h-9 px-2 sm:px-3">
               <MessageSquare className="w-4 h-4 sm:mr-2" />
               <span className="hidden sm:inline">Chat History</span>

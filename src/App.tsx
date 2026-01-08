@@ -9,6 +9,7 @@ import WebinarCode from "./pages/WebinarCode";
 import WebinarPreviewPage from "./pages/WebinarPreviewPage";
 import ChatHistory from "./pages/ChatHistory";
 import ChatDetail from "./pages/ChatDetail";
+import ReportingDashboard from "./pages/ReportingDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -21,6 +22,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/dashboard" element={<ReportingDashboard />} />
           <Route path="/webinar/new" element={<WebinarEditor />} />
           <Route path="/webinar/:id/edit" element={<WebinarEditor />} />
           <Route path="/webinar/:id/code" element={<WebinarCode />} />
