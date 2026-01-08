@@ -3,6 +3,7 @@ import { useWebinars, useDeleteWebinar, useSaveWebinar } from '@/hooks/useWebina
 import { getWebinar } from '@/lib/webinarStorage';
 import { generateEmbedCode } from '@/lib/generateEmbedCode';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Plus, Radio, Loader2, MessageSquare, Edit, Eye, Code, Copy, Clipboard, Trash2, Clock, Users } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from '@/hooks/use-toast';
@@ -26,6 +27,12 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -33,6 +40,7 @@ export default function Dashboard() {
   const deleteWebinarMutation = useDeleteWebinar();
   const saveWebinarMutation = useSaveWebinar();
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
   const [duplicating, setDuplicating] = useState(false);
 
   const handleDelete = async () => {
@@ -51,7 +59,13 @@ export default function Dashboard() {
         });
       }
       setDeleteId(null);
+      setDeleteConfirmText('');
     }
+  };
+
+  const handleCloseDeleteDialog = () => {
+    setDeleteId(null);
+    setDeleteConfirmText('');
   };
 
   const handleDuplicate = async (id: string) => {
@@ -211,54 +225,103 @@ export default function Dashboard() {
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center justify-end gap-1">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => navigate(`/webinar/${webinar.id}/edit`)}
-                            className="h-8 px-2"
-                          >
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => navigate(`/webinar/${webinar.id}/preview`)}
-                            className="h-8 px-2"
-                          >
-                            <Eye className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => navigate(`/webinar/${webinar.id}/code`)}
-                            className="h-8 px-2"
-                          >
-                            <Code className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleCopyCode(webinar.id)}
-                            className="h-8 px-2"
-                          >
-                            <Clipboard className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDuplicate(webinar.id)}
-                            className="h-8 px-2"
-                          >
-                            <Copy className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setDeleteId(webinar.id)}
-                            className="h-8 px-2 text-destructive hover:text-destructive hover:bg-destructive/10"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
+                          <TooltipProvider delayDuration={300}>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => navigate(`/webinar/${webinar.id}/edit`)}
+                                  className="h-8 px-2"
+                                >
+                                  <Edit className="w-4 h-4" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Edit webinar settings</p>
+                              </TooltipContent>
+                            </Tooltip>
+
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => navigate(`/webinar/${webinar.id}/preview`)}
+                                  className="h-8 px-2"
+                                >
+                                  <Eye className="w-4 h-4" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Preview webinar</p>
+                              </TooltipContent>
+                            </Tooltip>
+
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => navigate(`/webinar/${webinar.id}/code`)}
+                                  className="h-8 px-2"
+                                >
+                                  <Code className="w-4 h-4" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>View embed code</p>
+                              </TooltipContent>
+                            </Tooltip>
+
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleCopyCode(webinar.id)}
+                                  className="h-8 px-2"
+                                >
+                                  <Clipboard className="w-4 h-4" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Copy embed code</p>
+                              </TooltipContent>
+                            </Tooltip>
+
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleDuplicate(webinar.id)}
+                                  className="h-8 px-2"
+                                >
+                                  <Copy className="w-4 h-4" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Duplicate webinar</p>
+                              </TooltipContent>
+                            </Tooltip>
+
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => setDeleteId(webinar.id)}
+                                  className="h-8 px-2 text-destructive hover:text-destructive hover:bg-destructive/10"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Delete webinar</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
                         </div>
                       </TableCell>
                     </TableRow>
@@ -271,12 +334,21 @@ export default function Dashboard() {
       </main>
 
       {/* Delete Confirmation */}
-      <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
+      <AlertDialog open={!!deleteId} onOpenChange={handleCloseDeleteDialog}>
         <AlertDialogContent className="glass-card border-border">
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Webinar?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. The webinar configuration will be permanently removed.
+            <AlertDialogTitle className="text-destructive">⚠️ Delete Webinar?</AlertDialogTitle>
+            <AlertDialogDescription className="space-y-3">
+              <p>This action cannot be undone. The webinar configuration will be permanently removed.</p>
+              <p className="font-medium text-foreground">
+                Type <span className="font-mono bg-destructive/10 text-destructive px-1.5 py-0.5 rounded">delete</span> to confirm:
+              </p>
+              <Input
+                value={deleteConfirmText}
+                onChange={(e) => setDeleteConfirmText(e.target.value)}
+                placeholder="Type 'delete' to confirm"
+                className="mt-2"
+              />
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -284,7 +356,7 @@ export default function Dashboard() {
             <AlertDialogAction 
               onClick={handleDelete} 
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              disabled={deleteWebinarMutation.isPending}
+              disabled={deleteConfirmText.toLowerCase() !== 'delete' || deleteWebinarMutation.isPending}
             >
               {deleteWebinarMutation.isPending ? 'Deleting...' : 'Delete'}
             </AlertDialogAction>
