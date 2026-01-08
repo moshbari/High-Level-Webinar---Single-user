@@ -408,6 +408,70 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       background: #000;
     }
     
+    .sound-controls {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: rgba(0,0,0,0.8);
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      z-index: 100;
+    }
+    
+    .mute-btn {
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
+      padding: 0.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      transition: background 0.2s;
+    }
+    
+    .mute-btn:hover {
+      background: rgba(255,255,255,0.1);
+    }
+    
+    .mute-btn svg {
+      width: 24px;
+      height: 24px;
+    }
+    
+    .volume-slider {
+      width: 80px;
+      height: 4px;
+      -webkit-appearance: none;
+      appearance: none;
+      background: rgba(255,255,255,0.3);
+      border-radius: 2px;
+      cursor: pointer;
+    }
+    
+    .volume-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 14px;
+      height: 14px;
+      background: white;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+    
+    .volume-slider::-moz-range-thumb {
+      width: 14px;
+      height: 14px;
+      background: white;
+      border-radius: 50%;
+      cursor: pointer;
+      border: none;
+    }
+    
     .unmute-notice {
       position: absolute;
       top: 50%;
@@ -424,7 +488,7 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       transition: all 0.2s;
       font-size: 1rem;
       text-align: center;
-      z-index: 100;
+      z-index: 99;
     }
     
     .unmute-notice svg {
@@ -435,25 +499,6 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
     .unmute-notice:hover {
       background: rgba(0,0,0,0.9);
       transform: translate(-50%, -50%) scale(1.05);
-    }
-    
-    .unmute-notice.muted-off {
-      top: auto;
-      bottom: 1rem;
-      left: 1rem;
-      transform: none;
-      padding: 0.5rem 1rem;
-      flex-direction: row;
-      font-size: 0.85rem;
-    }
-    
-    .unmute-notice.muted-off:hover {
-      transform: scale(1.05);
-    }
-    
-    .unmute-notice.muted-off svg {
-      width: 20px;
-      height: 20px;
     }
     
     .chat-section {
@@ -895,18 +940,28 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
         <video id="webinarVideo" playsinline>
           <source src="${config.videoUrl}" type="video/mp4">
         </video>
-        <div class="unmute-notice" id="unmuteNotice" onclick="toggleMute()">
-          <svg id="muteIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <div class="sound-controls" id="soundControls" style="display:none;">
+          <button class="mute-btn" id="muteBtn" onclick="toggleMute()">
+            <svg id="volumeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M11 5L6 9H2v6h4l5 4V5z"/>
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+              <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+            </svg>
+            <svg id="mutedIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;">
+              <path d="M11 5L6 9H2v6h4l5 4V5z"/>
+              <line x1="23" y1="9" x2="17" y2="15"/>
+              <line x1="17" y1="9" x2="23" y2="15"/>
+            </svg>
+          </button>
+          <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="100" oninput="setVolume(this.value)">
+        </div>
+        <div class="unmute-notice" id="unmuteNotice" onclick="initialUnmute()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M11 5L6 9H2v6h4l5 4V5z"/>
             <line x1="23" y1="9" x2="17" y2="15"/>
             <line x1="17" y1="9" x2="23" y2="15"/>
           </svg>
-          <svg id="unmuteIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;">
-            <path d="M11 5L6 9H2v6h4l5 4V5z"/>
-            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
-            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
-          </svg>
-          <span id="muteText">Click to unmute</span>
+          <span>Click to unmute</span>
         </div>
       </div>
       ${config.ctaStyle === 'banner' ? ctaBannerHtml : ''}
@@ -1173,27 +1228,45 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       document.getElementById('viewerCount').textContent = count;
     }
 
+    function initialUnmute() {
+      const video = document.getElementById('webinarVideo');
+      video.muted = false;
+      document.getElementById('unmuteNotice').style.display = 'none';
+      document.getElementById('soundControls').style.display = 'flex';
+      updateVolumeIcon();
+    }
+    
     function toggleMute() {
       const video = document.getElementById('webinarVideo');
-      const notice = document.getElementById('unmuteNotice');
-      const muteIcon = document.getElementById('muteIcon');
-      const unmuteIcon = document.getElementById('unmuteIcon');
-      const muteText = document.getElementById('muteText');
-      
-      if (video.muted) {
-        // Unmute the video
-        video.muted = false;
-        muteIcon.style.display = 'none';
-        unmuteIcon.style.display = 'block';
-        muteText.textContent = 'Click to mute';
-        notice.classList.add('muted-off');
-      } else {
-        // Mute the video
+      video.muted = !video.muted;
+      updateVolumeIcon();
+    }
+    
+    function setVolume(value) {
+      const video = document.getElementById('webinarVideo');
+      video.volume = value / 100;
+      if (value == 0) {
         video.muted = true;
-        muteIcon.style.display = 'block';
-        unmuteIcon.style.display = 'none';
-        muteText.textContent = 'Click to unmute';
-        notice.classList.remove('muted-off');
+      } else if (video.muted) {
+        video.muted = false;
+      }
+      updateVolumeIcon();
+    }
+    
+    function updateVolumeIcon() {
+      const video = document.getElementById('webinarVideo');
+      const volumeIcon = document.getElementById('volumeIcon');
+      const mutedIcon = document.getElementById('mutedIcon');
+      const slider = document.getElementById('volumeSlider');
+      
+      if (video.muted || video.volume === 0) {
+        volumeIcon.style.display = 'none';
+        mutedIcon.style.display = 'block';
+        slider.value = 0;
+      } else {
+        volumeIcon.style.display = 'block';
+        mutedIcon.style.display = 'none';
+        slider.value = video.volume * 100;
       }
     }
 
