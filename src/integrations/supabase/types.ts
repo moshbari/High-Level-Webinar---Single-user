@@ -148,6 +148,54 @@ export type Database = {
           },
         ]
       }
+      webinar_events: {
+        Row: {
+          chat_message: string | null
+          created_at: string
+          cta_url: string | null
+          device_type: string | null
+          event_type: string
+          id: string
+          session_id: string | null
+          user_email: string
+          user_name: string | null
+          watch_minutes: number | null
+          watch_percent: number | null
+          webinar_id: string
+          webinar_name: string | null
+        }
+        Insert: {
+          chat_message?: string | null
+          created_at?: string
+          cta_url?: string | null
+          device_type?: string | null
+          event_type: string
+          id?: string
+          session_id?: string | null
+          user_email: string
+          user_name?: string | null
+          watch_minutes?: number | null
+          watch_percent?: number | null
+          webinar_id: string
+          webinar_name?: string | null
+        }
+        Update: {
+          chat_message?: string | null
+          created_at?: string
+          cta_url?: string | null
+          device_type?: string | null
+          event_type?: string
+          id?: string
+          session_id?: string | null
+          user_email?: string
+          user_name?: string | null
+          watch_minutes?: number | null
+          watch_percent?: number | null
+          webinar_id?: string
+          webinar_name?: string | null
+        }
+        Relationships: []
+      }
       webinars: {
         Row: {
           background_color: string
