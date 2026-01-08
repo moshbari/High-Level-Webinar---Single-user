@@ -13,7 +13,8 @@ import {
   UserPlus, 
   Palette,
   Info,
-  Megaphone
+  Megaphone,
+  BarChart3
 } from 'lucide-react';
 
 interface WebinarFormProps {
@@ -587,6 +588,46 @@ export function WebinarForm({ config, onChange }: WebinarFormProps) {
                 />
               </div>
             </>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Tracking Settings */}
+      <Card className="glass-card">
+        <CardHeader className="pb-4">
+          <CardTitle className="flex items-center gap-2 text-lg font-display">
+            <BarChart3 className="w-5 h-5 text-primary" />
+            Event Tracking
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <Label htmlFor="enableTracking">Enable Tracking</Label>
+              <p className="text-xs text-muted-foreground">Track user events via webhook & database</p>
+            </div>
+            <Switch
+              id="enableTracking"
+              checked={config.enableTracking}
+              onCheckedChange={(v) => updateField('enableTracking', v)}
+            />
+          </div>
+          
+          {config.enableTracking && (
+            <div className="space-y-2">
+              <Label htmlFor="trackingWebhookUrl">Tracking Webhook URL</Label>
+              <Input
+                id="trackingWebhookUrl"
+                type="url"
+                value={config.trackingWebhookUrl}
+                onChange={(e) => updateField('trackingWebhookUrl', e.target.value)}
+                placeholder="https://moshbari.cloud/webhook/webinar-tracking"
+                className="input-field"
+              />
+              <p className="text-xs text-muted-foreground">
+                Events tracked: join, progress (25/50/75/100%), cta_click, chat_message, leave
+              </p>
+            </div>
           )}
         </CardContent>
       </Card>

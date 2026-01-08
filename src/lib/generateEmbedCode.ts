@@ -1057,6 +1057,8 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       ctaShowAfterSeconds: ${config.ctaShowAfterSeconds},
       ctaButtonText: "${config.ctaButtonText.replace(/"/g, '\\"')}",
       ctaButtonUrl: "${config.ctaButtonUrl}",
+      enableTracking: ${config.enableTracking ?? true},
+      trackingWebhookUrl: "${config.trackingWebhookUrl || 'https://moshbari.cloud/webhook/webinar-tracking'}",
       supabaseUrl: "https://ygtyteykrzrorlzbwlpl.supabase.co"
     };
 
@@ -1474,6 +1476,126 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
     document.getElementById('webinarVideo').addEventListener('contextmenu', e => e.preventDefault());
 
     ${ctaScript}
+
+    // ============ TRACKING SYSTEM ============
+    const trackingState = {
+      sessionId: 'sess_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now(),
+      sentMilestones: new Set(),
+      lastProgressCheck: 0
+    };
+
+    function getDeviceType() {
+      const ua = navigator.userAgent;
+      if (/tablet|ipad|playbook|silk/i.test(ua)) return 'tablet';
+      if (/mobile|iphone|ipod|android|blackberry|opera mini|iemobile/i.test(ua)) return 'mobile';
+      return 'desktop';
+    }
+
+    function buildTrackingPayload(eventType, extra = {}) {
+      const { elapsed } = getWebinarState();
+      const watchMinutes = ((elapsed || 0) / 60).toFixed(2);
+      const watchPercent = CONFIG.durationSeconds > 0 ? Math.round(((elapsed || 0) / CONFIG.durationSeconds) * 100) : 0;
+
+      return {
+        webinar_id: CONFIG.webinarId,
+        webinar_name: CONFIG.webinarName,
+        user_name: userData?.name || 'Anonymous',
+        user_email: userData?.email || 'unknown@unknown.com',
+        event_type: eventType,
+        watch_percent: watchPercent,
+        watch_minutes: parseFloat(watchMinutes),
+        session_id: trackingState.sessionId,
+        device_type: getDeviceType(),
+        timestamp: new Date().toISOString(),
+        ...extra
+      };
+    }
+
+    async function sendTrackingEvent(eventType, extra = {}, useBeacon = false) {
+      if (!CONFIG.enableTracking) return;
+
+      const payload = buildTrackingPayload(eventType, extra);
+
+      // Save to Supabase
+      try {
+        fetch(CONFIG.supabaseUrl + '/rest/v1/webinar_events', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlndHl0ZXlrcnpyb3JsemJ3bHBsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc3NjkyMzYsImV4cCI6MjA4MzM0NTIzNn0.5Mqob2i6OAqei-W9-pmEhEfKJja4Noy7YDrI6FRu3fM',
+            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlndHl0ZXlrcnpyb3JsemJ3bHBsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc3NjkyMzYsImV4cCI6MjA4MzM0NTIzNn0.5Mqob2i6OAqei-W9-pmEhEfKJja4Noy7YDrI6FRu3fM',
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify(payload)
+        }).catch(() => {});
+      } catch (e) {}
+
+      // Send to webhook
+      if (CONFIG.trackingWebhookUrl) {
+        if (useBeacon && navigator.sendBeacon) {
+          navigator.sendBeacon(CONFIG.trackingWebhookUrl, JSON.stringify(payload));
+        } else {
+          fetch(CONFIG.trackingWebhookUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          }).catch(() => {});
+        }
+      }
+    }
+
+    function checkProgressMilestones() {
+      const { state, elapsed } = getWebinarState();
+      if (state !== 'live' || CONFIG.durationSeconds <= 0) return;
+
+      const percent = Math.round((elapsed / CONFIG.durationSeconds) * 100);
+      const milestones = [25, 50, 75, 100];
+
+      for (const milestone of milestones) {
+        if (percent >= milestone && !trackingState.sentMilestones.has(milestone)) {
+          trackingState.sentMilestones.add(milestone);
+          sendTrackingEvent('progress_' + milestone);
+        }
+      }
+    }
+
+    // Track join event on webinar start
+    const originalStartWebinar = startWebinar;
+    startWebinar = function() {
+      originalStartWebinar.apply(this, arguments);
+      sendTrackingEvent('join');
+      // Start progress checking every 5 seconds
+      setInterval(checkProgressMilestones, 5000);
+    };
+
+    // Track CTA click
+    const originalTrackCtaClick = typeof trackCtaClick === 'function' ? trackCtaClick : null;
+    window.trackCtaClick = function() {
+      sendTrackingEvent('cta_click', { cta_url: CONFIG.ctaButtonUrl });
+      if (originalTrackCtaClick) originalTrackCtaClick();
+    };
+
+    // Track chat messages
+    const originalSendMessage = sendMessage;
+    sendMessage = async function() {
+      const input = document.getElementById('chatInput');
+      const message = input.value.trim();
+      if (message) {
+        sendTrackingEvent('chat_message', { chat_message: message });
+      }
+      return originalSendMessage.apply(this, arguments);
+    };
+
+    // Track leave event
+    window.addEventListener('beforeunload', function() {
+      sendTrackingEvent('leave', {}, true);
+    });
+
+    document.addEventListener('visibilitychange', function() {
+      if (document.visibilityState === 'hidden') {
+        sendTrackingEvent('leave', {}, true);
+      }
+    });
 
     // Initialize
     const { state } = getWebinarState();

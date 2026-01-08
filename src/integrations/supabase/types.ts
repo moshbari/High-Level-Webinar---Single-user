@@ -215,6 +215,7 @@ export type Database = {
           duration_minutes: number
           enable_cta: boolean
           enable_lead_capture: boolean
+          enable_tracking: boolean
           error_message: string
           header_title: string
           id: string
@@ -228,6 +229,7 @@ export type Database = {
           start_hour: number
           start_minute: number
           timezone: string
+          tracking_webhook_url: string
           typing_delay_max: number
           typing_delay_min: number
           updated_at: string
@@ -255,6 +257,7 @@ export type Database = {
           duration_minutes?: number
           enable_cta?: boolean
           enable_lead_capture?: boolean
+          enable_tracking?: boolean
           error_message?: string
           header_title?: string
           id?: string
@@ -268,6 +271,7 @@ export type Database = {
           start_hour?: number
           start_minute?: number
           timezone?: string
+          tracking_webhook_url?: string
           typing_delay_max?: number
           typing_delay_min?: number
           updated_at?: string
@@ -295,6 +299,7 @@ export type Database = {
           duration_minutes?: number
           enable_cta?: boolean
           enable_lead_capture?: boolean
+          enable_tracking?: boolean
           error_message?: string
           header_title?: string
           id?: string
@@ -308,6 +313,7 @@ export type Database = {
           start_hour?: number
           start_minute?: number
           timezone?: string
+          tracking_webhook_url?: string
           typing_delay_max?: number
           typing_delay_min?: number
           updated_at?: string
