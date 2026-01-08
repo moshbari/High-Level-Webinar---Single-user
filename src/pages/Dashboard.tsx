@@ -1,12 +1,12 @@
 import { useNavigate } from 'react-router-dom';
 import { useWebinars, useDeleteWebinar, useSaveWebinar } from '@/hooks/useWebinars';
 import { getWebinar } from '@/lib/webinarStorage';
-import { WebinarCard } from '@/components/admin/WebinarCard';
 import { Button } from '@/components/ui/button';
-import { Plus, Radio, Loader2, MessageSquare } from 'lucide-react';
+import { Plus, Radio, Loader2, MessageSquare, Edit, Eye, Code, Copy, Trash2, Clock, Users } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from '@/hooks/use-toast';
 import { useState } from 'react';
+import { format } from 'date-fns';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,6 +17,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -75,12 +83,10 @@ export default function Dashboard() {
     }
   };
 
-  const handleViewCode = (id: string) => {
-    navigate(`/webinar/${id}/code`);
-  };
-
-  const handlePreview = (id: string) => {
-    navigate(`/webinar/${id}/preview`);
+  const formatTime = (hour: number, minute: number) => {
+    const period = hour >= 12 ? 'PM' : 'AM';
+    const displayHour = hour % 12 || 12;
+    return `${displayHour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')} ${period}`;
   };
 
   return (
@@ -138,19 +144,108 @@ export default function Dashboard() {
               <h2 className="font-display text-xl font-semibold">Your Webinars</h2>
               <p className="text-sm text-muted-foreground">{webinars.length} webinar(s)</p>
             </div>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {webinars.map((webinar) => (
-                <WebinarCard
-                  key={webinar.id}
-                  webinar={webinar}
-                  onEdit={(id) => navigate(`/webinar/${id}/edit`)}
-                  onDelete={setDeleteId}
-                  onViewCode={handleViewCode}
-                  onPreview={handlePreview}
-                  onDuplicate={handleDuplicate}
-                />
-              ))}
-            </div>
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="rounded-xl border border-border bg-card overflow-hidden"
+            >
+              <Table>
+                <TableHeader>
+                  <TableRow className="hover:bg-transparent">
+                    <TableHead className="w-[300px]">Webinar</TableHead>
+                    <TableHead>Schedule</TableHead>
+                    <TableHead>Viewers</TableHead>
+                    <TableHead>Created</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {webinars.map((webinar) => (
+                    <TableRow key={webinar.id}>
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center font-bold text-sm shrink-0">
+                            {webinar.logoText?.slice(0, 2).toUpperCase() || 'W'}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="font-medium truncate">{webinar.webinarName}</p>
+                            <p className="text-sm text-muted-foreground truncate">{webinar.headerTitle}</p>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <Clock className="w-4 h-4" />
+                          <span className="text-sm">{formatTime(webinar.startHour, webinar.startMinute)}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <Users className="w-4 h-4" />
+                          <span className="text-sm">{webinar.minViewers}-{webinar.maxViewers}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <span className="text-sm text-muted-foreground">
+                          {format(new Date(webinar.createdAt), 'MMM d, yyyy')}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-500/10 text-green-500">
+                          <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                          LIVE
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center justify-end gap-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => navigate(`/webinar/${webinar.id}/edit`)}
+                            className="h-8 px-2"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => navigate(`/webinar/${webinar.id}/preview`)}
+                            className="h-8 px-2"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => navigate(`/webinar/${webinar.id}/code`)}
+                            className="h-8 px-2"
+                          >
+                            <Code className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDuplicate(webinar.id)}
+                            className="h-8 px-2"
+                          >
+                            <Copy className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setDeleteId(webinar.id)}
+                            className="h-8 px-2 text-destructive hover:text-destructive hover:bg-destructive/10"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </motion.div>
           </>
         )}
       </main>
