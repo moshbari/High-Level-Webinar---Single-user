@@ -1,8 +1,9 @@
 import { useNavigate } from 'react-router-dom';
 import { useWebinars, useDeleteWebinar, useSaveWebinar } from '@/hooks/useWebinars';
 import { getWebinar } from '@/lib/webinarStorage';
+import { generateEmbedCode } from '@/lib/generateEmbedCode';
 import { Button } from '@/components/ui/button';
-import { Plus, Radio, Loader2, MessageSquare, Edit, Eye, Code, Copy, Trash2, Clock, Users } from 'lucide-react';
+import { Plus, Radio, Loader2, MessageSquare, Edit, Eye, Code, Copy, Clipboard, Trash2, Clock, Users } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from '@/hooks/use-toast';
 import { useState } from 'react';
@@ -87,6 +88,17 @@ export default function Dashboard() {
     const period = hour >= 12 ? 'PM' : 'AM';
     const displayHour = hour % 12 || 12;
     return `${displayHour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')} ${period}`;
+  };
+
+  const handleCopyCode = async (id: string) => {
+    const webinar = await getWebinar(id);
+    if (!webinar) {
+      toast({ title: 'Error', description: 'Webinar not found', variant: 'destructive' });
+      return;
+    }
+    const code = generateEmbedCode(webinar);
+    await navigator.clipboard.writeText(code);
+    toast({ title: 'Copied!', description: 'Embed code copied to clipboard' });
   };
 
   return (
@@ -222,6 +234,14 @@ export default function Dashboard() {
                             className="h-8 px-2"
                           >
                             <Code className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleCopyCode(webinar.id)}
+                            className="h-8 px-2"
+                          >
+                            <Clipboard className="w-4 h-4" />
                           </Button>
                           <Button
                             variant="ghost"
