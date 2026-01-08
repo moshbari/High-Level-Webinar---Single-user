@@ -1496,19 +1496,24 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       const watchMinutes = ((elapsed || 0) / 60).toFixed(2);
       const watchPercent = CONFIG.durationSeconds > 0 ? Math.round(((elapsed || 0) / CONFIG.durationSeconds) * 100) : 0;
 
-      return {
-        webinar_id: CONFIG.webinarId,
-        webinar_name: CONFIG.webinarName,
+      // Build payload matching exact database columns (no extra fields)
+      const payload = {
+        webinar_id: CONFIG.webinarId || '',
+        webinar_name: CONFIG.webinarName || '',
         user_name: userData?.name || 'Anonymous',
         user_email: userData?.email || 'unknown@unknown.com',
         event_type: eventType,
         watch_percent: watchPercent,
         watch_minutes: parseFloat(watchMinutes),
         session_id: trackingState.sessionId,
-        device_type: getDeviceType(),
-        timestamp: new Date().toISOString(),
-        ...extra
+        device_type: getDeviceType()
       };
+      
+      // Only add optional fields if they have values
+      if (extra.cta_url) payload.cta_url = extra.cta_url;
+      if (extra.chat_message) payload.chat_message = extra.chat_message;
+      
+      return payload;
     }
 
     async function sendTrackingEvent(eventType, extra = {}, useBeacon = false) {
