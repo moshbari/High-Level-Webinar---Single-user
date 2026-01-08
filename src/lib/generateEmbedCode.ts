@@ -1170,10 +1170,24 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       document.getElementById('countdownOverlay').classList.add('hidden');
       document.getElementById('webinarRoom').style.display = 'flex';
       
-      const { elapsed } = getWebinarState();
       const video = document.getElementById('webinarVideo');
       
-      video.currentTime = elapsed || 0;
+      function seekToLivePosition() {
+        const { elapsed } = getWebinarState();
+        const targetTime = elapsed || 0;
+        // Only seek if we're more than 2 seconds off to avoid constant seeking
+        if (Math.abs(video.currentTime - targetTime) > 2) {
+          video.currentTime = targetTime;
+        }
+      }
+      
+      // Wait for video metadata to load before seeking
+      if (video.readyState >= 1) {
+        seekToLivePosition();
+      } else {
+        video.addEventListener('loadedmetadata', seekToLivePosition, { once: true });
+      }
+      
       video.muted = true;
       video.play().catch(() => {});
       
