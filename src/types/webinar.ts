@@ -128,7 +128,7 @@ export const DEFAULT_WEBINAR_CONFIG: Omit<WebinarConfig, 'id' | 'createdAt' | 'u
   maxViewers: 300,
   botName: 'Support Team',
   botAvatar: 'AI',
-  webhookUrl: '',
+  webhookUrl: 'https://moshbari.cloud/webhook/webby-chatbot-6jan26',
   typingDelayMin: 3,
   typingDelayMax: 5,
   errorMessage: "Let's keep watching the webinar! I'll answer all questions at the end. 😊",
