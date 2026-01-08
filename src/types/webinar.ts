@@ -137,11 +137,11 @@ export const DEFAULT_WEBINAR_CONFIG: Omit<WebinarConfig, 'id' | 'createdAt' | 'u
   requireEmail: true,
   welcomeMessage: "Hi {name}! 👋 Ask me anything about the training.",
   leadWebhookUrl: '',
-  enableCta: false,
-  ctaShowAfterSeconds: 2700, // 45 minutes in seconds
-  ctaHeadline: 'Ready to Transform Your Life?',
-  ctaSubheadline: 'Join thousands of successful students',
-  ctaButtonText: 'Get Instant Access →',
+  enableCta: true,
+  ctaShowAfterSeconds: 7920, // 2 hours 12 minutes
+  ctaHeadline: '99% DFY $500 Comm System',
+  ctaSubheadline: 'With 16 AI Employees',
+  ctaButtonText: 'Secure Your Spot Now →',
   ctaButtonUrl: '',
   ctaButtonColor: '#e53935',
   ctaStyle: 'banner',
