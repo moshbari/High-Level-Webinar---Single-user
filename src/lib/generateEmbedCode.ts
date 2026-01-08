@@ -757,122 +757,105 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       margin-bottom: 1rem;
     }
     
-    /* Lead Capture Modal */
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.8);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 200;
+    /* Inline Lead Capture Form (inside chat) */
+    .lead-capture-inline {
       padding: 1rem;
+      background: rgba(0,0,0,0.3);
+      border-top: 1px solid var(--border);
     }
     
-    .modal-overlay.hidden { display: none; }
+    .lead-capture-inline.hidden { display: none; }
     
-    .modal {
-      background: var(--chat-bg);
-      border-radius: 20px;
-      padding: 2rem;
-      max-width: 400px;
-      width: 100%;
-      border: 1px solid var(--border);
-      animation: scaleIn 0.3s ease;
-    }
-    
-    @keyframes scaleIn {
-      from { opacity: 0; transform: scale(0.9); }
-      to { opacity: 1; transform: scale(1); }
-    }
-    
-    .modal-title {
-      font-size: 1.5rem;
-      font-weight: 700;
+    .lead-capture-title {
+      font-size: 0.95rem;
+      font-weight: 600;
       text-align: center;
-      margin-bottom: 1.5rem;
+      margin-bottom: 0.75rem;
+      color: var(--text);
     }
     
-    .modal-title span { margin-right: 0.5rem; }
+    .lead-capture-title span { margin-right: 0.25rem; }
     
-    .form-group {
-      margin-bottom: 1rem;
+    .lead-form-inline {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
     }
     
-    .form-input {
-      width: 100%;
+    .lead-form-row {
+      display: flex;
+      gap: 0.5rem;
+    }
+    
+    .form-input-inline {
+      flex: 1;
       background: rgba(255,255,255,0.05);
       border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 0.875rem 1rem;
+      border-radius: 8px;
+      padding: 0.625rem 0.75rem;
       color: var(--text);
-      font-size: 1rem;
+      font-size: 0.875rem;
       outline: none;
       transition: border-color 0.2s;
+      min-width: 0;
     }
     
-    .form-input:focus {
+    .form-input-inline:focus {
       border-color: var(--primary);
     }
     
-    .form-input::placeholder {
+    .form-input-inline::placeholder {
       color: var(--text-muted);
     }
     
-    .submit-btn {
-      width: 100%;
+    .submit-btn-inline {
       background: var(--primary);
       border: none;
-      border-radius: 10px;
-      padding: 1rem;
+      border-radius: 8px;
+      padding: 0.625rem 1rem;
       color: white;
-      font-size: 1rem;
+      font-size: 0.875rem;
       font-weight: 600;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 0.5rem;
+      gap: 0.375rem;
       transition: all 0.2s;
-      margin-top: 1.5rem;
+      white-space: nowrap;
     }
     
-    .submit-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 30px rgba(229,57,53,0.3);
+    .submit-btn-inline:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 5px 15px rgba(229,57,53,0.3);
     }
     
-    .privacy-note {
+    .submit-btn-inline svg {
+      width: 16px;
+      height: 16px;
+    }
+    
+    .privacy-note-inline {
       text-align: center;
       color: var(--text-muted);
-      font-size: 0.85rem;
-      margin-top: 1rem;
+      font-size: 0.7rem;
+      margin-top: 0.375rem;
+    }
+    
+    @media (max-width: 768px) {
+      .lead-form-row {
+        flex-direction: column;
+      }
+      
+      .submit-btn-inline {
+        width: 100%;
+        padding: 0.75rem;
+      }
     }
     ${ctaStyles}
   </style>
 </head>
 <body>
-  <!-- Lead Capture Modal -->
-  <div class="modal-overlay" id="leadModal">
-    <div class="modal">
-      <h2 class="modal-title"><span>💬</span>Join the Chat!</h2>
-      <form id="leadForm">
-        <div class="form-group">
-          <input type="text" class="form-input" id="leadName" placeholder="Your Name" ${config.requireName ? 'required' : ''}>
-        </div>
-        <div class="form-group">
-          <input type="email" class="form-input" id="leadEmail" placeholder="Your Email" ${config.requireEmail ? 'required' : ''}>
-        </div>
-        <button type="submit" class="submit-btn">
-          Start Chatting
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M5 12h14M12 5l7 7-7 7"/>
-          </svg>
-        </button>
-      </form>
-      <p class="privacy-note">🔒 Your info is safe with us</p>
-    </div>
-  </div>
 
   <!-- Countdown Overlay -->
   <div class="overlay" id="countdownOverlay">
@@ -970,7 +953,27 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
     <div class="chat-section">
       <div class="chat-header">💬 Live Chat</div>
       <div class="chat-messages" id="chatMessages"></div>
-      <div class="chat-input-area">
+      
+      <!-- Inline Lead Capture (shown when lead capture is enabled and user hasn't submitted) -->
+      <div class="lead-capture-inline" id="leadCaptureInline">
+        <div class="lead-capture-title"><span>💬</span>Enter your info to chat</div>
+        <form class="lead-form-inline" id="leadForm">
+          <div class="lead-form-row">
+            <input type="text" class="form-input-inline" id="leadName" placeholder="Your Name" ${config.requireName ? 'required' : ''}>
+            <input type="email" class="form-input-inline" id="leadEmail" placeholder="Your Email" ${config.requireEmail ? 'required' : ''}>
+          </div>
+          <button type="submit" class="submit-btn-inline">
+            Start Chatting
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </button>
+        </form>
+        <p class="privacy-note-inline">🔒 Your info is safe with us</p>
+      </div>
+      
+      <!-- Chat Input (shown after lead capture or if disabled) -->
+      <div class="chat-input-area" id="chatInputArea" style="display:none;">
         <div class="chat-input-wrapper">
           <input type="text" class="chat-input" id="chatInput" placeholder="Type a message...">
           <button class="send-btn" onclick="sendMessage()">
@@ -1015,16 +1018,32 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
     let leadId = null;
     let isTyping = false;
     
-    // Check for stored lead data
-    const storedLead = localStorage.getItem('webinar_lead_' + CONFIG.webinarId);
-    if (storedLead) {
-      const parsed = JSON.parse(storedLead);
-      userData = parsed.userData;
-      leadId = parsed.leadId;
-      document.getElementById('leadModal').classList.add('hidden');
-    } else if (!CONFIG.enableLeadCapture) {
-      document.getElementById('leadModal').classList.add('hidden');
+    // Check for stored lead data and toggle inline form visibility
+    function initLeadCapture() {
+      const storedLead = localStorage.getItem('webinar_lead_' + CONFIG.webinarId);
+      if (storedLead) {
+        const parsed = JSON.parse(storedLead);
+        userData = parsed.userData;
+        leadId = parsed.leadId;
+        showChatInput();
+      } else if (!CONFIG.enableLeadCapture) {
+        showChatInput();
+      } else {
+        showLeadForm();
+      }
     }
+    
+    function showLeadForm() {
+      document.getElementById('leadCaptureInline').style.display = 'block';
+      document.getElementById('chatInputArea').style.display = 'none';
+    }
+    
+    function showChatInput() {
+      document.getElementById('leadCaptureInline').style.display = 'none';
+      document.getElementById('chatInputArea').style.display = 'block';
+    }
+    
+    initLeadCapture();
 
     // Save lead to database
     async function saveLeadToDb(name, email) {
@@ -1080,7 +1099,8 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       
       localStorage.setItem('webinar_lead_' + CONFIG.webinarId, JSON.stringify({ userData, leadId }));
       
-      document.getElementById('leadModal').classList.add('hidden');
+      // Show chat input, hide lead form
+      showChatInput();
       
       // Send to webhook if configured
       if (CONFIG.leadWebhookUrl) {
@@ -1337,12 +1357,6 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       const input = document.getElementById('chatInput');
       const message = input.value.trim();
       if (!message) return;
-      
-      // Check if lead capture needed
-      if (CONFIG.enableLeadCapture && !userData) {
-        document.getElementById('leadModal').classList.remove('hidden');
-        return;
-      }
       
       input.value = '';
       addMessage(message, 'user', userData?.name);
