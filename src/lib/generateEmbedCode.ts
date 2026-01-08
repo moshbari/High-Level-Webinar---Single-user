@@ -424,6 +424,7 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       transition: all 0.2s;
       font-size: 1rem;
       text-align: center;
+      z-index: 100;
     }
     
     .unmute-notice svg {
@@ -434,6 +435,25 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
     .unmute-notice:hover {
       background: rgba(0,0,0,0.9);
       transform: translate(-50%, -50%) scale(1.05);
+    }
+    
+    .unmute-notice.muted-off {
+      top: auto;
+      bottom: 1rem;
+      left: 1rem;
+      transform: none;
+      padding: 0.5rem 1rem;
+      flex-direction: row;
+      font-size: 0.85rem;
+    }
+    
+    .unmute-notice.muted-off:hover {
+      transform: scale(1.05);
+    }
+    
+    .unmute-notice.muted-off svg {
+      width: 20px;
+      height: 20px;
     }
     
     .chat-section {
@@ -875,13 +895,18 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
         <video id="webinarVideo" playsinline>
           <source src="${config.videoUrl}" type="video/mp4">
         </video>
-        <div class="unmute-notice" id="unmuteNotice" onclick="unmuteVideo()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <div class="unmute-notice" id="unmuteNotice" onclick="toggleMute()">
+          <svg id="muteIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M11 5L6 9H2v6h4l5 4V5z"/>
             <line x1="23" y1="9" x2="17" y2="15"/>
             <line x1="17" y1="9" x2="23" y2="15"/>
           </svg>
-          <span>Click to unmute</span>
+          <svg id="unmuteIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;">
+            <path d="M11 5L6 9H2v6h4l5 4V5z"/>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+          </svg>
+          <span id="muteText">Click to unmute</span>
         </div>
       </div>
       ${config.ctaStyle === 'banner' ? ctaBannerHtml : ''}
@@ -1148,10 +1173,28 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       document.getElementById('viewerCount').textContent = count;
     }
 
-    function unmuteVideo() {
+    function toggleMute() {
       const video = document.getElementById('webinarVideo');
-      video.muted = false;
-      document.getElementById('unmuteNotice').style.display = 'none';
+      const notice = document.getElementById('unmuteNotice');
+      const muteIcon = document.getElementById('muteIcon');
+      const unmuteIcon = document.getElementById('unmuteIcon');
+      const muteText = document.getElementById('muteText');
+      
+      if (video.muted) {
+        // Unmute the video
+        video.muted = false;
+        muteIcon.style.display = 'none';
+        unmuteIcon.style.display = 'block';
+        muteText.textContent = 'Click to mute';
+        notice.classList.add('muted-off');
+      } else {
+        // Mute the video
+        video.muted = true;
+        muteIcon.style.display = 'block';
+        unmuteIcon.style.display = 'none';
+        muteText.textContent = 'Click to unmute';
+        notice.classList.remove('muted-off');
+      }
     }
 
     function addMessage(content, sender, userName) {
