@@ -145,7 +145,7 @@ export const DEFAULT_WEBINAR_CONFIG: Omit<WebinarConfig, 'id' | 'createdAt' | 'u
   ctaButtonUrl: '',
   ctaButtonColor: '#e53935',
   ctaStyle: 'banner',
-  ctaShowUrgency: false,
+  ctaShowUrgency: true,
   ctaUrgencyText: '⚡ Limited spots available!',
   enableTracking: true,
   trackingWebhookUrl: 'https://moshbari.cloud/webhook/webinar-tracking',
