@@ -498,6 +498,48 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
     
     .unmute-notice:hover {
       background: rgba(0,0,0,0.9);
+    }
+    
+    /* Loading Overlay */
+    .loading-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.9);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1.5rem;
+      z-index: 200;
+    }
+    
+    .loading-overlay.hidden { display: none; }
+    
+    .loading-spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid rgba(255,255,255,0.15);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    .loading-text {
+      font-size: 1rem;
+      color: var(--text-muted);
+      animation: pulse-text 1.5s ease-in-out infinite;
+    }
+    
+    @keyframes pulse-text {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
       transform: translate(-50%, -50%) scale(1.05);
     }
     
@@ -946,6 +988,10 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
           </svg>
           <span>Click to unmute</span>
         </div>
+        <div class="loading-overlay" id="loadingOverlay">
+          <div class="loading-spinner"></div>
+          <span class="loading-text">Joining live session...</span>
+        </div>
       </div>
       ${config.ctaStyle === 'banner' ? ctaBannerHtml : ''}
     </div>
@@ -1191,6 +1237,7 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       document.getElementById('webinarRoom').style.display = 'flex';
       
       const video = document.getElementById('webinarVideo');
+      const loadingOverlay = document.getElementById('loadingOverlay');
       
       function seekToLivePosition() {
         const { elapsed } = getWebinarState();
@@ -1199,6 +1246,8 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
         if (Math.abs(video.currentTime - targetTime) > 2) {
           video.currentTime = targetTime;
         }
+        // Hide loading overlay once synced
+        loadingOverlay.classList.add('hidden');
       }
       
       // Wait for video metadata to load before seeking
