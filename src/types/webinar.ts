@@ -117,7 +117,7 @@ export const TIMEZONES = [
 
 export const DEFAULT_WEBINAR_CONFIG: Omit<WebinarConfig, 'id' | 'createdAt' | 'updatedAt'> = {
   webinarName: '',
-  headerTitle: 'Exclusive Training Session',
+  headerTitle: 'Customers - Exclusive Training Session',
   logoText: 'W',
   videoUrl: '',
   durationSeconds: 13200, // 3 hours 40 minutes
