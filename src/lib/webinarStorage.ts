@@ -35,6 +35,8 @@ const rowToConfig = (row: any): WebinarConfig => ({
   ctaStyle: row.cta_style,
   ctaShowUrgency: row.cta_show_urgency,
   ctaUrgencyText: row.cta_urgency_text,
+  enableTracking: row.enable_tracking ?? true,
+  trackingWebhookUrl: row.tracking_webhook_url ?? 'https://moshbari.cloud/webhook/webinar-tracking',
   primaryColor: row.primary_color,
   backgroundColor: row.background_color,
   chatBackground: row.chat_background,
@@ -75,6 +77,8 @@ const configToRow = (config: Omit<WebinarConfig, 'id' | 'createdAt' | 'updatedAt
   cta_style: config.ctaStyle,
   cta_show_urgency: config.ctaShowUrgency,
   cta_urgency_text: config.ctaUrgencyText,
+  enable_tracking: config.enableTracking,
+  tracking_webhook_url: config.trackingWebhookUrl,
   primary_color: config.primaryColor,
   background_color: config.backgroundColor,
   chat_background: config.chatBackground,
@@ -159,6 +163,8 @@ export const updateWebinar = async (id: string, config: Partial<WebinarConfig>):
   if (rest.ctaStyle !== undefined) updateData.cta_style = rest.ctaStyle;
   if (rest.ctaShowUrgency !== undefined) updateData.cta_show_urgency = rest.ctaShowUrgency;
   if (rest.ctaUrgencyText !== undefined) updateData.cta_urgency_text = rest.ctaUrgencyText;
+  if (rest.enableTracking !== undefined) updateData.enable_tracking = rest.enableTracking;
+  if (rest.trackingWebhookUrl !== undefined) updateData.tracking_webhook_url = rest.trackingWebhookUrl;
   if (rest.primaryColor !== undefined) updateData.primary_color = rest.primaryColor;
   if (rest.backgroundColor !== undefined) updateData.background_color = rest.backgroundColor;
   if (rest.chatBackground !== undefined) updateData.chat_background = rest.chatBackground;

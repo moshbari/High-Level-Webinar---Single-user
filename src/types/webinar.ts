@@ -45,6 +45,10 @@ export interface WebinarConfig {
   ctaShowUrgency: boolean;
   ctaUrgencyText: string;
   
+  // Tracking Settings
+  enableTracking: boolean;
+  trackingWebhookUrl: string;
+  
   // Branding
   primaryColor: string;
   backgroundColor: string;
@@ -143,6 +147,8 @@ export const DEFAULT_WEBINAR_CONFIG: Omit<WebinarConfig, 'id' | 'createdAt' | 'u
   ctaStyle: 'banner',
   ctaShowUrgency: false,
   ctaUrgencyText: '⚡ Limited spots available!',
+  enableTracking: true,
+  trackingWebhookUrl: 'https://moshbari.cloud/webhook/webinar-tracking',
   primaryColor: '#e53935',
   backgroundColor: '#0a0a0f',
   chatBackground: '#12121a',
