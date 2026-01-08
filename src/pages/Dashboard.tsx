@@ -119,29 +119,29 @@ export default function Dashboard() {
     <div className="min-h-screen">
       {/* Header */}
       <header className="border-b border-border/50 bg-card/50 backdrop-blur-xl sticky top-0 z-50">
-        <div className="container mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img src="/favicon.png" alt="GHL Webinar" className="w-10 h-10 rounded-xl" />
+        <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <img src="/favicon.png" alt="GHL Webinar" className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl" />
             <div>
-              <h1 className="font-display font-bold text-xl">GHL Webinar</h1>
-              <p className="text-xs text-muted-foreground">Setup & Embed Generator</p>
+              <h1 className="font-display font-bold text-lg sm:text-xl">GHL Webinar</h1>
+              <p className="text-[10px] sm:text-xs text-muted-foreground hidden sm:block">Setup & Embed Generator</p>
             </div>
           </div>
-          <div className="flex gap-3">
-            <Button variant="secondary" onClick={() => navigate('/chat-history')}>
-              <MessageSquare className="w-4 h-4 mr-2" />
-              Chat History
+          <div className="flex gap-2 sm:gap-3">
+            <Button variant="secondary" size="sm" onClick={() => navigate('/chat-history')} className="h-8 sm:h-9 px-2 sm:px-3">
+              <MessageSquare className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Chat History</span>
             </Button>
-            <Button onClick={() => navigate('/webinar/new')} className="glow-button">
-              <Plus className="w-4 h-4 mr-2" />
-              New Webinar
+            <Button onClick={() => navigate('/webinar/new')} size="sm" className="glow-button h-8 sm:h-9 px-2 sm:px-3">
+              <Plus className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">New Webinar</span>
             </Button>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-6 py-8">
+      <main className="container mx-auto px-4 sm:px-6 py-4 sm:py-8">
         {isLoading || duplicating ? (
           <div className="flex items-center justify-center py-20">
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -166,14 +166,82 @@ export default function Dashboard() {
           </motion.div>
         ) : (
           <>
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="font-display text-xl font-semibold">Your Webinars</h2>
-              <p className="text-sm text-muted-foreground">{webinars.length} webinar(s)</p>
+            <div className="flex items-center justify-between mb-4 sm:mb-6">
+              <h2 className="font-display text-lg sm:text-xl font-semibold">Your Webinars</h2>
+              <p className="text-xs sm:text-sm text-muted-foreground">{webinars.length} webinar(s)</p>
             </div>
+
+            {/* Mobile Card View */}
+            <div className="sm:hidden space-y-3">
+              {webinars.map((webinar) => (
+                <motion.div
+                  key={webinar.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="rounded-xl border border-border bg-card p-4"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="w-12 h-12 rounded-lg bg-primary/10 text-primary flex items-center justify-center font-bold text-sm shrink-0">
+                      {webinar.logoText?.slice(0, 2).toUpperCase() || 'W'}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium truncate">{webinar.webinarName}</p>
+                      <p className="text-sm text-muted-foreground truncate">{webinar.headerTitle}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-end gap-1 mt-3 pt-3 border-t border-border/50">
+                    <TooltipProvider delayDuration={300}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button variant="ghost" size="sm" onClick={() => navigate(`/webinar/${webinar.id}/edit`)} className="h-8 px-2">
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent><p>Edit</p></TooltipContent>
+                      </Tooltip>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button variant="ghost" size="sm" onClick={() => navigate(`/webinar/${webinar.id}/preview`)} className="h-8 px-2">
+                            <Eye className="w-4 h-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent><p>Preview</p></TooltipContent>
+                      </Tooltip>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button variant="ghost" size="sm" onClick={() => handleCopyCode(webinar.id)} className="h-8 px-2">
+                            <Clipboard className="w-4 h-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent><p>Copy code</p></TooltipContent>
+                      </Tooltip>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button variant="ghost" size="sm" onClick={() => handleDuplicate(webinar.id)} className="h-8 px-2">
+                            <Copy className="w-4 h-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent><p>Duplicate</p></TooltipContent>
+                      </Tooltip>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button variant="ghost" size="sm" onClick={() => setDeleteId(webinar.id)} className="h-8 px-2 text-destructive hover:text-destructive hover:bg-destructive/10">
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent><p>Delete</p></TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Desktop Table View */}
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="rounded-xl border border-border bg-card overflow-hidden"
+              className="hidden sm:block rounded-xl border border-border bg-card overflow-hidden"
             >
               <Table>
                 <TableHeader>
@@ -335,7 +403,7 @@ export default function Dashboard() {
 
       {/* Delete Confirmation */}
       <AlertDialog open={!!deleteId} onOpenChange={handleCloseDeleteDialog}>
-        <AlertDialogContent className="glass-card border-border">
+        <AlertDialogContent className="glass-card border-border max-w-[90vw] sm:max-w-lg">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-destructive">⚠️ Delete Webinar?</AlertDialogTitle>
             <AlertDialogDescription className="space-y-3">
@@ -351,11 +419,11 @@ export default function Dashboard() {
               />
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogFooter className="flex-col sm:flex-row gap-2 sm:gap-0">
+            <AlertDialogCancel className="w-full sm:w-auto">Cancel</AlertDialogCancel>
             <AlertDialogAction 
               onClick={handleDelete} 
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="w-full sm:w-auto bg-destructive text-destructive-foreground hover:bg-destructive/90"
               disabled={deleteConfirmText.toLowerCase() !== 'delete' || deleteWebinarMutation.isPending}
             >
               {deleteWebinarMutation.isPending ? 'Deleting...' : 'Delete'}
