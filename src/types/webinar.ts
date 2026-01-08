@@ -121,9 +121,9 @@ export const DEFAULT_WEBINAR_CONFIG: Omit<WebinarConfig, 'id' | 'createdAt' | 'u
   logoText: 'W',
   videoUrl: '',
   durationSeconds: 13200, // 3 hours 40 minutes
-  startHour: 12,
+  startHour: 20,
   startMinute: 0,
-  timezone: 'America/New_York',
+  timezone: 'Asia/Dubai',
   minViewers: 150,
   maxViewers: 300,
   botName: 'Support Team',
