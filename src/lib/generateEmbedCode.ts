@@ -152,47 +152,33 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
     }
     
     @media (max-width: 768px) {
-      /* Mobile CTA - Clean Button-Focused Design */
-      .cta-banner {
-        position: fixed;
-        right: 0;
-        left: 0;
-        bottom: 0;
+      /* Hide desktop fixed CTA on mobile */
+      .cta-banner,
+      .cta-floating {
+        display: none !important;
+      }
+      
+      /* Mobile CTA - Positioned below video */
+      .cta-mobile {
+        display: block !important;
         background: linear-gradient(180deg, #1a1a1a 0%, #111111 100%);
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         padding: 12px 16px;
-        padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
-        z-index: 1000;
-      }
-      
-      .cta-content {
-        flex-direction: column;
-        text-align: center;
-        gap: 8px;
-        align-items: stretch;
-      }
-      
-      .cta-text {
-        display: none;
-      }
-      
-      .cta-headline {
-        display: none;
-      }
-      
-      .cta-subheadline {
-        display: none;
-      }
-      
-      .cta-action {
-        flex-direction: column;
         width: 100%;
-        gap: 8px;
-        align-items: center;
       }
       
-      .cta-button {
+      .cta-mobile.hidden {
+        display: none !important;
+      }
+      
+      .cta-mobile-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+      }
+      
+      .cta-mobile .cta-button {
         display: block;
         width: 100%;
         padding: 14px 24px;
@@ -203,16 +189,13 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
         box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4);
         border-radius: 10px;
         text-align: center;
+        text-decoration: none;
+        color: white;
         animation: mobile-cta-pulse 3s ease-in-out infinite;
         transition: transform 0.2s ease, box-shadow 0.2s ease;
       }
       
-      .cta-button:hover {
-        transform: scale(1.02);
-        box-shadow: 0 6px 25px rgba(220, 38, 38, 0.5);
-      }
-      
-      .cta-button:active {
+      .cta-mobile .cta-button:active {
         transform: scale(0.98);
         box-shadow: 0 2px 10px rgba(220, 38, 38, 0.3);
       }
@@ -226,7 +209,7 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
         }
       }
       
-      .cta-urgency {
+      .cta-mobile .cta-urgency {
         display: block;
         font-size: 12px;
         font-weight: 500;
@@ -234,42 +217,11 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
         text-align: center;
         text-shadow: 0 0 10px rgba(251, 191, 36, 0.3);
       }
-      
-      .cta-floating {
-        position: fixed;
-        right: 0;
-        left: 0;
-        bottom: 0;
-        width: auto;
-        border-radius: 0;
-        background: linear-gradient(180deg, #1a1a1a 0%, #111111 100%);
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
-        padding: 12px 16px;
-        padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
-      }
-      
-      .cta-floating .cta-button {
-        animation: mobile-cta-pulse 3s ease-in-out infinite;
-      }
-      
-      .cta-floating-badge {
-        display: none;
-      }
-      
-      .cta-floating-headline {
-        display: none;
-      }
-      
-      .cta-floating-subheadline {
-        display: none;
-      }
-      
-      .cta-floating .cta-urgency {
-        font-size: 12px;
-        margin-top: 8px;
-        text-shadow: 0 0 10px rgba(251, 191, 36, 0.3);
-      }
+    }
+    
+    /* Hide mobile CTA on desktop */
+    .cta-mobile {
+      display: none;
     }
   ` : '';
 
@@ -296,6 +248,11 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
         document.getElementById('ctaBanner').classList.remove('hidden');
       } else {
         document.getElementById('ctaFloating').classList.remove('hidden');
+      }
+      // Also show mobile CTA
+      const mobileCta = document.getElementById('ctaMobile');
+      if (mobileCta) {
+        mobileCta.classList.remove('hidden');
       }
     }
     
@@ -1058,6 +1015,16 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
         </div>
       </div>
       ${config.ctaStyle === 'banner' ? ctaBannerHtml : ''}
+    </div>
+    
+    <!-- Mobile CTA (positioned between video and chat on mobile) -->
+    ${config.enableCta ? `
+    <div class="cta-mobile hidden" id="ctaMobile">
+      <div class="cta-mobile-content">
+        <a href="${config.ctaButtonUrl}" target="_blank" class="cta-button" onclick="trackCtaClick()">${config.ctaButtonText}</a>
+        ${config.ctaShowUrgency ? `<span class="cta-urgency">${config.ctaUrgencyText}</span>` : ''}
+      </div>
+    </div>` : ''}
     </div>
     
     <div class="chat-section">
