@@ -51,18 +51,18 @@ const App = () => (
           <Route path="/app-settings" element={<ProtectedRoute requireAdmin><AppSettings /></ProtectedRoute>} />
           <Route path="/branding" element={<ProtectedRoute requireAdmin><Branding /></ProtectedRoute>} />
           
-          {/* Existing app routes */}
-          <Route path="/" element={<Index />} />
-          <Route path="/dashboard" element={<ReportingDashboard />} />
-          <Route path="/webinar/new" element={<WebinarEditor />} />
-          <Route path="/webinar/:id/edit" element={<WebinarEditor />} />
-          <Route path="/webinar/:id/code" element={<WebinarCode />} />
-          <Route path="/webinar/:id/preview" element={<WebinarPreviewPage />} />
-          <Route path="/chat-history" element={<ChatHistory />} />
-          <Route path="/chat-history/:webinarId/:sessionDate/:userEmail" element={<ChatDetail />} />
-          <Route path="/live" element={<Live />} />
-          <Route path="/live-chat" element={<LiveChat />} />
-          <Route path="/clips" element={<ClipLibrary />} />
+          {/* Webinar dashboard routes (protected) */}
+          <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+          <Route path="/dashboard" element={<ProtectedRoute><ReportingDashboard /></ProtectedRoute>} />
+          <Route path="/webinar/new" element={<ProtectedRoute><WebinarEditor /></ProtectedRoute>} />
+          <Route path="/webinar/:id/edit" element={<ProtectedRoute><WebinarEditor /></ProtectedRoute>} />
+          <Route path="/webinar/:id/code" element={<ProtectedRoute><WebinarCode /></ProtectedRoute>} />
+          <Route path="/webinar/:id/preview" element={<ProtectedRoute><WebinarPreviewPage /></ProtectedRoute>} />
+          <Route path="/chat-history" element={<ProtectedRoute><ChatHistory /></ProtectedRoute>} />
+          <Route path="/chat-history/:webinarId/:sessionDate/:userEmail" element={<ProtectedRoute><ChatDetail /></ProtectedRoute>} />
+          <Route path="/live" element={<ProtectedRoute><Live /></ProtectedRoute>} />
+          <Route path="/live-chat" element={<ProtectedRoute><LiveChat /></ProtectedRoute>} />
+          <Route path="/clips" element={<ProtectedRoute><ClipLibrary /></ProtectedRoute>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

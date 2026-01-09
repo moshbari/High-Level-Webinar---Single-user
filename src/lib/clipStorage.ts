@@ -1,6 +1,12 @@
 import { supabase } from '@/integrations/supabase/client';
 import { Clip } from '@/types/clip';
 
+// Helper to get current user ID
+const getCurrentUserId = async (): Promise<string | null> => {
+  const { data: { user } } = await supabase.auth.getUser();
+  return user?.id || null;
+};
+
 // Convert database row to Clip
 const rowToClip = (row: any): Clip => ({
   id: row.id,
@@ -84,9 +90,15 @@ export const getClipsByIds = async (ids: string[]): Promise<Clip[]> => {
 };
 
 export const saveClip = async (clip: Omit<Clip, 'id' | 'createdAt' | 'updatedAt'>): Promise<Clip | null> => {
+  const userId = await getCurrentUserId();
+  if (!userId) {
+    console.error('User not authenticated');
+    return null;
+  }
+
   const { data, error } = await supabase
     .from('clips')
-    .insert(clipToRow(clip))
+    .insert({ ...clipToRow(clip), user_id: userId })
     .select()
     .single();
   

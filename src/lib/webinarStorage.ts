@@ -2,6 +2,12 @@ import { supabase } from '@/integrations/supabase/client';
 import { WebinarConfig, DEFAULT_WEBINAR_CONFIG } from '@/types/webinar';
 import { VideoSequenceItem } from '@/types/clip';
 
+// Helper to get current user ID
+const getCurrentUserId = async (): Promise<string | null> => {
+  const { data: { user } } = await supabase.auth.getUser();
+  return user?.id || null;
+};
+
 // Convert database row to WebinarConfig
 const rowToConfig = (row: any): WebinarConfig => ({
   id: row.id,
@@ -157,9 +163,15 @@ export const getWebinar = async (id: string): Promise<WebinarConfig | null> => {
 };
 
 export const saveWebinar = async (config: Omit<WebinarConfig, 'id' | 'createdAt' | 'updatedAt'>): Promise<WebinarConfig | null> => {
+  const userId = await getCurrentUserId();
+  if (!userId) {
+    console.error('User not authenticated');
+    return null;
+  }
+
   const { data, error } = await supabase
     .from('webinars')
-    .insert(configToRow(config) as any)
+    .insert({ ...configToRow(config), user_id: userId } as any)
     .select()
     .single();
   
