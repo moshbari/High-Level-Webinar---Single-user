@@ -1065,7 +1065,9 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
     let userData = null;
     let leadId = null;
     let isTyping = false;
-    
+    let replyPollIntervalId = null;
+    let lastSeenReplyAt = null;
+
     // Check for stored lead data and toggle inline form visibility
     function initLeadCapture() {
       const storedLead = localStorage.getItem('webinar_lead_' + CONFIG.webinarId);
@@ -1074,8 +1076,10 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
         userData = parsed.userData;
         leadId = parsed.leadId;
         showChatInput();
+        startReplyPolling();
       } else if (!CONFIG.enableLeadCapture) {
         showChatInput();
+        startReplyPolling();
       } else {
         showLeadForm();
       }
@@ -1134,6 +1138,37 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       }
     }
 
+    // Poll for human replies (sent from the admin Live Chat)
+    function startReplyPolling() {
+      if (replyPollIntervalId) return;
+
+      replyPollIntervalId = setInterval(async () => {
+        const email = userData?.email;
+        if (!email) return;
+
+        try {
+          const res = await fetch(CONFIG.supabaseUrl + '/functions/v1/check-reply', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              userEmail: email,
+              webinarId: CONFIG.webinarId,
+              lastSeenAt: lastSeenReplyAt,
+            }),
+          });
+
+          const data = await res.json();
+          if (data?.hasReply && data?.reply) {
+            // Dedupe by timestamp so we don’t render the same reply repeatedly
+            if (data.replyAt) lastSeenReplyAt = data.replyAt;
+            addMessage(data.reply, 'bot');
+          }
+        } catch (e) {
+          // fail silently
+        }
+      }, 2000);
+    }
+
     // Lead form submission
     document.getElementById('leadForm').addEventListener('submit', async function(e) {
       e.preventDefault();
@@ -1149,6 +1184,7 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       
       // Show chat input, hide lead form
       showChatInput();
+      startReplyPolling();
       
       // Send to webhook if configured
       if (CONFIG.leadWebhookUrl) {

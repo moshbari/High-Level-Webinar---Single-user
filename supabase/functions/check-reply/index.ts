@@ -13,7 +13,7 @@ serve(async (req) => {
   }
 
   try {
-    const { userEmail, webinarId } = await req.json();
+    const { userEmail, webinarId, lastSeenAt } = await req.json();
 
     if (!userEmail || !webinarId) {
       throw new Error('userEmail and webinarId are required');
@@ -41,56 +41,32 @@ serve(async (req) => {
       );
     }
 
-    // Check if there's a pending reply that has been answered
-    const { data: pendingReply } = await supabase
-      .from('pending_replies')
-      .select('human_response, is_answered')
+    // Prefer checking chat_messages for the latest human response
+    let messageQuery = supabase
+      .from('chat_messages')
+      .select('ai_response, responded_at')
       .eq('session_id', session.id)
-      .eq('is_answered', true)
-      .order('answered_at', { ascending: false })
-      .limit(1)
-      .single();
+      .eq('response_type', 'human')
+      .not('responded_at', 'is', null)
+      .order('responded_at', { ascending: false, nullsFirst: false })
+      .limit(1);
 
-    if (pendingReply && pendingReply.human_response) {
-      // Mark this reply as delivered by removing it or flagging
-      // For now, just return the response
+    if (lastSeenAt) {
+      messageQuery = messageQuery.gt('responded_at', lastSeenAt);
+    }
+
+    const { data: recentHumanMessage } = await messageQuery.maybeSingle();
+
+    if (recentHumanMessage?.ai_response && recentHumanMessage.responded_at) {
       return new Response(
-        JSON.stringify({ 
-          hasReply: true, 
-          reply: pendingReply.human_response,
-          mode: session.mode
+        JSON.stringify({
+          hasReply: true,
+          reply: recentHumanMessage.ai_response,
+          replyAt: recentHumanMessage.responded_at,
+          mode: session.mode,
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
-    }
-
-    // Also check chat_messages for recently answered messages
-    const { data: recentMessage } = await supabase
-      .from('chat_messages')
-      .select('ai_response, response_type, responded_at')
-      .eq('session_id', session.id)
-      .eq('response_type', 'human')
-      .order('responded_at', { ascending: false, nullsFirst: false })
-      .limit(1)
-      .single();
-
-    if (recentMessage && recentMessage.ai_response) {
-      // Check if this was responded within the last minute
-      const respondedAt = new Date(recentMessage.responded_at);
-      const now = new Date();
-      const diffMs = now.getTime() - respondedAt.getTime();
-      const diffSecs = diffMs / 1000;
-
-      if (diffSecs < 60) {
-        return new Response(
-          JSON.stringify({ 
-            hasReply: true, 
-            reply: recentMessage.ai_response,
-            mode: session.mode
-          }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
     }
 
     return new Response(
