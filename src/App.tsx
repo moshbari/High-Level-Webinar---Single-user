@@ -14,7 +14,14 @@ import Live from "./pages/Live";
 import ClipLibrary from "./pages/ClipLibrary";
 import NotFound from "./pages/NotFound";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: true,
+      staleTime: 0,
+    },
+  },
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
