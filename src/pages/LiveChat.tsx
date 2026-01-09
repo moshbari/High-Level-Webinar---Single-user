@@ -136,25 +136,45 @@ export default function LiveChat() {
     setShowQuickReplies(false);
   };
 
-  // Voice Recording
+  // Voice Recording - require minimum 0.5s recording
+  const recordingStartTimeRef = useRef<number>(0);
+  
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const mediaRecorder = new MediaRecorder(stream);
       mediaRecorderRef.current = mediaRecorder;
       audioChunksRef.current = [];
+      recordingStartTimeRef.current = Date.now();
 
       mediaRecorder.ondataavailable = (event) => {
-        audioChunksRef.current.push(event.data);
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
       };
 
       mediaRecorder.onstop = async () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
         stream.getTracks().forEach(track => track.stop());
+        
+        // Check if recording was long enough (at least 500ms)
+        const duration = Date.now() - recordingStartTimeRef.current;
+        if (duration < 500) {
+          toast.error('Hold longer to record (at least 0.5s)');
+          setIsTranscribing(false);
+          return;
+        }
+        
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        if (audioBlob.size < 1000) {
+          toast.error('Recording too short, try again');
+          setIsTranscribing(false);
+          return;
+        }
+        
         await transcribeAudio(audioBlob);
       };
 
-      mediaRecorder.start();
+      mediaRecorder.start(100); // Collect data every 100ms
       setIsRecording(true);
     } catch (error) {
       toast.error('Microphone access denied');

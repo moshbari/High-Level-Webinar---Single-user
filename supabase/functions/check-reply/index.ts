@@ -41,28 +41,37 @@ serve(async (req) => {
       );
     }
 
-    // Prefer checking chat_messages for the latest human response
-    let messageQuery = supabase
+    // Fetch all NEW human replies since lastSeenAt (not just the latest)
+    let query = supabase
       .from('chat_messages')
-      .select('ai_response, responded_at')
+      .select('id, ai_response, responded_at')
       .eq('session_id', session.id)
       .eq('response_type', 'human')
       .not('responded_at', 'is', null)
-      .order('responded_at', { ascending: false, nullsFirst: false })
-      .limit(1);
+      .order('responded_at', { ascending: true });
 
     if (lastSeenAt) {
-      messageQuery = messageQuery.gt('responded_at', lastSeenAt);
+      query = query.gt('responded_at', lastSeenAt);
     }
 
-    const { data: recentHumanMessage } = await messageQuery.maybeSingle();
+    const { data: newHumanMessages } = await query;
 
-    if (recentHumanMessage?.ai_response && recentHumanMessage.responded_at) {
+    if (newHumanMessages && newHumanMessages.length > 0) {
+      // Return all new replies so the viewer can render them
+      const replies = newHumanMessages.map(m => ({
+        id: m.id,
+        text: m.ai_response,
+        at: m.responded_at,
+      }));
+      
+      // Return the latest timestamp so the next poll skips these
+      const latestAt = newHumanMessages[newHumanMessages.length - 1].responded_at;
+      
       return new Response(
         JSON.stringify({
           hasReply: true,
-          reply: recentHumanMessage.ai_response,
-          replyAt: recentHumanMessage.responded_at,
+          replies,
+          replyAt: latestAt,
           mode: session.mode,
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

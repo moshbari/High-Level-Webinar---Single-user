@@ -1139,6 +1139,8 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
     }
 
     // Poll for human replies (sent from the admin Live Chat)
+    const seenReplyIds = new Set();
+    
     function startReplyPolling() {
       if (replyPollIntervalId) return;
 
@@ -1158,15 +1160,22 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
           });
 
           const data = await res.json();
-          if (data?.hasReply && data?.reply) {
-            // Dedupe by timestamp so we don’t render the same reply repeatedly
+          if (data?.hasReply && data?.replies?.length) {
+            // Update timestamp to skip these on next poll
             if (data.replyAt) lastSeenReplyAt = data.replyAt;
-            addMessage(data.reply, 'bot');
+            
+            // Add only new messages (dedupe by id)
+            for (const r of data.replies) {
+              if (!seenReplyIds.has(r.id)) {
+                seenReplyIds.add(r.id);
+                addMessage(r.text, 'bot');
+              }
+            }
           }
         } catch (e) {
           // fail silently
         }
-      }, 2000);
+      }, 3000);
     }
 
     // Lead form submission
