@@ -1077,11 +1077,50 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
         leadId = parsed.leadId;
         showChatInput();
         startReplyPolling();
+        // Load existing chat history on refresh
+        loadChatHistory();
       } else if (!CONFIG.enableLeadCapture) {
         showChatInput();
         startReplyPolling();
       } else {
         showLeadForm();
+      }
+    }
+    
+    // Load chat history from database on page refresh
+    async function loadChatHistory() {
+      const email = userData?.email;
+      if (!email) return;
+      
+      try {
+        const response = await fetch(CONFIG.supabaseUrl + '/rest/v1/chat_messages?webinar_id=eq.' + CONFIG.webinarId + '&user_email=eq.' + encodeURIComponent(email) + '&order=sent_at.asc&limit=50', {
+          method: 'GET',
+          headers: {
+            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhpZHRnanRiaHNrbHR5Z2l4bGpzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc4NzUxNDcsImV4cCI6MjA4MzQ1MTE0N30.4JWUO-4B7EBxSnI0jYx_Xswn7Vb7vnl8ahUMAbgBlx0',
+            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhpZHRnanRiaHNrbHR5Z2l4bGpzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc4NzUxNDcsImV4cCI6MjA4MzQ1MTE0N30.4JWUO-4B7EBxSnI0jYx_Xswn7Vb7vnl8ahUMAbgBlx0'
+          }
+        });
+        
+        const messages = await response.json();
+        if (Array.isArray(messages) && messages.length > 0) {
+          // Track seen reply IDs to avoid duplicates when polling
+          for (const msg of messages) {
+            // Add user message
+            if (msg.user_message) {
+              addMessage(msg.user_message, 'user', userData?.name);
+            }
+            // Add AI/human response
+            if (msg.ai_response) {
+              addMessage(msg.ai_response, 'bot');
+              // Mark as seen to prevent duplicate from polling
+              if (msg.id && msg.response_type === 'human') {
+                seenReplyIds.add(msg.id);
+              }
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load chat history:', error);
       }
     }
     
