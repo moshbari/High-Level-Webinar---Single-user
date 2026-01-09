@@ -380,14 +380,19 @@ export default function LiveChat() {
                     variant="outline"
                     size="icon"
                     className={cn(
-                      "flex-shrink-0",
+                      "flex-shrink-0 touch-none select-none",
                       isRecording && "bg-red-500 text-white hover:bg-red-600"
                     )}
-                    onMouseDown={startRecording}
-                    onMouseUp={stopRecording}
-                    onMouseLeave={stopRecording}
-                    onTouchStart={startRecording}
-                    onTouchEnd={stopRecording}
+                    onPointerDown={(e) => {
+                      e.preventDefault();
+                      e.currentTarget.setPointerCapture(e.pointerId);
+                      startRecording();
+                    }}
+                    onPointerUp={(e) => {
+                      e.currentTarget.releasePointerCapture(e.pointerId);
+                      stopRecording();
+                    }}
+                    onPointerCancel={stopRecording}
                     disabled={isTranscribing}
                   >
                     {isTranscribing ? (
@@ -734,14 +739,19 @@ function MobileConversation({
             variant="outline"
             size="icon"
             className={cn(
-              "h-12 w-12 flex-shrink-0",
+              "h-12 w-12 flex-shrink-0 touch-none select-none",
               isRecording && "bg-red-500 text-white hover:bg-red-600 animate-pulse"
             )}
-            onMouseDown={onStartRecording}
-            onMouseUp={onStopRecording}
-            onMouseLeave={onStopRecording}
-            onTouchStart={onStartRecording}
-            onTouchEnd={onStopRecording}
+            onPointerDown={(e) => {
+              e.preventDefault();
+              e.currentTarget.setPointerCapture(e.pointerId);
+              onStartRecording();
+            }}
+            onPointerUp={(e) => {
+              e.currentTarget.releasePointerCapture(e.pointerId);
+              onStopRecording();
+            }}
+            onPointerCancel={onStopRecording}
             disabled={isTranscribing}
           >
             {isTranscribing ? (
