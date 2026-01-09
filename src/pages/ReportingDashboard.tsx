@@ -8,7 +8,7 @@ import {
 import { 
   Search, Download, Filter, Eye, MessageSquare, Users, MousePointer, 
   TrendingUp, Calendar, ChevronDown, ExternalLink, Play, Clock, 
-  ArrowUpRight, ArrowDownRight, Timer, Percent 
+  ArrowUpRight, ArrowDownRight, Timer, Percent, ArrowLeft 
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -945,9 +945,14 @@ export default function ReportingDashboard() {
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Link to="/" className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center">
-                <Play className="w-5 h-5 text-white fill-white" />
+              <Link 
+                to="/" 
+                className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <ArrowLeft className="w-5 h-5" />
+                <span className="text-sm font-medium">Back</span>
               </Link>
+              <div className="h-6 w-px bg-gray-200" />
               <div>
                 <h1 className="text-xl font-bold text-gray-900">Webinar Dashboard</h1>
                 <p className="text-sm text-gray-500">Analytics & Reporting</p>
