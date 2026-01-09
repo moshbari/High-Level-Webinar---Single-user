@@ -5,7 +5,7 @@ import { getWebinar } from '@/lib/webinarStorage';
 import { generateEmbedCode } from '@/lib/generateEmbedCode';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, Radio, Loader2, MessageSquare, Edit, Eye, Code, Copy, Clipboard, Trash2, Clock, BarChart3 } from 'lucide-react';
+import { Plus, Radio, Loader2, MessageSquare, Edit, Eye, Code, Copy, Clipboard, Trash2, Clock, BarChart3, Headphones } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from '@/hooks/use-toast';
 import { useState, useMemo } from 'react';
@@ -146,6 +146,10 @@ export default function Dashboard() {
             <Button variant="secondary" size="sm" onClick={() => navigate('/chat-history')} className="h-8 sm:h-9 px-2 sm:px-3">
               <MessageSquare className="w-4 h-4 sm:mr-2" />
               <span className="hidden sm:inline">Chat History</span>
+            </Button>
+            <Button variant="secondary" size="sm" onClick={() => navigate('/live-chat')} className="h-8 sm:h-9 px-2 sm:px-3">
+              <Headphones className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Live Chat</span>
             </Button>
             <Button onClick={() => navigate('/webinar/new')} size="sm" className="glow-button h-8 sm:h-9 px-2 sm:px-3">
               <Plus className="w-4 h-4 sm:mr-2" />
