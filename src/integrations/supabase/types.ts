@@ -215,6 +215,7 @@ export type Database = {
           duration_minutes: number
           enable_cta: boolean
           enable_lead_capture: boolean
+          enable_registration_form: boolean | null
           enable_tracking: boolean
           error_message: string
           header_title: string
@@ -224,6 +225,23 @@ export type Database = {
           max_viewers: number
           min_viewers: number
           primary_color: string
+          reg_form_background: string | null
+          reg_form_border_radius: string | null
+          reg_form_button_color: string | null
+          reg_form_button_text: string | null
+          reg_form_email_label: string | null
+          reg_form_email_placeholder: string | null
+          reg_form_ghl_webhook_url: string | null
+          reg_form_headline: string | null
+          reg_form_name_label: string | null
+          reg_form_name_placeholder: string | null
+          reg_form_privacy_text: string | null
+          reg_form_show_datetime: boolean | null
+          reg_form_show_privacy: boolean | null
+          reg_form_subheadline: string | null
+          reg_form_text_color: string | null
+          reg_form_thank_you_url: string | null
+          reg_form_theme: string | null
           require_email: boolean
           require_name: boolean
           start_hour: number
@@ -257,6 +275,7 @@ export type Database = {
           duration_minutes?: number
           enable_cta?: boolean
           enable_lead_capture?: boolean
+          enable_registration_form?: boolean | null
           enable_tracking?: boolean
           error_message?: string
           header_title?: string
@@ -266,6 +285,23 @@ export type Database = {
           max_viewers?: number
           min_viewers?: number
           primary_color?: string
+          reg_form_background?: string | null
+          reg_form_border_radius?: string | null
+          reg_form_button_color?: string | null
+          reg_form_button_text?: string | null
+          reg_form_email_label?: string | null
+          reg_form_email_placeholder?: string | null
+          reg_form_ghl_webhook_url?: string | null
+          reg_form_headline?: string | null
+          reg_form_name_label?: string | null
+          reg_form_name_placeholder?: string | null
+          reg_form_privacy_text?: string | null
+          reg_form_show_datetime?: boolean | null
+          reg_form_show_privacy?: boolean | null
+          reg_form_subheadline?: string | null
+          reg_form_text_color?: string | null
+          reg_form_thank_you_url?: string | null
+          reg_form_theme?: string | null
           require_email?: boolean
           require_name?: boolean
           start_hour?: number
@@ -299,6 +335,7 @@ export type Database = {
           duration_minutes?: number
           enable_cta?: boolean
           enable_lead_capture?: boolean
+          enable_registration_form?: boolean | null
           enable_tracking?: boolean
           error_message?: string
           header_title?: string
@@ -308,6 +345,23 @@ export type Database = {
           max_viewers?: number
           min_viewers?: number
           primary_color?: string
+          reg_form_background?: string | null
+          reg_form_border_radius?: string | null
+          reg_form_button_color?: string | null
+          reg_form_button_text?: string | null
+          reg_form_email_label?: string | null
+          reg_form_email_placeholder?: string | null
+          reg_form_ghl_webhook_url?: string | null
+          reg_form_headline?: string | null
+          reg_form_name_label?: string | null
+          reg_form_name_placeholder?: string | null
+          reg_form_privacy_text?: string | null
+          reg_form_show_datetime?: boolean | null
+          reg_form_show_privacy?: boolean | null
+          reg_form_subheadline?: string | null
+          reg_form_text_color?: string | null
+          reg_form_thank_you_url?: string | null
+          reg_form_theme?: string | null
           require_email?: boolean
           require_name?: boolean
           start_hour?: number

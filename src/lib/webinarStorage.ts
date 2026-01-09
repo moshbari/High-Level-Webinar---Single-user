@@ -8,7 +8,7 @@ const rowToConfig = (row: any): WebinarConfig => ({
   headerTitle: row.header_title,
   logoText: row.logo_text,
   videoUrl: row.video_url,
-  durationSeconds: row.duration_minutes * 60, // Convert from DB minutes to seconds
+  durationSeconds: row.duration_minutes * 60,
   startHour: row.start_hour,
   startMinute: row.start_minute,
   timezone: row.timezone,
@@ -26,7 +26,7 @@ const rowToConfig = (row: any): WebinarConfig => ({
   welcomeMessage: row.welcome_message,
   leadWebhookUrl: row.lead_webhook_url,
   enableCta: row.enable_cta,
-  ctaShowAfterSeconds: row.cta_show_after_minutes * 60, // Convert from DB minutes to seconds
+  ctaShowAfterSeconds: row.cta_show_after_minutes * 60,
   ctaHeadline: row.cta_headline,
   ctaSubheadline: row.cta_subheadline,
   ctaButtonText: row.cta_button_text,
@@ -40,6 +40,25 @@ const rowToConfig = (row: any): WebinarConfig => ({
   primaryColor: row.primary_color,
   backgroundColor: row.background_color,
   chatBackground: row.chat_background,
+  // Registration Form fields
+  enableRegistrationForm: row.enable_registration_form ?? false,
+  regFormHeadline: row.reg_form_headline ?? 'Register for the Free Training',
+  regFormSubheadline: row.reg_form_subheadline ?? 'Save your spot now!',
+  regFormNameLabel: row.reg_form_name_label ?? 'Your Name',
+  regFormNamePlaceholder: row.reg_form_name_placeholder ?? 'Enter your name',
+  regFormEmailLabel: row.reg_form_email_label ?? 'Your Email',
+  regFormEmailPlaceholder: row.reg_form_email_placeholder ?? 'Enter your email',
+  regFormButtonText: row.reg_form_button_text ?? 'Reserve My Seat →',
+  regFormButtonColor: row.reg_form_button_color ?? '#e53935',
+  regFormGhlWebhookUrl: row.reg_form_ghl_webhook_url ?? '',
+  regFormThankYouUrl: row.reg_form_thank_you_url ?? '',
+  regFormShowDatetime: row.reg_form_show_datetime ?? true,
+  regFormBackground: row.reg_form_background ?? '#0a0a0f',
+  regFormTextColor: row.reg_form_text_color ?? '#ffffff',
+  regFormBorderRadius: row.reg_form_border_radius ?? 'rounded',
+  regFormShowPrivacy: row.reg_form_show_privacy ?? true,
+  regFormPrivacyText: row.reg_form_privacy_text ?? 'We respect your privacy. Unsubscribe anytime.',
+  regFormTheme: row.reg_form_theme ?? 'dark',
   createdAt: row.created_at,
   updatedAt: row.updated_at,
 });
@@ -50,7 +69,7 @@ const configToRow = (config: Omit<WebinarConfig, 'id' | 'createdAt' | 'updatedAt
   header_title: config.headerTitle,
   logo_text: config.logoText,
   video_url: config.videoUrl,
-  duration_minutes: Math.ceil(config.durationSeconds / 60), // Convert seconds to minutes for DB
+  duration_minutes: Math.ceil(config.durationSeconds / 60),
   start_hour: config.startHour,
   start_minute: config.startMinute,
   timezone: config.timezone,
@@ -68,7 +87,7 @@ const configToRow = (config: Omit<WebinarConfig, 'id' | 'createdAt' | 'updatedAt
   welcome_message: config.welcomeMessage,
   lead_webhook_url: config.leadWebhookUrl,
   enable_cta: config.enableCta,
-  cta_show_after_minutes: Math.ceil(config.ctaShowAfterSeconds / 60), // Convert seconds to minutes for DB
+  cta_show_after_minutes: Math.ceil(config.ctaShowAfterSeconds / 60),
   cta_headline: config.ctaHeadline,
   cta_subheadline: config.ctaSubheadline,
   cta_button_text: config.ctaButtonText,
@@ -82,6 +101,25 @@ const configToRow = (config: Omit<WebinarConfig, 'id' | 'createdAt' | 'updatedAt
   primary_color: config.primaryColor,
   background_color: config.backgroundColor,
   chat_background: config.chatBackground,
+  // Registration Form fields
+  enable_registration_form: config.enableRegistrationForm,
+  reg_form_headline: config.regFormHeadline,
+  reg_form_subheadline: config.regFormSubheadline,
+  reg_form_name_label: config.regFormNameLabel,
+  reg_form_name_placeholder: config.regFormNamePlaceholder,
+  reg_form_email_label: config.regFormEmailLabel,
+  reg_form_email_placeholder: config.regFormEmailPlaceholder,
+  reg_form_button_text: config.regFormButtonText,
+  reg_form_button_color: config.regFormButtonColor,
+  reg_form_ghl_webhook_url: config.regFormGhlWebhookUrl,
+  reg_form_thank_you_url: config.regFormThankYouUrl,
+  reg_form_show_datetime: config.regFormShowDatetime,
+  reg_form_background: config.regFormBackground,
+  reg_form_text_color: config.regFormTextColor,
+  reg_form_border_radius: config.regFormBorderRadius,
+  reg_form_show_privacy: config.regFormShowPrivacy,
+  reg_form_privacy_text: config.regFormPrivacyText,
+  reg_form_theme: config.regFormTheme,
 });
 
 export const getWebinars = async (): Promise<WebinarConfig[]> => {
@@ -168,6 +206,25 @@ export const updateWebinar = async (id: string, config: Partial<WebinarConfig>):
   if (rest.primaryColor !== undefined) updateData.primary_color = rest.primaryColor;
   if (rest.backgroundColor !== undefined) updateData.background_color = rest.backgroundColor;
   if (rest.chatBackground !== undefined) updateData.chat_background = rest.chatBackground;
+  // Registration Form fields
+  if (rest.enableRegistrationForm !== undefined) updateData.enable_registration_form = rest.enableRegistrationForm;
+  if (rest.regFormHeadline !== undefined) updateData.reg_form_headline = rest.regFormHeadline;
+  if (rest.regFormSubheadline !== undefined) updateData.reg_form_subheadline = rest.regFormSubheadline;
+  if (rest.regFormNameLabel !== undefined) updateData.reg_form_name_label = rest.regFormNameLabel;
+  if (rest.regFormNamePlaceholder !== undefined) updateData.reg_form_name_placeholder = rest.regFormNamePlaceholder;
+  if (rest.regFormEmailLabel !== undefined) updateData.reg_form_email_label = rest.regFormEmailLabel;
+  if (rest.regFormEmailPlaceholder !== undefined) updateData.reg_form_email_placeholder = rest.regFormEmailPlaceholder;
+  if (rest.regFormButtonText !== undefined) updateData.reg_form_button_text = rest.regFormButtonText;
+  if (rest.regFormButtonColor !== undefined) updateData.reg_form_button_color = rest.regFormButtonColor;
+  if (rest.regFormGhlWebhookUrl !== undefined) updateData.reg_form_ghl_webhook_url = rest.regFormGhlWebhookUrl;
+  if (rest.regFormThankYouUrl !== undefined) updateData.reg_form_thank_you_url = rest.regFormThankYouUrl;
+  if (rest.regFormShowDatetime !== undefined) updateData.reg_form_show_datetime = rest.regFormShowDatetime;
+  if (rest.regFormBackground !== undefined) updateData.reg_form_background = rest.regFormBackground;
+  if (rest.regFormTextColor !== undefined) updateData.reg_form_text_color = rest.regFormTextColor;
+  if (rest.regFormBorderRadius !== undefined) updateData.reg_form_border_radius = rest.regFormBorderRadius;
+  if (rest.regFormShowPrivacy !== undefined) updateData.reg_form_show_privacy = rest.regFormShowPrivacy;
+  if (rest.regFormPrivacyText !== undefined) updateData.reg_form_privacy_text = rest.regFormPrivacyText;
+  if (rest.regFormTheme !== undefined) updateData.reg_form_theme = rest.regFormTheme;
 
   const { data, error } = await supabase
     .from('webinars')
