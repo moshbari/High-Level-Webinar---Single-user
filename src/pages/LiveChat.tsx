@@ -348,7 +348,9 @@ export default function LiveChat() {
                       )}
                     </h2>
                     <p className="text-sm text-muted-foreground">{selectedSession.user_email}</p>
-                    <p className="text-xs text-muted-foreground">{selectedSession.webinar_name}</p>
+                    {selectedSession.webinar_name && (
+                      <p className="text-sm text-primary font-medium">{selectedSession.webinar_name}</p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -702,6 +704,9 @@ function MobileConversation({
               )}
             </div>
             <p className="text-xs text-muted-foreground truncate">{session.user_email}</p>
+            {session.webinar_name && (
+              <p className="text-xs text-primary font-medium truncate">{session.webinar_name}</p>
+            )}
           </div>
         </div>
       </div>
