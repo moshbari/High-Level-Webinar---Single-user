@@ -108,7 +108,7 @@ export function ClipPicker({ open, onClose, onSelect, onCreateNew, excludeIds = 
               {filteredClips.map((clip) => (
                 <div
                   key={clip.id}
-                  className="flex items-center gap-3 p-3 rounded-lg hover:bg-secondary/50 cursor-pointer transition-colors group"
+                  className="flex items-center gap-3 p-3 rounded-lg hover:bg-secondary/50 cursor-pointer transition-colors"
                   onClick={() => handleToggle(clip.id)}
                 >
                   <Checkbox
@@ -125,7 +125,9 @@ export function ClipPicker({ open, onClose, onSelect, onCreateNew, excludeIds = 
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive hover:bg-destructive/10"
+                    type="button"
+                    aria-label={`Delete ${clip.name}`}
+                    className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
                     onClick={(e) => handleDelete(e, clip.id, clip.name)}
                   >
                     <Trash2 className="w-4 h-4" />
