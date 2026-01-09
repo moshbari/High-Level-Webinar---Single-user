@@ -82,19 +82,12 @@ export default function ReportingDashboard() {
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ['dashboard-stats', dateFilter, selectedWebinar],
     queryFn: async () => {
-      // Total viewers (unique emails from webinar_events)
-      let viewersQuery = supabase
-        .from('webinar_events')
-        .select('user_email', { count: 'exact' })
-        .gte('created_at', dateFilter.from.toISOString())
-        .lte('created_at', dateFilter.to.toISOString())
-        .eq('event_type', 'join');
-      
-      if (selectedWebinar !== 'all') {
-        viewersQuery = viewersQuery.eq('webinar_id', selectedWebinar);
-      }
-      
-      const { count: viewersCount } = await viewersQuery;
+      // Total unique viewers (count distinct user_email from webinar_events)
+      const { data: viewersCount } = await supabase.rpc('get_unique_viewer_count', {
+        from_date: dateFilter.from.toISOString(),
+        to_date: dateFilter.to.toISOString(),
+        webinar_filter: selectedWebinar === 'all' ? null : selectedWebinar
+      });
 
       // Total leads
       let leadsQuery = supabase
