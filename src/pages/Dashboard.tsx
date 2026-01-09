@@ -1,13 +1,14 @@
 import { useNavigate } from 'react-router-dom';
 import { useWebinars, useDeleteWebinar, useSaveWebinar } from '@/hooks/useWebinars';
+import { useLiveViewerCounts } from '@/hooks/useLiveViewerCounts';
 import { getWebinar } from '@/lib/webinarStorage';
 import { generateEmbedCode } from '@/lib/generateEmbedCode';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, Radio, Loader2, MessageSquare, Edit, Eye, Code, Copy, Clipboard, Trash2, Clock, Users, BarChart3 } from 'lucide-react';
+import { Plus, Radio, Loader2, MessageSquare, Edit, Eye, Code, Copy, Clipboard, Trash2, Clock, BarChart3 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from '@/hooks/use-toast';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { format } from 'date-fns';
 import {
   AlertDialog,
@@ -37,11 +38,21 @@ import {
 export default function Dashboard() {
   const navigate = useNavigate();
   const { data: webinars = [], isLoading, refetch } = useWebinars();
+  const { data: liveViewerCounts = [] } = useLiveViewerCounts(15000);
   const deleteWebinarMutation = useDeleteWebinar();
   const saveWebinarMutation = useSaveWebinar();
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
   const [duplicating, setDuplicating] = useState(false);
+
+  // Create a map of webinar_id to live count for quick lookup
+  const liveCountMap = useMemo(() => {
+    const map = new Map<string, number>();
+    liveViewerCounts.forEach(item => {
+      map.set(item.webinar_id, item.live_count);
+    });
+    return map;
+  }, [liveViewerCounts]);
 
   const handleDelete = async () => {
     if (deleteId) {
@@ -252,7 +263,7 @@ export default function Dashboard() {
                   <TableRow className="hover:bg-transparent">
                     <TableHead className="w-[300px]">Webinar</TableHead>
                     <TableHead>Schedule</TableHead>
-                    <TableHead>Viewers</TableHead>
+                    <TableHead>Watching Now</TableHead>
                     <TableHead>Created</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
@@ -280,8 +291,8 @@ export default function Dashboard() {
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2 text-muted-foreground">
-                          <Users className="w-4 h-4" />
-                          <span className="text-sm">{webinar.minViewers}-{webinar.maxViewers}</span>
+                          <Eye className="w-4 h-4" />
+                          <span className="text-sm font-medium">{liveCountMap.get(webinar.id) ?? 0}</span>
                         </div>
                       </TableCell>
                       <TableCell>

@@ -10,6 +10,7 @@ import WebinarPreviewPage from "./pages/WebinarPreviewPage";
 import ChatHistory from "./pages/ChatHistory";
 import ChatDetail from "./pages/ChatDetail";
 import ReportingDashboard from "./pages/ReportingDashboard";
+import Live from "./pages/Live";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,6 +30,7 @@ const App = () => (
           <Route path="/webinar/:id/preview" element={<WebinarPreviewPage />} />
           <Route path="/chat-history" element={<ChatHistory />} />
           <Route path="/chat-history/:webinarId/:sessionDate/:userEmail" element={<ChatDetail />} />
+          <Route path="/live" element={<Live />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
