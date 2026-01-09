@@ -625,7 +625,7 @@ function MobileChatList({
           <SelectTrigger className="w-full">
             <SelectValue placeholder="All Webinars" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="z-[9999] bg-background border shadow-lg max-h-[300px]">
             <SelectItem value="all">All Webinars</SelectItem>
             {webinars?.map((w: any) => (
               <SelectItem key={w.id} value={w.id}>{w.webinar_name}</SelectItem>
