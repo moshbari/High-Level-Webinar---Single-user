@@ -383,6 +383,7 @@ export type Database = {
           device_type: string | null
           event_type: string
           id: string
+          ip_address: string | null
           session_id: string | null
           user_email: string
           user_name: string | null
@@ -398,6 +399,7 @@ export type Database = {
           device_type?: string | null
           event_type: string
           id?: string
+          ip_address?: string | null
           session_id?: string | null
           user_email: string
           user_name?: string | null
@@ -413,6 +415,7 @@ export type Database = {
           device_type?: string | null
           event_type?: string
           id?: string
+          ip_address?: string | null
           session_id?: string | null
           user_email?: string
           user_name?: string | null

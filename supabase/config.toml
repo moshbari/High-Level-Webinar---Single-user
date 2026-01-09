@@ -14,3 +14,6 @@ verify_jwt = false
 
 [functions.check-reply]
 verify_jwt = false
+
+[functions.track-event]
+verify_jwt = false
