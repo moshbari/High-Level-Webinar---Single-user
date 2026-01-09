@@ -625,6 +625,10 @@ export type Database = {
           webinar_name: string
         }[]
       }
+      get_unique_viewer_count: {
+        Args: { from_date: string; to_date: string; webinar_filter?: string }
+        Returns: number
+      }
     }
     Enums: {
       [_ in never]: never
