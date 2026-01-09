@@ -1,13 +1,14 @@
 import { useState, useMemo } from 'react';
 import { Clip } from '@/types/clip';
 import { formatDuration } from '@/lib/clipStorage';
-import { useClips } from '@/hooks/useClips';
+import { useClips, useDeleteClip } from '@/hooks/useClips';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Search, Plus, Loader2 } from 'lucide-react';
+import { Search, Plus, Loader2, Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface ClipPickerProps {
   open: boolean;
@@ -19,6 +20,7 @@ interface ClipPickerProps {
 
 export function ClipPicker({ open, onClose, onSelect, onCreateNew, excludeIds = [] }: ClipPickerProps) {
   const { data: allClips = [], isLoading } = useClips();
+  const deleteClipMutation = useDeleteClip();
   const [search, setSearch] = useState('');
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
@@ -43,6 +45,22 @@ export function ClipPicker({ open, onClose, onSelect, onCreateNew, excludeIds = 
       newSelected.add(id);
     }
     setSelectedIds(newSelected);
+  };
+
+  const handleDelete = async (e: React.MouseEvent, clipId: string, clipName: string) => {
+    e.stopPropagation();
+    e.preventDefault();
+    
+    if (!confirm(`Delete "${clipName}" from the library?`)) return;
+    
+    try {
+      await deleteClipMutation.mutateAsync(clipId);
+      selectedIds.delete(clipId);
+      setSelectedIds(new Set(selectedIds));
+      toast.success('Clip deleted');
+    } catch (error) {
+      toast.error('Failed to delete clip');
+    }
   };
 
   const handleAdd = () => {
@@ -88,9 +106,10 @@ export function ClipPicker({ open, onClose, onSelect, onCreateNew, excludeIds = 
           ) : (
             <div className="p-2 space-y-1">
               {filteredClips.map((clip) => (
-                <label
+                <div
                   key={clip.id}
-                  className="flex items-center gap-3 p-3 rounded-lg hover:bg-secondary/50 cursor-pointer transition-colors"
+                  className="flex items-center gap-3 p-3 rounded-lg hover:bg-secondary/50 cursor-pointer transition-colors group"
+                  onClick={() => handleToggle(clip.id)}
                 >
                   <Checkbox
                     checked={selectedIds.has(clip.id)}
@@ -103,7 +122,15 @@ export function ClipPicker({ open, onClose, onSelect, onCreateNew, excludeIds = 
                   <span className="text-sm text-muted-foreground whitespace-nowrap">
                     {formatDuration(clip.durationSeconds)}
                   </span>
-                </label>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive hover:bg-destructive/10"
+                    onClick={(e) => handleDelete(e, clip.id, clip.name)}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
               ))}
             </div>
           )}
