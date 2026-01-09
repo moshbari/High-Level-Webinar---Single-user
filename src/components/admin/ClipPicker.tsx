@@ -108,18 +108,19 @@ export function ClipPicker({ open, onClose, onSelect, onCreateNew, excludeIds = 
               {filteredClips.map((clip) => (
                 <div
                   key={clip.id}
-                  className="flex items-center gap-3 p-3 rounded-lg hover:bg-secondary/50 cursor-pointer transition-colors"
+                  className="flex items-center gap-2 p-3 rounded-lg hover:bg-secondary/50 cursor-pointer transition-colors"
                   onClick={() => handleToggle(clip.id)}
                 >
                   <Checkbox
                     checked={selectedIds.has(clip.id)}
                     onCheckedChange={() => handleToggle(clip.id)}
+                    className="shrink-0"
                   />
-                  <div className="flex-1 min-w-0">
+                  <div className="flex-1 min-w-0 overflow-hidden">
                     <p className="font-medium truncate">{clip.name}</p>
                     <p className="text-xs text-muted-foreground truncate">{clip.url}</p>
                   </div>
-                  <span className="text-sm text-muted-foreground whitespace-nowrap">
+                  <span className="text-sm text-muted-foreground whitespace-nowrap shrink-0">
                     {formatDuration(clip.durationSeconds)}
                   </span>
                   <Button
@@ -127,7 +128,7 @@ export function ClipPicker({ open, onClose, onSelect, onCreateNew, excludeIds = 
                     size="icon"
                     type="button"
                     aria-label={`Delete ${clip.name}`}
-                    className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                    className="h-8 w-8 shrink-0 text-destructive hover:text-destructive hover:bg-destructive/10"
                     onClick={(e) => handleDelete(e, clip.id, clip.name)}
                   >
                     <Trash2 className="w-4 h-4" />
