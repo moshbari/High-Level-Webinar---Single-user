@@ -14,13 +14,20 @@ import Live from "./pages/Live";
 import ClipLibrary from "./pages/ClipLibrary";
 import LiveChat from "./pages/LiveChat";
 import NotFound from "./pages/NotFound";
+import Auth from "./pages/Auth";
+import Laboratory from "./pages/Laboratory";
+import Upgrade from "./pages/Upgrade";
+import UpdatePassword from "./pages/UpdatePassword";
+import AppSettings from "./pages/AppSettings";
+import Branding from "./pages/Branding";
+import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: true,
-      staleTime: 1000 * 60, // 1 minute - keeps data fresh during navigation
-      gcTime: 1000 * 60 * 5, // 5 minutes cache time
+      staleTime: 1000 * 60,
+      gcTime: 1000 * 60 * 5,
     },
   },
 });
@@ -32,6 +39,19 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
+          {/* Public routes */}
+          <Route path="/auth" element={<Auth />} />
+          
+          {/* Protected user routes */}
+          <Route path="/laboratory" element={<ProtectedRoute><Laboratory /></ProtectedRoute>} />
+          <Route path="/upgrade" element={<ProtectedRoute><Upgrade /></ProtectedRoute>} />
+          <Route path="/update-password" element={<ProtectedRoute><UpdatePassword /></ProtectedRoute>} />
+          
+          {/* Admin-only routes */}
+          <Route path="/app-settings" element={<ProtectedRoute requireAdmin><AppSettings /></ProtectedRoute>} />
+          <Route path="/branding" element={<ProtectedRoute requireAdmin><Branding /></ProtectedRoute>} />
+          
+          {/* Existing app routes */}
           <Route path="/" element={<Index />} />
           <Route path="/dashboard" element={<ReportingDashboard />} />
           <Route path="/webinar/new" element={<WebinarEditor />} />
@@ -43,7 +63,6 @@ const App = () => (
           <Route path="/live" element={<Live />} />
           <Route path="/live-chat" element={<LiveChat />} />
           <Route path="/clips" element={<ClipLibrary />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
