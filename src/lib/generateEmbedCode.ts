@@ -1527,8 +1527,8 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlndHl0ZXlrcnpyb3JsemJ3bHBsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc3NjkyMzYsImV4cCI6MjA4MzM0NTIzNn0.5Mqob2i6OAqei-W9-pmEhEfKJja4Noy7YDrI6FRu3fM',
-            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlndHl0ZXlrcnpyb3JsemJ3bHBsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc3NjkyMzYsImV4cCI6MjA4MzM0NTIzNn0.5Mqob2i6OAqei-W9-pmEhEfKJja4Noy7YDrI6FRu3fM',
+            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhpZHRnanRiaHNrbHR5Z2l4bGpzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc4NzUxNDcsImV4cCI6MjA4MzQ1MTE0N30.4JWUO-4B7EBxSnI0jYx_Xswn7Vb7vnl8ahUMAbgBlx0',
+            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhpZHRnanRiaHNrbHR5Z2l4bGpzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc4NzUxNDcsImV4cCI6MjA4MzQ1MTE0N30.4JWUO-4B7EBxSnI0jYx_Xswn7Vb7vnl8ahUMAbgBlx0',
             'Prefer': 'return=minimal'
           },
           body: JSON.stringify(payload)
