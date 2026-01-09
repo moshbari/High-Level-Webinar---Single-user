@@ -18,9 +18,13 @@ export type Database = {
         Row: {
           ai_response: string
           id: string
+          is_pending: boolean | null
           lead_id: string | null
+          responded_at: string | null
+          response_type: string | null
           sent_at: string
           session_date: string
+          session_id: string | null
           user_email: string
           user_message: string
           user_name: string
@@ -29,9 +33,13 @@ export type Database = {
         Insert: {
           ai_response: string
           id?: string
+          is_pending?: boolean | null
           lead_id?: string | null
+          responded_at?: string | null
+          response_type?: string | null
           sent_at?: string
           session_date?: string
+          session_id?: string | null
           user_email: string
           user_message: string
           user_name: string
@@ -40,9 +48,13 @@ export type Database = {
         Update: {
           ai_response?: string
           id?: string
+          is_pending?: boolean | null
           lead_id?: string | null
+          responded_at?: string | null
+          response_type?: string | null
           sent_at?: string
           session_date?: string
+          session_id?: string | null
           user_email?: string
           user_message?: string
           user_name?: string
@@ -57,7 +69,77 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "chat_messages_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "chat_sessions"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "chat_messages_webinar_id_fkey"
+            columns: ["webinar_id"]
+            isOneToOne: false
+            referencedRelation: "webinars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_sessions: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          last_message_at: string | null
+          lead_id: string | null
+          mode: string | null
+          returned_to_ai_at: string | null
+          taken_over_at: string | null
+          taken_over_by: string | null
+          updated_at: string | null
+          user_email: string
+          user_name: string | null
+          webinar_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_message_at?: string | null
+          lead_id?: string | null
+          mode?: string | null
+          returned_to_ai_at?: string | null
+          taken_over_at?: string | null
+          taken_over_by?: string | null
+          updated_at?: string | null
+          user_email: string
+          user_name?: string | null
+          webinar_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_message_at?: string | null
+          lead_id?: string | null
+          mode?: string | null
+          returned_to_ai_at?: string | null
+          taken_over_at?: string | null
+          taken_over_by?: string | null
+          updated_at?: string | null
+          user_email?: string
+          user_name?: string | null
+          webinar_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_sessions_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_sessions_webinar_id_fkey"
             columns: ["webinar_id"]
             isOneToOne: false
             referencedRelation: "webinars"
@@ -195,6 +277,103 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      pending_replies: {
+        Row: {
+          answered_at: string | null
+          chat_message_id: string | null
+          created_at: string | null
+          human_response: string | null
+          id: string
+          is_answered: boolean | null
+          session_id: string | null
+          user_email: string | null
+          user_message: string | null
+          user_name: string | null
+          webinar_id: string | null
+        }
+        Insert: {
+          answered_at?: string | null
+          chat_message_id?: string | null
+          created_at?: string | null
+          human_response?: string | null
+          id?: string
+          is_answered?: boolean | null
+          session_id?: string | null
+          user_email?: string | null
+          user_message?: string | null
+          user_name?: string | null
+          webinar_id?: string | null
+        }
+        Update: {
+          answered_at?: string | null
+          chat_message_id?: string | null
+          created_at?: string | null
+          human_response?: string | null
+          id?: string
+          is_answered?: boolean | null
+          session_id?: string | null
+          user_email?: string | null
+          user_message?: string | null
+          user_name?: string | null
+          webinar_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pending_replies_chat_message_id_fkey"
+            columns: ["chat_message_id"]
+            isOneToOne: false
+            referencedRelation: "chat_messages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pending_replies_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "chat_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pending_replies_webinar_id_fkey"
+            columns: ["webinar_id"]
+            isOneToOne: false
+            referencedRelation: "webinars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quick_replies: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          message: string
+          sort_order: number | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          message: string
+          sort_order?: number | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          message?: string
+          sort_order?: number | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       webinar_events: {
         Row: {
