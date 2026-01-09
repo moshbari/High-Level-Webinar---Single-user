@@ -1207,10 +1207,16 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       return { state: 'ended', startTime: todayStart, endTime: todayEnd };
     }
 
+    let countdownIntervalId = null;
+
     function updateCountdown() {
       const { state, startTime } = getWebinarState();
       
       if (state !== 'countdown') {
+        if (countdownIntervalId) {
+          clearInterval(countdownIntervalId);
+          countdownIntervalId = null;
+        }
         document.getElementById('countdownOverlay').classList.add('hidden');
         if (state === 'live') {
           startWebinar();
@@ -1481,7 +1487,9 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
     const trackingState = {
       sessionId: 'sess_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now(),
       sentMilestones: new Set(),
-      lastProgressCheck: 0
+      lastProgressCheck: 0,
+      hasJoined: false,
+      hasLeft: false
     };
 
     function getDeviceType() {
@@ -1549,6 +1557,18 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       }
     }
 
+    function trackJoinOnce() {
+      if (trackingState.hasJoined) return;
+      trackingState.hasJoined = true;
+      sendTrackingEvent('join');
+    }
+
+    function trackLeaveOnce() {
+      if (trackingState.hasLeft) return;
+      trackingState.hasLeft = true;
+      sendTrackingEvent('leave', {}, true);
+    }
+
     function checkProgressMilestones() {
       const { state, elapsed } = getWebinarState();
       if (state !== 'live' || CONFIG.durationSeconds <= 0) return;
@@ -1568,7 +1588,7 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
     const originalStartWebinar = startWebinar;
     startWebinar = function() {
       originalStartWebinar.apply(this, arguments);
-      sendTrackingEvent('join');
+      trackJoinOnce();
       // Start progress checking every 5 seconds
       setInterval(checkProgressMilestones, 5000);
     };
@@ -1593,20 +1613,19 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
 
     // Track leave event
     window.addEventListener('beforeunload', function() {
-      sendTrackingEvent('leave', {}, true);
+      trackLeaveOnce();
     });
 
-    document.addEventListener('visibilitychange', function() {
-      if (document.visibilityState === 'hidden') {
-        sendTrackingEvent('leave', {}, true);
-      }
+    window.addEventListener('pagehide', function() {
+      trackLeaveOnce();
     });
 
     // Initialize
+    trackJoinOnce();
     const { state } = getWebinarState();
     if (state === 'countdown') {
       updateCountdown();
-      setInterval(updateCountdown, 1000);
+      countdownIntervalId = setInterval(updateCountdown, 1000);
     } else if (state === 'live') {
       document.getElementById('countdownOverlay').classList.add('hidden');
       startWebinar();
