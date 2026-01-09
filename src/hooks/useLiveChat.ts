@@ -209,6 +209,8 @@ export function useSendHumanReply() {
       message: string;
       pendingMessageId?: string;
     }) => {
+      const nowIso = new Date().toISOString();
+
       // Get session info
       const { data: session } = await supabase
         .from('chat_sessions')
@@ -218,15 +220,15 @@ export function useSendHumanReply() {
 
       if (!session) throw new Error('Session not found');
 
-      // If there's a pending message, update it with the response
       if (pendingMessageId) {
+        // Update the pending message with the human response
         await supabase
           .from('chat_messages')
           .update({
             ai_response: message,
             response_type: 'human',
             is_pending: false,
-            responded_at: new Date().toISOString(),
+            responded_at: nowIso,
           })
           .eq('id', pendingMessageId);
 
@@ -235,18 +237,30 @@ export function useSendHumanReply() {
           .from('pending_replies')
           .update({
             is_answered: true,
-            answered_at: new Date().toISOString(),
+            answered_at: nowIso,
             human_response: message,
           })
           .eq('chat_message_id', pendingMessageId);
+      } else {
+        // No pending message - insert a new outbound human message
+        await supabase.from('chat_messages').insert({
+          webinar_id: session.webinar_id!,
+          session_id: sessionId,
+          user_name: session.user_name || 'Anonymous',
+          user_email: session.user_email,
+          user_message: '',
+          ai_response: message,
+          response_type: 'human',
+          is_pending: false,
+          responded_at: nowIso,
+          session_date: nowIso.split('T')[0],
+        });
       }
 
       // Update session last_message_at
       await supabase
         .from('chat_sessions')
-        .update({
-          last_message_at: new Date().toISOString(),
-        })
+        .update({ last_message_at: nowIso })
         .eq('id', sessionId);
 
       return { success: true };
