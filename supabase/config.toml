@@ -1,1 +1,16 @@
 project_id = "xidtgjtbhskltygixljs"
+
+[functions.save-lead]
+verify_jwt = false
+
+[functions.save-cta-click]
+verify_jwt = false
+
+[functions.save-chat-message]
+verify_jwt = false
+
+[functions.transcribe-audio]
+verify_jwt = false
+
+[functions.check-reply]
+verify_jwt = false

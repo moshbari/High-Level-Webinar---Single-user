@@ -12,6 +12,7 @@ import ChatDetail from "./pages/ChatDetail";
 import ReportingDashboard from "./pages/ReportingDashboard";
 import Live from "./pages/Live";
 import ClipLibrary from "./pages/ClipLibrary";
+import LiveChat from "./pages/LiveChat";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient({
@@ -40,6 +41,7 @@ const App = () => (
           <Route path="/chat-history" element={<ChatHistory />} />
           <Route path="/chat-history/:webinarId/:sessionDate/:userEmail" element={<ChatDetail />} />
           <Route path="/live" element={<Live />} />
+          <Route path="/live-chat" element={<LiveChat />} />
           <Route path="/clips" element={<ClipLibrary />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
