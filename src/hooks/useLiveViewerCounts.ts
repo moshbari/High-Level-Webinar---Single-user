@@ -11,29 +11,28 @@ export const useLiveViewerCounts = (refreshInterval = 10000) => {
   return useQuery({
     queryKey: ['liveViewerCounts'],
     queryFn: async (): Promise<LiveViewerCount[]> => {
-      // Get today's date in the format the database uses
-      const today = new Date().toISOString().split('T')[0];
+      // Get events from the last 24 hours to ensure we capture all active sessions
+      const now = new Date();
+      const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
       
-      // Get all join events for today
+      // Get all join events from last 24 hours
       const { data: joinEvents, error: joinError } = await supabase
         .from('webinar_events')
         .select('webinar_id, webinar_name, session_id')
         .eq('event_type', 'join')
-        .gte('created_at', `${today}T00:00:00`)
-        .lte('created_at', `${today}T23:59:59`);
+        .gte('created_at', yesterday.toISOString());
 
       if (joinError) {
         console.error('Error fetching join events:', joinError);
         throw joinError;
       }
 
-      // Get all leave events for today
+      // Get all leave events from last 24 hours
       const { data: leaveEvents, error: leaveError } = await supabase
         .from('webinar_events')
         .select('session_id')
         .eq('event_type', 'leave')
-        .gte('created_at', `${today}T00:00:00`)
-        .lte('created_at', `${today}T23:59:59`);
+        .gte('created_at', yesterday.toISOString());
 
       if (leaveError) {
         console.error('Error fetching leave events:', leaveError);
