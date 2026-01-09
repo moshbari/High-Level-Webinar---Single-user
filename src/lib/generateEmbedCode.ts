@@ -152,31 +152,33 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
     }
     
     @media (max-width: 768px) {
+      /* Mobile CTA - Clean Button-Focused Design */
       .cta-banner {
-        position: absolute;
+        position: fixed;
         right: 0;
         left: 0;
         bottom: 0;
-        padding: 0.5rem 0.75rem;
-        z-index: 100;
+        background: linear-gradient(180deg, #1a1a1a 0%, #111111 100%);
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+        padding: 12px 16px;
+        padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+        z-index: 1000;
       }
       
       .cta-content {
-        flex-direction: row;
-        flex-wrap: wrap;
-        text-align: left;
-        gap: 0.5rem;
-        align-items: center;
+        flex-direction: column;
+        text-align: center;
+        gap: 8px;
+        align-items: stretch;
       }
       
       .cta-text {
-        flex: 1;
-        min-width: 0;
+        display: none;
       }
       
       .cta-headline {
-        font-size: 0.85rem;
-        margin-bottom: 0;
+        display: none;
       }
       
       .cta-subheadline {
@@ -184,27 +186,89 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       }
       
       .cta-action {
-        flex-direction: row;
-        width: auto;
-        gap: 0.5rem;
+        flex-direction: column;
+        width: 100%;
+        gap: 8px;
         align-items: center;
       }
       
       .cta-button {
-        padding: 0.5rem 1rem;
-        font-size: 0.8rem;
-        white-space: nowrap;
+        display: block;
+        width: 100%;
+        padding: 14px 24px;
+        font-size: 16px;
+        font-weight: 700;
+        letter-spacing: 0.3px;
+        background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+        box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4);
+        border-radius: 10px;
+        text-align: center;
+        animation: mobile-cta-pulse 3s ease-in-out infinite;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+      
+      .cta-button:hover {
+        transform: scale(1.02);
+        box-shadow: 0 6px 25px rgba(220, 38, 38, 0.5);
+      }
+      
+      .cta-button:active {
+        transform: scale(0.98);
+        box-shadow: 0 2px 10px rgba(220, 38, 38, 0.3);
+      }
+      
+      @keyframes mobile-cta-pulse {
+        0%, 100% {
+          box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4);
+        }
+        50% {
+          box-shadow: 0 4px 25px rgba(220, 38, 38, 0.6);
+        }
       }
       
       .cta-urgency {
-        font-size: 0.7rem;
+        display: block;
+        font-size: 12px;
+        font-weight: 500;
+        color: #fbbf24;
+        text-align: center;
+        text-shadow: 0 0 10px rgba(251, 191, 36, 0.3);
       }
       
       .cta-floating {
-        right: 0.5rem;
-        left: 0.5rem;
+        position: fixed;
+        right: 0;
+        left: 0;
+        bottom: 0;
         width: auto;
-        bottom: calc(env(safe-area-inset-bottom, 0px) + 4.5rem);
+        border-radius: 0;
+        background: linear-gradient(180deg, #1a1a1a 0%, #111111 100%);
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+        padding: 12px 16px;
+        padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+      }
+      
+      .cta-floating .cta-button {
+        animation: mobile-cta-pulse 3s ease-in-out infinite;
+      }
+      
+      .cta-floating-badge {
+        display: none;
+      }
+      
+      .cta-floating-headline {
+        display: none;
+      }
+      
+      .cta-floating-subheadline {
+        display: none;
+      }
+      
+      .cta-floating .cta-urgency {
+        font-size: 12px;
+        margin-top: 8px;
+        text-shadow: 0 0 10px rgba(251, 191, 36, 0.3);
       }
     }
   ` : '';
