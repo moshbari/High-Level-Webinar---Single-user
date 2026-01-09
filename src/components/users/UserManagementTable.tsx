@@ -21,7 +21,6 @@ import {
 } from '@/components/ui/select';
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -29,10 +28,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Search, Pencil, Trash2, ArrowUpDown, Plus, Loader2 } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Search, Pencil, Trash2, ArrowUp, ArrowDown, Plus, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { EditUserModal } from './EditUserModal';
 import { AddUserModal } from './AddUserModal';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 type SortField = 'full_name' | 'email' | 'created_at';
 type SortDirection = 'asc' | 'desc';
@@ -40,12 +41,14 @@ type FilterType = 'all' | 'active' | 'inactive' | 'trial' | 'admin' | 'regular';
 
 export function UserManagementTable() {
   const { users, isLoading, deleteUser, isDeleting } = useUsers();
+  const isMobile = useIsMobile();
   const [searchQuery, setSearchQuery] = useState('');
   const [filter, setFilter] = useState<FilterType>('all');
   const [sortField, setSortField] = useState<SortField>('created_at');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
   const [editingUser, setEditingUser] = useState<UserWithRole | null>(null);
   const [deletingUser, setDeletingUser] = useState<UserWithRole | null>(null);
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   const filteredAndSortedUsers = useMemo(() => {
@@ -110,6 +113,15 @@ export function UserManagementTable() {
     }
   };
 
+  const SortIcon = ({ field }: { field: SortField }) => {
+    if (sortField !== field) return null;
+    return sortDirection === 'asc' ? (
+      <ArrowUp className="h-3 w-3 ml-1" />
+    ) : (
+      <ArrowDown className="h-3 w-3 ml-1" />
+    );
+  };
+
   const getRoleBadgeStyle = (role: AppRole) => {
     switch (role) {
       case 'admin':
@@ -142,10 +154,16 @@ export function UserManagementTable() {
   };
 
   const handleDeleteConfirm = () => {
-    if (deletingUser) {
+    if (deletingUser && deleteConfirmText.toLowerCase() === 'delete') {
       deleteUser(deletingUser.user_id);
       setDeletingUser(null);
+      setDeleteConfirmText('');
     }
+  };
+
+  const handleDeleteCancel = () => {
+    setDeletingUser(null);
+    setDeleteConfirmText('');
   };
 
   if (isLoading) {
@@ -190,103 +208,170 @@ export function UserManagementTable() {
         </div>
       </div>
 
-      {/* Table */}
-      <div className="border rounded-lg overflow-hidden">
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-muted/50">
-                <TableHead className="w-12">#</TableHead>
-                <TableHead>
-                  <button
-                    onClick={() => handleSort('full_name')}
-                    className="flex items-center gap-1 hover:text-primary"
-                  >
-                    Name
-                    <ArrowUpDown className="h-4 w-4" />
-                  </button>
-                </TableHead>
-                <TableHead>
-                  <button
-                    onClick={() => handleSort('email')}
-                    className="flex items-center gap-1 hover:text-primary"
-                  >
-                    Email
-                    <ArrowUpDown className="h-4 w-4" />
-                  </button>
-                </TableHead>
-                <TableHead>Phone</TableHead>
-                <TableHead>Role</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>
-                  <button
-                    onClick={() => handleSort('created_at')}
-                    className="flex items-center gap-1 hover:text-primary"
-                  >
-                    Created
-                    <ArrowUpDown className="h-4 w-4" />
-                  </button>
-                </TableHead>
-                <TableHead>Trial</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredAndSortedUsers.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
-                    No users found
-                  </TableCell>
+      {/* Mobile Card Layout */}
+      {isMobile ? (
+        <div className="space-y-4">
+          {filteredAndSortedUsers.length === 0 ? (
+            <Card>
+              <CardContent className="py-8 text-center text-muted-foreground">
+                No users found
+              </CardContent>
+            </Card>
+          ) : (
+            filteredAndSortedUsers.map((user, index) => (
+              <Card key={user.id} className="overflow-hidden">
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <p className="font-semibold text-lg">{user.full_name}</p>
+                      <p className="text-sm text-muted-foreground">{user.email}</p>
+                      {user.phone && (
+                        <p className="text-sm text-muted-foreground">{user.phone}</p>
+                      )}
+                    </div>
+                    <span className="text-sm text-muted-foreground">#{index + 1}</span>
+                  </div>
+                  
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    <Badge className={getRoleBadgeStyle(user.role)}>
+                      {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+                    </Badge>
+                    <Badge className={getStatusBadgeStyle(user.status)}>
+                      {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
+                    </Badge>
+                    {user.role === 'trial' && (
+                      <Badge variant="outline">
+                        Trial: {getTrialStatus(user)}
+                      </Badge>
+                    )}
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm text-muted-foreground">
+                      Created: {format(new Date(user.created_at), 'MMM dd, yyyy')}
+                    </p>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setEditingUser(user)}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setDeletingUser(user)}
+                        className="text-destructive hover:text-destructive"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          )}
+        </div>
+      ) : (
+        /* Desktop Table Layout */
+        <div className="border rounded-lg overflow-hidden">
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-muted/50">
+                  <TableHead className="w-12">#</TableHead>
+                  <TableHead>
+                    <button
+                      onClick={() => handleSort('full_name')}
+                      className="flex items-center hover:text-primary font-semibold"
+                    >
+                      Name
+                      <SortIcon field="full_name" />
+                    </button>
+                  </TableHead>
+                  <TableHead>
+                    <button
+                      onClick={() => handleSort('email')}
+                      className="flex items-center hover:text-primary font-semibold"
+                    >
+                      Email
+                      <SortIcon field="email" />
+                    </button>
+                  </TableHead>
+                  <TableHead>Phone</TableHead>
+                  <TableHead>Role</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>
+                    <button
+                      onClick={() => handleSort('created_at')}
+                      className="flex items-center hover:text-primary font-semibold"
+                    >
+                      Created
+                      <SortIcon field="created_at" />
+                    </button>
+                  </TableHead>
+                  <TableHead>Trial</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              ) : (
-                filteredAndSortedUsers.map((user, index) => (
-                  <TableRow key={user.id} className="hover:bg-muted/30">
-                    <TableCell className="font-medium">{index + 1}</TableCell>
-                    <TableCell className="font-medium">{user.full_name}</TableCell>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell>{user.phone || '-'}</TableCell>
-                    <TableCell>
-                      <Badge className={getRoleBadgeStyle(user.role)}>
-                        {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={getStatusBadgeStyle(user.status)}>
-                        {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      {format(new Date(user.created_at), 'MMM dd, yyyy')}
-                    </TableCell>
-                    <TableCell>{getTrialStatus(user)}</TableCell>
-                    <TableCell>
-                      <div className="flex items-center justify-end gap-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => setEditingUser(user)}
-                          aria-label="Edit user"
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => setDeletingUser(user)}
-                          aria-label="Delete user"
-                          className="text-destructive hover:text-destructive"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
+              </TableHeader>
+              <TableBody>
+                {filteredAndSortedUsers.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
+                      No users found
                     </TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+                ) : (
+                  filteredAndSortedUsers.map((user, index) => (
+                    <TableRow key={user.id} className="hover:bg-muted/30">
+                      <TableCell className="font-medium">{index + 1}</TableCell>
+                      <TableCell className="font-medium">{user.full_name}</TableCell>
+                      <TableCell>{user.email}</TableCell>
+                      <TableCell>{user.phone || '-'}</TableCell>
+                      <TableCell>
+                        <Badge className={getRoleBadgeStyle(user.role)}>
+                          {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge className={getStatusBadgeStyle(user.status)}>
+                          {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        {format(new Date(user.created_at), 'MMM dd, yyyy')}
+                      </TableCell>
+                      <TableCell>{getTrialStatus(user)}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center justify-end gap-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setEditingUser(user)}
+                            aria-label="Edit user"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setDeletingUser(user)}
+                            aria-label="Delete user"
+                            className="text-destructive hover:text-destructive"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Edit Modal */}
       {editingUser && (
@@ -300,24 +385,39 @@ export function UserManagementTable() {
       {/* Add Modal */}
       <AddUserModal open={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} />
 
-      {/* Delete Confirmation */}
-      <AlertDialog open={!!deletingUser} onOpenChange={() => setDeletingUser(null)}>
+      {/* Delete Confirmation with "type delete" security */}
+      <AlertDialog open={!!deletingUser} onOpenChange={handleDeleteCancel}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete User</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete {deletingUser?.full_name}? This action cannot be undone.
+            <AlertDialogDescription className="space-y-4">
+              <p>
+                Are you sure you want to delete <strong>{deletingUser?.full_name}</strong>? 
+                This action cannot be undone.
+              </p>
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-foreground">
+                  Type "delete" to confirm:
+                </p>
+                <Input
+                  value={deleteConfirmText}
+                  onChange={e => setDeleteConfirmText(e.target.value)}
+                  placeholder="Type 'delete' to confirm"
+                  className="max-w-xs"
+                />
+              </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
+            <AlertDialogCancel onClick={handleDeleteCancel}>Cancel</AlertDialogCancel>
+            <Button
               onClick={handleDeleteConfirm}
               className="bg-destructive hover:bg-destructive/90"
-              disabled={isDeleting}
+              disabled={isDeleting || deleteConfirmText.toLowerCase() !== 'delete'}
             >
-              {isDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Delete'}
-            </AlertDialogAction>
+              {isDeleting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+              Delete
+            </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
