@@ -9,8 +9,10 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
         <h3 class="cta-headline">🔥 ${config.ctaHeadline}</h3>
         <p class="cta-subheadline">${config.ctaSubheadline}</p>
       </div>
+      <!-- Mobile-only headline (shown above button on mobile) -->
+      <h3 class="cta-mobile-headline">🔥 ${config.ctaHeadline}</h3>
       <div class="cta-action">
-        <a href="${config.ctaButtonUrl}" target="_blank" class="cta-button" onclick="trackCtaClick()">${config.ctaButtonText}</a>
+        <a href="${config.ctaButtonUrl}" target="_blank" class="cta-button" onclick="trackCtaClick()"><span class="cta-button-text-full">${config.ctaButtonText}</span><span class="cta-button-text-short">Secure Your Spot Now →</span></a>
         ${config.ctaShowUrgency ? `<span class="cta-urgency">${config.ctaUrgencyText}</span>` : ''}
       </div>
     </div>
@@ -22,7 +24,9 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
     <div class="cta-floating-badge">🎯 SPECIAL OFFER</div>
     <h3 class="cta-floating-headline">${config.ctaHeadline}</h3>
     <p class="cta-floating-subheadline">${config.ctaSubheadline}</p>
-    <a href="${config.ctaButtonUrl}" target="_blank" class="cta-button" onclick="trackCtaClick()">${config.ctaButtonText}</a>
+    <!-- Mobile-only headline (shown above button on mobile) -->
+    <h3 class="cta-mobile-headline">🔥 ${config.ctaHeadline}</h3>
+    <a href="${config.ctaButtonUrl}" target="_blank" class="cta-button" onclick="trackCtaClick()"><span class="cta-button-text-full">${config.ctaButtonText}</span><span class="cta-button-text-short">Secure Your Spot Now →</span></a>
     ${config.ctaShowUrgency ? `<span class="cta-urgency">${config.ctaUrgencyText}</span>` : ''}
   </div>` : '';
 
@@ -98,6 +102,19 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       font-size: 0.9rem;
     }
     
+    /* Mobile headline - hidden on desktop */
+    .cta-mobile-headline {
+      display: none;
+    }
+    
+    /* Button text - show full on desktop, short on mobile */
+    .cta-button-text-full {
+      display: inline;
+    }
+    .cta-button-text-short {
+      display: none;
+    }
+    
     /* CTA Floating Styles */
     .cta-floating {
       position: fixed;
@@ -159,8 +176,9 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
         background: #111111;
         border-top: 1px solid rgba(255, 255, 255, 0.1);
         border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        padding: 12px 16px;
+        padding: 16px;
         z-index: 1;
+        text-align: center;
         /* Remove fixed positioning */
         bottom: auto;
         left: auto;
@@ -171,7 +189,7 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       .cta-content {
         flex-direction: column;
         text-align: center;
-        gap: 8px;
+        gap: 12px;
         align-items: stretch;
       }
       
@@ -187,6 +205,25 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
         display: none;
       }
       
+      /* Mobile headline - show above button */
+      .cta-mobile-headline {
+        display: block;
+        font-size: 16px;
+        font-weight: 700;
+        color: #ffffff;
+        text-align: center;
+        margin: 0 0 12px 0;
+        line-height: 1.3;
+      }
+      
+      /* Button text visibility on mobile */
+      .cta-button-text-full {
+        display: none;
+      }
+      .cta-button-text-short {
+        display: inline;
+      }
+      
       .cta-action {
         flex-direction: column;
         width: 100%;
@@ -197,7 +234,8 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       .cta-button {
         display: block;
         width: 100%;
-        padding: 14px 24px;
+        height: 48px;
+        padding: 0 24px;
         font-size: 16px;
         font-weight: 700;
         letter-spacing: 0.3px;
@@ -205,6 +243,7 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
         box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4);
         border-radius: 10px;
         text-align: center;
+        line-height: 48px;
         animation: mobile-cta-pulse 3s ease-in-out infinite;
         transition: transform 0.2s ease, box-shadow 0.2s ease;
       }
@@ -244,7 +283,8 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
         background: #111111;
         border-top: 1px solid rgba(255, 255, 255, 0.1);
         border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        padding: 12px 16px;
+        padding: 16px;
+        text-align: center;
         /* Remove fixed positioning */
         bottom: auto;
         left: auto;
@@ -252,7 +292,20 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
         box-shadow: none;
       }
       
+      .cta-floating .cta-mobile-headline {
+        display: block;
+        font-size: 16px;
+        font-weight: 700;
+        color: #ffffff;
+        text-align: center;
+        margin: 0 0 12px 0;
+        line-height: 1.3;
+      }
+      
       .cta-floating .cta-button {
+        height: 48px;
+        line-height: 48px;
+        padding: 0 24px;
         animation: mobile-cta-pulse 3s ease-in-out infinite;
       }
       
