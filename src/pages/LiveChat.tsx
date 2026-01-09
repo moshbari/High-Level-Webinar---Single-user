@@ -136,56 +136,62 @@ export default function LiveChat() {
     setShowQuickReplies(false);
   };
 
-  // Voice Recording - require minimum 0.5s recording
+  // Voice Recording - Toggle mode (click to start, click to stop)
   const recordingStartTimeRef = useRef<number>(0);
+  const streamRef = useRef<MediaStream | null>(null);
   
-  const startRecording = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mediaRecorder = new MediaRecorder(stream);
-      mediaRecorderRef.current = mediaRecorder;
-      audioChunksRef.current = [];
-      recordingStartTimeRef.current = Date.now();
+  const toggleRecording = async () => {
+    if (isRecording) {
+      // Stop recording
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+        mediaRecorderRef.current.stop();
+        setIsRecording(false);
+        setIsTranscribing(true);
+      }
+    } else {
+      // Start recording
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        streamRef.current = stream;
+        const mediaRecorder = new MediaRecorder(stream);
+        mediaRecorderRef.current = mediaRecorder;
+        audioChunksRef.current = [];
+        recordingStartTimeRef.current = Date.now();
 
-      mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          audioChunksRef.current.push(event.data);
-        }
-      };
+        mediaRecorder.ondataavailable = (event) => {
+          if (event.data.size > 0) {
+            audioChunksRef.current.push(event.data);
+          }
+        };
 
-      mediaRecorder.onstop = async () => {
-        stream.getTracks().forEach(track => track.stop());
-        
-        // Check if recording was long enough (at least 500ms)
-        const duration = Date.now() - recordingStartTimeRef.current;
-        if (duration < 500) {
-          toast.error('Hold longer to record (at least 0.5s)');
-          setIsTranscribing(false);
-          return;
-        }
-        
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
-        if (audioBlob.size < 1000) {
-          toast.error('Recording too short, try again');
-          setIsTranscribing(false);
-          return;
-        }
-        
-        await transcribeAudio(audioBlob);
-      };
+        mediaRecorder.onstop = async () => {
+          streamRef.current?.getTracks().forEach(track => track.stop());
+          streamRef.current = null;
+          
+          // Check if recording was long enough (at least 500ms)
+          const duration = Date.now() - recordingStartTimeRef.current;
+          if (duration < 500) {
+            toast.error('Record for at least 0.5 seconds');
+            setIsTranscribing(false);
+            return;
+          }
+          
+          const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+          if (audioBlob.size < 1000) {
+            toast.error('Recording too short, try again');
+            setIsTranscribing(false);
+            return;
+          }
+          
+          await transcribeAudio(audioBlob);
+        };
 
-      mediaRecorder.start(100); // Collect data every 100ms
-      setIsRecording(true);
-    } catch (error) {
-      toast.error('Microphone access denied');
-    }
-  };
-
-  const stopRecording = () => {
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
-      mediaRecorderRef.current.stop();
-      setIsRecording(false);
-      setIsTranscribing(true);
+        mediaRecorder.start(100); // Collect data every 100ms
+        setIsRecording(true);
+        toast.info('Recording... Tap again to stop');
+      } catch (error) {
+        toast.error('Microphone access denied');
+      }
     }
   };
 
@@ -234,8 +240,7 @@ export default function LiveChat() {
             onReturnToAI={handleReturnToAI}
             isRecording={isRecording}
             isTranscribing={isTranscribing}
-            onStartRecording={startRecording}
-            onStopRecording={stopRecording}
+            onToggleRecording={toggleRecording}
             quickReplies={quickReplies || []}
             showQuickReplies={showQuickReplies}
             setShowQuickReplies={setShowQuickReplies}
@@ -380,19 +385,10 @@ export default function LiveChat() {
                     variant="outline"
                     size="icon"
                     className={cn(
-                      "flex-shrink-0 touch-none select-none",
-                      isRecording && "bg-red-500 text-white hover:bg-red-600"
+                      "flex-shrink-0",
+                      isRecording && "bg-red-500 text-white hover:bg-red-600 animate-pulse"
                     )}
-                    onPointerDown={(e) => {
-                      e.preventDefault();
-                      e.currentTarget.setPointerCapture(e.pointerId);
-                      startRecording();
-                    }}
-                    onPointerUp={(e) => {
-                      e.currentTarget.releasePointerCapture(e.pointerId);
-                      stopRecording();
-                    }}
-                    onPointerCancel={stopRecording}
+                    onClick={toggleRecording}
                     disabled={isTranscribing}
                   >
                     {isTranscribing ? (
@@ -678,8 +674,7 @@ function MobileConversation({
   onReturnToAI,
   isRecording,
   isTranscribing,
-  onStartRecording,
-  onStopRecording,
+  onToggleRecording,
   quickReplies,
   showQuickReplies,
   setShowQuickReplies,
@@ -739,19 +734,10 @@ function MobileConversation({
             variant="outline"
             size="icon"
             className={cn(
-              "h-12 w-12 flex-shrink-0 touch-none select-none",
+              "h-12 w-12 flex-shrink-0",
               isRecording && "bg-red-500 text-white hover:bg-red-600 animate-pulse"
             )}
-            onPointerDown={(e) => {
-              e.preventDefault();
-              e.currentTarget.setPointerCapture(e.pointerId);
-              onStartRecording();
-            }}
-            onPointerUp={(e) => {
-              e.currentTarget.releasePointerCapture(e.pointerId);
-              onStopRecording();
-            }}
-            onPointerCancel={onStopRecording}
+            onClick={onToggleRecording}
             disabled={isTranscribing}
           >
             {isTranscribing ? (
