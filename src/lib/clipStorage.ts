@@ -131,12 +131,12 @@ export const deleteClip = async (id: string): Promise<boolean> => {
     .from('clips')
     .delete()
     .eq('id', id);
-  
+
   if (error) {
     console.error('Error deleting clip:', error);
-    return false;
+    throw error;
   }
-  
+
   return true;
 };
 
