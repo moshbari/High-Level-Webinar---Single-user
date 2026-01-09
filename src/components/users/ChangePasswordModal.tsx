@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import {
   Dialog,
   DialogContent,
@@ -45,10 +46,32 @@ export function ChangePasswordModal({ userId, open, onClose }: ChangePasswordMod
       
       setIsLoading(true);
       
-      // Note: Admin password change requires a server-side function
-      // For now, we'll show a message that this needs to be done via invite link
-      toast.info('Password change for other users requires sending a password reset email');
+      // Call the edge function to update password
+      const { data: sessionData } = await supabase.auth.getSession();
       
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-update-user`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${sessionData.session?.access_token}`,
+          },
+          body: JSON.stringify({
+            userId,
+            newPassword: formData.password,
+          }),
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        toast.error(result.error || 'Failed to update password');
+        return;
+      }
+      
+      toast.success('Password updated successfully');
       onClose();
       setFormData({ password: '', confirmPassword: '' });
     } catch (error) {
