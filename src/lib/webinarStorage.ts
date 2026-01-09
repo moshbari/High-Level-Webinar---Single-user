@@ -1,5 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 import { WebinarConfig, DEFAULT_WEBINAR_CONFIG } from '@/types/webinar';
+import { VideoSequenceItem } from '@/types/clip';
 
 // Convert database row to WebinarConfig
 const rowToConfig = (row: any): WebinarConfig => ({
@@ -9,6 +10,8 @@ const rowToConfig = (row: any): WebinarConfig => ({
   logoText: row.logo_text,
   videoUrl: row.video_url,
   durationSeconds: row.duration_minutes * 60,
+  videoMode: row.video_mode ?? 'single',
+  videoSequence: (row.video_sequence as VideoSequenceItem[]) ?? [],
   startHour: row.start_hour,
   startMinute: row.start_minute,
   timezone: row.timezone,
@@ -70,6 +73,8 @@ const configToRow = (config: Omit<WebinarConfig, 'id' | 'createdAt' | 'updatedAt
   logo_text: config.logoText,
   video_url: config.videoUrl,
   duration_minutes: Math.ceil(config.durationSeconds / 60),
+  video_mode: config.videoMode,
+  video_sequence: config.videoSequence,
   start_hour: config.startHour,
   start_minute: config.startMinute,
   timezone: config.timezone,
@@ -154,7 +159,7 @@ export const getWebinar = async (id: string): Promise<WebinarConfig | null> => {
 export const saveWebinar = async (config: Omit<WebinarConfig, 'id' | 'createdAt' | 'updatedAt'>): Promise<WebinarConfig | null> => {
   const { data, error } = await supabase
     .from('webinars')
-    .insert(configToRow(config))
+    .insert(configToRow(config) as any)
     .select()
     .single();
   
@@ -175,6 +180,8 @@ export const updateWebinar = async (id: string, config: Partial<WebinarConfig>):
   if (rest.logoText !== undefined) updateData.logo_text = rest.logoText;
   if (rest.videoUrl !== undefined) updateData.video_url = rest.videoUrl;
   if (rest.durationSeconds !== undefined) updateData.duration_minutes = Math.ceil(rest.durationSeconds / 60);
+  if (rest.videoMode !== undefined) updateData.video_mode = rest.videoMode;
+  if (rest.videoSequence !== undefined) updateData.video_sequence = rest.videoSequence;
   if (rest.startHour !== undefined) updateData.start_hour = rest.startHour;
   if (rest.startMinute !== undefined) updateData.start_minute = rest.startMinute;
   if (rest.timezone !== undefined) updateData.timezone = rest.timezone;
