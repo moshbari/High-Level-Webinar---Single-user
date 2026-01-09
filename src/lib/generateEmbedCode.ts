@@ -1396,7 +1396,9 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       const loadingOverlay = document.getElementById('loadingOverlay');
       
       function seekToLivePosition() {
-        const { elapsed } = getWebinarState();
+        const { state, elapsed } = getWebinarState();
+        if (state !== 'live') return;
+        
         const targetTime = elapsed || 0;
         // Only seek if we're more than 2 seconds off to avoid constant seeking
         if (Math.abs(video.currentTime - targetTime) > 2) {
@@ -1418,6 +1420,22 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       
       updateViewerCount();
       setInterval(updateViewerCount, 30000);
+      
+      // Re-sync video when user returns to tab (browser pauses video when tab is hidden)
+      document.addEventListener('visibilitychange', function() {
+        if (document.visibilityState === 'visible') {
+          const { state, elapsed } = getWebinarState();
+          if (state === 'live' && video) {
+            const targetTime = elapsed || 0;
+            // Always re-sync when returning to tab
+            video.currentTime = targetTime;
+            // Resume playback if paused
+            if (video.paused) {
+              video.play().catch(() => {});
+            }
+          }
+        }
+      });
       
       // Check for ended state
       setInterval(() => {
