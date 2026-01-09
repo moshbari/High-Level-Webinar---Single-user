@@ -54,6 +54,26 @@ export interface WebinarConfig {
   backgroundColor: string;
   chatBackground: string;
   
+  // Registration Form Settings
+  enableRegistrationForm: boolean;
+  regFormHeadline: string;
+  regFormSubheadline: string;
+  regFormNameLabel: string;
+  regFormNamePlaceholder: string;
+  regFormEmailLabel: string;
+  regFormEmailPlaceholder: string;
+  regFormButtonText: string;
+  regFormButtonColor: string;
+  regFormGhlWebhookUrl: string;
+  regFormThankYouUrl: string;
+  regFormShowDatetime: boolean;
+  regFormBackground: string;
+  regFormTextColor: string;
+  regFormBorderRadius: 'none' | 'slight' | 'rounded' | 'pill';
+  regFormShowPrivacy: boolean;
+  regFormPrivacyText: string;
+  regFormTheme: 'dark' | 'light';
+  
   // Metadata
   createdAt: string;
   updatedAt: string;
@@ -152,4 +172,23 @@ export const DEFAULT_WEBINAR_CONFIG: Omit<WebinarConfig, 'id' | 'createdAt' | 'u
   primaryColor: '#e53935',
   backgroundColor: '#0a0a0f',
   chatBackground: '#12121a',
+  // Registration Form defaults
+  enableRegistrationForm: false,
+  regFormHeadline: 'Register for the Free Training',
+  regFormSubheadline: 'Save your spot now!',
+  regFormNameLabel: 'Your Name',
+  regFormNamePlaceholder: 'Enter your name',
+  regFormEmailLabel: 'Your Email',
+  regFormEmailPlaceholder: 'Enter your email',
+  regFormButtonText: 'Reserve My Seat →',
+  regFormButtonColor: '#e53935',
+  regFormGhlWebhookUrl: '',
+  regFormThankYouUrl: '',
+  regFormShowDatetime: true,
+  regFormBackground: '#0a0a0f',
+  regFormTextColor: '#ffffff',
+  regFormBorderRadius: 'rounded',
+  regFormShowPrivacy: true,
+  regFormPrivacyText: 'We respect your privacy. Unsubscribe anytime.',
+  regFormTheme: 'dark',
 };

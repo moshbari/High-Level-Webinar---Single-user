@@ -14,8 +14,10 @@ import {
   Palette,
   Info,
   Megaphone,
-  BarChart3
+  BarChart3,
 } from 'lucide-react';
+import { RegistrationFormSettings } from './RegistrationFormSettings';
+import { RegistrationFormPreview } from './RegistrationFormPreview';
 
 interface WebinarFormProps {
   config: Omit<WebinarConfig, 'id' | 'createdAt' | 'updatedAt'>;
@@ -696,6 +698,14 @@ export function WebinarForm({ config, onChange }: WebinarFormProps) {
           </div>
         </CardContent>
       </Card>
+
+      {/* Registration Form */}
+      <RegistrationFormSettings config={config} onChange={onChange} />
+      
+      {/* Registration Form Preview */}
+      {config.enableRegistrationForm && (
+        <RegistrationFormPreview config={config} />
+      )}
     </div>
   );
 }
