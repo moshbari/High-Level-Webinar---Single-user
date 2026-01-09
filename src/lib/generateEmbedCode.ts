@@ -152,18 +152,20 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
     }
     
     @media (max-width: 768px) {
-      /* Mobile CTA - Clean Button-Focused Design */
+      /* Mobile CTA - In-flow design between video and chat */
       .cta-banner {
-        position: fixed;
-        right: 0;
-        left: 0;
-        bottom: 0;
-        background: linear-gradient(180deg, #1a1a1a 0%, #111111 100%);
+        position: relative;
+        width: 100%;
+        background: #111111;
         border-top: 1px solid rgba(255, 255, 255, 0.1);
-        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         padding: 12px 16px;
-        padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
-        z-index: 1000;
+        z-index: 1;
+        /* Remove fixed positioning */
+        bottom: auto;
+        left: auto;
+        right: auto;
+        box-shadow: none;
       }
       
       .cta-content {
@@ -236,17 +238,18 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       }
       
       .cta-floating {
-        position: fixed;
-        right: 0;
-        left: 0;
-        bottom: 0;
-        width: auto;
+        position: relative;
+        width: 100%;
         border-radius: 0;
-        background: linear-gradient(180deg, #1a1a1a 0%, #111111 100%);
+        background: #111111;
         border-top: 1px solid rgba(255, 255, 255, 0.1);
-        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         padding: 12px 16px;
-        padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+        /* Remove fixed positioning */
+        bottom: auto;
+        left: auto;
+        right: auto;
+        box-shadow: none;
       }
       
       .cta-floating .cta-button {
@@ -624,22 +627,38 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       }
       
       .video-section {
-        height: 45vh;
-        height: 45dvh;
+        height: 40vh;
+        height: 40dvh;
         flex: none;
+      }
+      
+      /* Mobile CTA wrapper - sits between video and chat in document flow */
+      .cta-mobile-wrapper {
+        flex: none;
+      }
+      
+      /* Hide desktop floating CTA on mobile */
+      .cta-desktop-floating {
+        display: none;
       }
       
       .chat-section {
         width: 100%;
         min-width: 100%;
         max-width: 100%;
-        height: 55vh;
-        height: 55dvh;
-        flex: none;
+        flex: 1;
+        min-height: 0;
         border-left: none;
         border-top: 1px solid var(--border);
         position: relative;
         z-index: 50;
+      }
+    }
+    
+    /* Desktop: show floating CTA */
+    @media (min-width: 769px) {
+      .cta-mobile-wrapper {
+        display: none;
       }
     }
     
@@ -1057,8 +1076,11 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
           <span class="loading-text">Joining live session...</span>
         </div>
       </div>
-      ${config.ctaStyle === 'banner' ? ctaBannerHtml : ''}
     </div>
+    
+    <!-- CTA Bar - positioned between video and chat for proper mobile flow -->
+    ${config.ctaStyle === 'banner' ? ctaBannerHtml : ''}
+    ${config.ctaStyle === 'floating' ? `<div class="cta-mobile-wrapper">${ctaFloatingHtml.replace('id="ctaFloating"', 'id="ctaMobileFloating"')}</div>` : ''}
     
     <div class="chat-section">
       <div class="chat-header">💬 Live Chat</div>
@@ -1095,7 +1117,8 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       </div>
     </div>
   </div>
-  ${config.ctaStyle === 'floating' ? ctaFloatingHtml : ''}
+  <!-- Desktop-only floating CTA (mobile version is in-flow above) -->
+  <div class="cta-desktop-floating">${config.ctaStyle === 'floating' ? ctaFloatingHtml : ''}</div>
 
   <script>
     const CONFIG = {
