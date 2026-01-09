@@ -1,10 +1,12 @@
 import { WebinarConfig, TIMEZONES } from '@/types/webinar';
+import { VideoMode, VideoSequenceItem } from '@/types/clip';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { 
   Video, 
   Clock, 
@@ -15,9 +17,12 @@ import {
   Info,
   Megaphone,
   BarChart3,
+  Film,
+  Layers,
 } from 'lucide-react';
 import { RegistrationFormSettings } from './RegistrationFormSettings';
 import { RegistrationFormPreview } from './RegistrationFormPreview';
+import { VideoSequenceBuilder } from './VideoSequenceBuilder';
 
 interface WebinarFormProps {
   config: Omit<WebinarConfig, 'id' | 'createdAt' | 'updatedAt'>;
@@ -88,18 +93,115 @@ export function WebinarForm({ config, onChange }: WebinarFormProps) {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="videoUrl">Video URL</Label>
-            <Input
-              id="videoUrl"
-              type="url"
-              value={config.videoUrl}
-              onChange={(e) => updateField('videoUrl', e.target.value)}
-              placeholder="https://example.com/webinar.mp4"
-              className="input-field"
-            />
-            <p className="text-xs text-muted-foreground">Direct MP4 link to your webinar video</p>
+          {/* Video Mode Toggle */}
+          <div className="space-y-3">
+            <Label>Video Mode</Label>
+            <RadioGroup
+              value={config.videoMode}
+              onValueChange={(v) => updateField('videoMode', v as VideoMode)}
+              className="grid grid-cols-2 gap-3"
+            >
+              <label className={`flex items-center gap-3 p-4 rounded-lg border cursor-pointer transition-colors ${config.videoMode === 'single' ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50'}`}>
+                <RadioGroupItem value="single" id="single" />
+                <div>
+                  <div className="flex items-center gap-2 font-medium">
+                    <Video className="w-4 h-4" />
+                    Single Video
+                  </div>
+                  <p className="text-xs text-muted-foreground">One video file</p>
+                </div>
+              </label>
+              <label className={`flex items-center gap-3 p-4 rounded-lg border cursor-pointer transition-colors ${config.videoMode === 'multi' ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50'}`}>
+                <RadioGroupItem value="multi" id="multi" />
+                <div>
+                  <div className="flex items-center gap-2 font-medium">
+                    <Layers className="w-4 h-4" />
+                    Multi-Clip Sequence
+                  </div>
+                  <p className="text-xs text-muted-foreground">Multiple clips</p>
+                </div>
+              </label>
+            </RadioGroup>
           </div>
+
+          {config.videoMode === 'single' ? (
+            <>
+              <div className="space-y-2">
+                <Label htmlFor="videoUrl">Video URL</Label>
+                <Input
+                  id="videoUrl"
+                  type="url"
+                  value={config.videoUrl}
+                  onChange={(e) => updateField('videoUrl', e.target.value)}
+                  placeholder="https://example.com/webinar.mp4"
+                  className="input-field"
+                />
+                <p className="text-xs text-muted-foreground">Direct MP4 link to your webinar video</p>
+              </div>
+              <div className="space-y-2">
+                <Label>Duration</Label>
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="space-y-1">
+                    <Label htmlFor="durationHours" className="text-xs text-muted-foreground">Hours</Label>
+                    <Input
+                      id="durationHours"
+                      type="number"
+                      value={Math.floor((config.durationSeconds || 0) / 3600)}
+                      onChange={(e) => {
+                        const hours = parseInt(e.target.value) || 0;
+                        const currentMinutes = Math.floor(((config.durationSeconds || 0) % 3600) / 60);
+                        const currentSeconds = (config.durationSeconds || 0) % 60;
+                        updateField('durationSeconds', hours * 3600 + currentMinutes * 60 + currentSeconds);
+                      }}
+                      className="input-field"
+                      min={0}
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="durationMinutes" className="text-xs text-muted-foreground">Minutes</Label>
+                    <Input
+                      id="durationMinutes"
+                      type="number"
+                      value={Math.floor(((config.durationSeconds || 0) % 3600) / 60)}
+                      onChange={(e) => {
+                        const minutes = Math.min(59, parseInt(e.target.value) || 0);
+                        const currentHours = Math.floor((config.durationSeconds || 0) / 3600);
+                        const currentSeconds = (config.durationSeconds || 0) % 60;
+                        updateField('durationSeconds', currentHours * 3600 + minutes * 60 + currentSeconds);
+                      }}
+                      className="input-field"
+                      min={0}
+                      max={59}
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="durationSecs" className="text-xs text-muted-foreground">Seconds</Label>
+                    <Input
+                      id="durationSecs"
+                      type="number"
+                      value={(config.durationSeconds || 0) % 60}
+                      onChange={(e) => {
+                        const seconds = Math.min(59, parseInt(e.target.value) || 0);
+                        const currentHours = Math.floor((config.durationSeconds || 0) / 3600);
+                        const currentMinutes = Math.floor(((config.durationSeconds || 0) % 3600) / 60);
+                        updateField('durationSeconds', currentHours * 3600 + currentMinutes * 60 + seconds);
+                      }}
+                      className="input-field"
+                      min={0}
+                      max={59}
+                    />
+                  </div>
+                </div>
+              </div>
+            </>
+          ) : (
+            <VideoSequenceBuilder
+              sequence={config.videoSequence}
+              onChange={(seq) => updateField('videoSequence', seq)}
+            />
+          )}
+        </CardContent>
+      </Card>
           <div className="space-y-2">
             <Label>Duration</Label>
             <div className="grid grid-cols-3 gap-3">
@@ -155,10 +257,6 @@ export function WebinarForm({ config, onChange }: WebinarFormProps) {
               </div>
             </div>
           </div>
-        </CardContent>
-      </Card>
-
-      {/* Schedule Settings */}
       <Card className="glass-card">
         <CardHeader className="pb-4">
           <CardTitle className="flex items-center gap-2 text-lg font-display">

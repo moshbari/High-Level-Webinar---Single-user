@@ -1,3 +1,5 @@
+import { VideoSequenceItem, VideoMode } from './clip';
+
 export interface WebinarConfig {
   id: string;
   // Basic Info
@@ -8,6 +10,8 @@ export interface WebinarConfig {
   // Video
   videoUrl: string;
   durationSeconds: number;
+  videoMode: VideoMode;
+  videoSequence: VideoSequenceItem[];
   
   // Schedule
   startHour: number;
@@ -141,6 +145,8 @@ export const DEFAULT_WEBINAR_CONFIG: Omit<WebinarConfig, 'id' | 'createdAt' | 'u
   logoText: 'W',
   videoUrl: '',
   durationSeconds: 13200, // 3 hours 40 minutes
+  videoMode: 'single',
+  videoSequence: [],
   startHour: 20,
   startMinute: 0,
   timezone: 'Asia/Dubai',

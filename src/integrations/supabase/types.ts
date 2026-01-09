@@ -65,6 +65,54 @@ export type Database = {
           },
         ]
       }
+      clips: {
+        Row: {
+          created_at: string
+          duration_auto_detected: boolean | null
+          duration_seconds: number
+          file_size_mb: number | null
+          id: string
+          is_archived: boolean | null
+          name: string
+          notes: string | null
+          tags: string[] | null
+          thumbnail_url: string | null
+          updated_at: string
+          url: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          duration_auto_detected?: boolean | null
+          duration_seconds: number
+          file_size_mb?: number | null
+          id?: string
+          is_archived?: boolean | null
+          name: string
+          notes?: string | null
+          tags?: string[] | null
+          thumbnail_url?: string | null
+          updated_at?: string
+          url: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          duration_auto_detected?: boolean | null
+          duration_seconds?: number
+          file_size_mb?: number | null
+          id?: string
+          is_archived?: boolean | null
+          name?: string
+          notes?: string | null
+          tags?: string[] | null
+          thumbnail_url?: string | null
+          updated_at?: string
+          url?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       cta_clicks: {
         Row: {
           button_text: string | null
@@ -252,6 +300,8 @@ export type Database = {
           typing_delay_min: number
           updated_at: string
           user_id: string | null
+          video_mode: string | null
+          video_sequence: Json | null
           video_url: string
           webhook_url: string
           webinar_name: string
@@ -312,6 +362,8 @@ export type Database = {
           typing_delay_min?: number
           updated_at?: string
           user_id?: string | null
+          video_mode?: string | null
+          video_sequence?: Json | null
           video_url?: string
           webhook_url?: string
           webinar_name: string
@@ -372,6 +424,8 @@ export type Database = {
           typing_delay_min?: number
           updated_at?: string
           user_id?: string | null
+          video_mode?: string | null
+          video_sequence?: Json | null
           video_url?: string
           webhook_url?: string
           webinar_name?: string
