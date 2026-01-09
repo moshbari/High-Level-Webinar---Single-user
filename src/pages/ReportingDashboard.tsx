@@ -13,7 +13,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { format, subDays, startOfDay, endOfDay } from 'date-fns';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 // Retention curve data - sample structure
 const retentionCurve = [
@@ -44,6 +44,7 @@ const COLORS = ['#6366f1', '#8b5cf6', '#a855f7'];
 type TabType = 'overview' | 'retention' | 'chat history' | 'leads' | 'analytics';
 
 export default function ReportingDashboard() {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<TabType>('overview');
   const [dateRange, setDateRange] = useState('7days');
   const [selectedWebinar, setSelectedWebinar] = useState('all');
@@ -945,13 +946,14 @@ export default function ReportingDashboard() {
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Link 
-                to="/" 
+              <Button 
+                variant="ghost"
+                onClick={() => navigate('/')}
                 className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
               >
                 <ArrowLeft className="w-5 h-5" />
                 <span className="text-sm font-medium">Back</span>
-              </Link>
+              </Button>
               <div className="h-6 w-px bg-gray-200" />
               <div>
                 <h1 className="text-xl font-bold text-gray-900">Webinar Dashboard</h1>
