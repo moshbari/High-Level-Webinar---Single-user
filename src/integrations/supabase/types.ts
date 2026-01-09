@@ -322,7 +322,7 @@ export type Database = {
           {
             foreignKeyName: "pending_replies_chat_message_id_fkey"
             columns: ["chat_message_id"]
-            isOneToOne: false
+            isOneToOne: true
             referencedRelation: "chat_messages"
             referencedColumns: ["id"]
           },
