@@ -628,7 +628,9 @@ function MobileChatList({
           <SelectContent className="z-[9999] bg-background border shadow-lg max-h-[300px]">
             <SelectItem value="all">All Webinars</SelectItem>
             {webinars?.map((w: any) => (
-              <SelectItem key={w.id} value={w.id}>{w.webinar_name}</SelectItem>
+              <SelectItem key={w.id} value={w.id}>
+                {w.webinarName ?? w.webinar_name}
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
