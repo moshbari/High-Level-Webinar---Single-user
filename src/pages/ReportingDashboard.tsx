@@ -82,12 +82,17 @@ export default function ReportingDashboard() {
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ['dashboard-stats', dateFilter, selectedWebinar],
     queryFn: async () => {
-      // Total unique viewers (count distinct user_email from webinar_events)
-      const { data: viewersCount } = await supabase.rpc('get_unique_viewer_count', {
+      // Get both unique IPs and unique sessions for Total Viewers
+      const { data: viewerData } = await supabase.rpc('get_total_viewer_count', {
         from_date: dateFilter.from.toISOString(),
         to_date: dateFilter.to.toISOString(),
         webinar_filter: selectedWebinar === 'all' ? null : selectedWebinar
       });
+
+      // Use the higher of unique_sessions or unique_ips (sessions are more complete for now)
+      const uniqueIps = viewerData?.[0]?.unique_ips || 0;
+      const uniqueSessions = viewerData?.[0]?.unique_sessions || 0;
+      const viewers = Math.max(uniqueIps, uniqueSessions);
 
       // Total leads
       let leadsQuery = supabase
@@ -129,7 +134,9 @@ export default function ReportingDashboard() {
       const { count: ctaCount } = await ctaQuery;
 
       return {
-        viewers: viewersCount || 0,
+        viewers,
+        uniqueIps,
+        uniqueSessions,
         leads: leadsCount || 0,
         messages: messagesCount || 0,
         ctaClicks: ctaCount || 0,

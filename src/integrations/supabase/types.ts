@@ -706,6 +706,13 @@ export type Database = {
           webinar_name: string
         }[]
       }
+      get_total_viewer_count: {
+        Args: { from_date: string; to_date: string; webinar_filter?: string }
+        Returns: {
+          unique_ips: number
+          unique_sessions: number
+        }[]
+      }
       get_unique_viewer_count: {
         Args: { from_date: string; to_date: string; webinar_filter?: string }
         Returns: number
