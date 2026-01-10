@@ -51,8 +51,10 @@ const App = () => (
           <Route path="/app-settings" element={<ProtectedRoute requireAdmin><AppSettings /></ProtectedRoute>} />
           <Route path="/branding" element={<ProtectedRoute requireAdmin><Branding /></ProtectedRoute>} />
           
-          {/* Webinar dashboard routes (protected) */}
+          {/* Redirect root to laboratory */}
           <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+          
+          {/* Webinar dashboard routes (protected) */}
           <Route path="/dashboard" element={<ProtectedRoute><ReportingDashboard /></ProtectedRoute>} />
           <Route path="/webinar/new" element={<ProtectedRoute><WebinarEditor /></ProtectedRoute>} />
           <Route path="/webinar/:id/edit" element={<ProtectedRoute><WebinarEditor /></ProtectedRoute>} />
