@@ -234,6 +234,19 @@ export default function Laboratory() {
                       <p className="text-sm text-muted-foreground truncate">{webinar.headerTitle}</p>
                     </div>
                   </div>
+                  
+                  {/* Watching Now & Schedule */}
+                  <div className="flex items-center gap-4 mt-3 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-1.5">
+                      <Eye className="w-4 h-4" />
+                      <span className="font-medium text-foreground">{liveCountMap.get(webinar.id) ?? 0}</span>
+                      <span className="text-xs">watching</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <Clock className="w-4 h-4" />
+                      <span>{formatTime(webinar.startHour, webinar.startMinute)}</span>
+                    </div>
+                  </div>
                   <div className="flex items-center justify-end gap-1 mt-3 pt-3 border-t border-border/50">
                     <TooltipProvider delayDuration={300}>
                       <Tooltip>
