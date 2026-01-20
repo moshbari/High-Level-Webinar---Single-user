@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { ChevronRight, TrendingUp, TrendingDown, Download, ChevronUp, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { format, subDays } from 'date-fns';
+import { format } from 'date-fns';
 import { MetricTooltip } from '@/components/ui/metric-tooltip';
 
 interface WebinarStat {
@@ -17,31 +17,19 @@ interface WebinarStat {
   trend: number;
 }
 
+interface WebinarPerformanceTableProps {
+  dateFilter: Date | null;
+}
+
 type SortField = 'webinar_name' | 'total_viewers' | 'avg_retention' | 'cta_clicks' | 'click_rate';
 
-export default function WebinarPerformanceTable() {
+export default function WebinarPerformanceTable({ dateFilter }: WebinarPerformanceTableProps) {
   const [sortField, setSortField] = useState<SortField>('total_viewers');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
-  const [timeFilter, setTimeFilter] = useState('7days');
-
-  // Calculate date range based on filter
-  const dateFilter = useMemo(() => {
-    const now = new Date();
-    switch (timeFilter) {
-      case '7days':
-        return subDays(now, 7);
-      case '30days':
-        return subDays(now, 30);
-      case '90days':
-        return subDays(now, 90);
-      default:
-        return null; // All time
-    }
-  }, [timeFilter]);
 
   // Fetch webinar performance data using server-side aggregation (bypasses 1,000-row limit)
   const { data: webinarStats = [], isLoading } = useQuery({
-    queryKey: ['webinar-performance-table', timeFilter],
+    queryKey: ['webinar-performance-table', dateFilter?.toISOString()],
     queryFn: async () => {
       const fromDate = dateFilter?.toISOString() || null;
       const toDate = new Date().toISOString();
@@ -163,16 +151,6 @@ export default function WebinarPerformanceTable() {
             <p className="text-sm text-gray-500 mt-1">Compare metrics across all your webinars</p>
           </div>
           <div className="flex items-center gap-3">
-            <select
-              value={timeFilter}
-              onChange={(e) => setTimeFilter(e.target.value)}
-              className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            >
-              <option value="7days">Last 7 Days</option>
-              <option value="30days">Last 30 Days</option>
-              <option value="90days">Last 90 Days</option>
-              <option value="all">All Time</option>
-            </select>
             <Button variant="outline" size="sm">
               <Download className="w-4 h-4 mr-2" />
               Export
