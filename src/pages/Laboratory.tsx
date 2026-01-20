@@ -118,9 +118,11 @@ export default function Laboratory() {
   };
 
   const formatTime = (hour: number, minute: number) => {
-    const period = hour >= 12 ? 'PM' : 'AM';
-    const displayHour = hour % 12 || 12;
-    return `${displayHour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')} ${period}`;
+    const safeHour = hour ?? 12;
+    const safeMinute = minute ?? 0;
+    const period = safeHour >= 12 ? 'PM' : 'AM';
+    const displayHour = safeHour % 12 || 12;
+    return `${displayHour.toString().padStart(2, '0')}:${safeMinute.toString().padStart(2, '0')} ${period}`;
   };
 
   const handleCopyCode = async (id: string) => {
