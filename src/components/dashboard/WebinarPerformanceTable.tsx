@@ -38,82 +38,33 @@ export default function WebinarPerformanceTable() {
     }
   }, [timeFilter]);
 
-  // Fetch webinar performance data
+  // Fetch webinar performance data using server-side aggregation (bypasses 1,000-row limit)
   const { data: webinarStats = [], isLoading } = useQuery({
     queryKey: ['webinar-performance-table', timeFilter],
     queryFn: async () => {
-      // Fetch all webinars
-      const { data: webinars, error: webinarsError } = await supabase
-        .from('webinars')
-        .select('id, webinar_name, created_at')
-        .order('created_at', { ascending: false });
+      const fromDate = dateFilter?.toISOString() || null;
+      const toDate = new Date().toISOString();
       
-      if (webinarsError) throw webinarsError;
-      if (!webinars || webinars.length === 0) return [];
-
-      // Fetch events with optional date filter
-      let eventsQuery = supabase
-        .from('webinar_events')
-        .select('webinar_id, event_type, session_id, watch_percent');
-      
-      if (dateFilter) {
-        eventsQuery = eventsQuery.gte('created_at', dateFilter.toISOString());
-      }
-      
-      const { data: eventsData } = await eventsQuery;
-
-      // Fetch CTA clicks with optional date filter
-      let ctaQuery = supabase
-        .from('cta_clicks')
-        .select('webinar_id');
-      
-      if (dateFilter) {
-        ctaQuery = ctaQuery.gte('clicked_at', dateFilter.toISOString());
-      }
-      
-      const { data: ctaData } = await ctaQuery;
-
-      // Aggregate stats per webinar
-      const stats: WebinarStat[] = webinars.map((webinar) => {
-        const webinarEvents = eventsData?.filter(e => e.webinar_id === webinar.id) || [];
-        
-        // Count unique viewers (unique session_ids with join events)
-        const uniqueViewers = new Set(
-          webinarEvents
-            .filter(e => e.event_type === 'join' && e.session_id)
-            .map(e => e.session_id)
-        ).size;
-        
-        // Calculate average retention from progress events
-        const progressEvents = webinarEvents.filter(
-          e => e.event_type?.startsWith('progress_') && e.watch_percent
-        );
-        const avgRetention = progressEvents.length > 0
-          ? Math.round(progressEvents.reduce((sum, e) => sum + (e.watch_percent || 0), 0) / progressEvents.length)
-          : 0;
-        
-        // Count CTA clicks for this webinar
-        const ctaClicks = ctaData?.filter(c => c.webinar_id === webinar.id).length || 0;
-        
-        // Calculate click rate
-        const clickRate = uniqueViewers > 0 ? (ctaClicks / uniqueViewers) * 100 : 0;
-
-        // Calculate trend (placeholder - would need historical comparison)
-        const trend = Math.random() > 0.4 ? Math.floor(Math.random() * 20) : -Math.floor(Math.random() * 15);
-
-        return {
-          id: webinar.id,
-          webinar_name: webinar.webinar_name,
-          created_at: webinar.created_at,
-          total_viewers: uniqueViewers,
-          avg_retention: avgRetention,
-          cta_clicks: ctaClicks,
-          click_rate: parseFloat(clickRate.toFixed(1)),
-          trend,
-        };
+      const { data, error } = await supabase.rpc('get_webinar_performance', {
+        from_date: fromDate,
+        to_date: toDate
       });
-
-      return stats;
+      
+      if (error) {
+        console.error('Error fetching webinar performance:', error);
+        throw error;
+      }
+      
+      return (data || []).map((row: any) => ({
+        id: row.webinar_id,
+        webinar_name: row.webinar_name,
+        created_at: row.created_at,
+        total_viewers: Number(row.total_viewers) || 0,
+        avg_retention: Number(row.avg_retention) || 0,
+        cta_clicks: Number(row.cta_clicks) || 0,
+        click_rate: Number(row.click_rate) || 0,
+        trend: Math.random() > 0.4 ? Math.floor(Math.random() * 20) : -Math.floor(Math.random() * 15),
+      }));
     }
   });
 

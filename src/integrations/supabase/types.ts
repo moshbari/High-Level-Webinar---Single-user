@@ -730,6 +730,18 @@ export type Database = {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
       }
+      get_webinar_performance: {
+        Args: { from_date?: string; to_date?: string }
+        Returns: {
+          avg_retention: number
+          click_rate: number
+          created_at: string
+          cta_clicks: number
+          total_viewers: number
+          webinar_id: string
+          webinar_name: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
