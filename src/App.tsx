@@ -20,6 +20,7 @@ import Upgrade from "./pages/Upgrade";
 import UpdatePassword from "./pages/UpdatePassword";
 import AppSettings from "./pages/AppSettings";
 import Branding from "./pages/Branding";
+import AnalyticsHelp from "./pages/AnalyticsHelp";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 
 const queryClient = new QueryClient({
@@ -56,6 +57,7 @@ const App = () => (
           
           {/* Webinar dashboard routes (protected) */}
           <Route path="/dashboard" element={<ProtectedRoute><ReportingDashboard /></ProtectedRoute>} />
+          <Route path="/analytics-help" element={<ProtectedRoute><AnalyticsHelp /></ProtectedRoute>} />
           <Route path="/webinar/new" element={<ProtectedRoute><WebinarEditor /></ProtectedRoute>} />
           <Route path="/webinar/:id/edit" element={<ProtectedRoute><WebinarEditor /></ProtectedRoute>} />
           <Route path="/webinar/:id/code" element={<ProtectedRoute><WebinarCode /></ProtectedRoute>} />

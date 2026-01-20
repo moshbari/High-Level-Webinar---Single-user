@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { ChevronRight, TrendingUp, TrendingDown, Download, ChevronUp, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { format, subDays } from 'date-fns';
+import { MetricTooltip } from '@/components/ui/metric-tooltip';
 
 interface WebinarStat {
   id: string;
@@ -196,32 +197,47 @@ export default function WebinarPerformanceTable() {
                 className="px-6 py-4 text-center text-xs font-semibold text-gray-500 uppercase cursor-pointer hover:bg-gray-100 transition-colors"
                 onClick={() => handleSort('total_viewers')}
               >
-                Total Viewers
-                <SortIcon field="total_viewers" />
+                <div className="inline-flex items-center">
+                  Total Viewers
+                  <MetricTooltip metric="total_viewers" showLearnMore={false} />
+                  <SortIcon field="total_viewers" />
+                </div>
               </th>
               <th 
                 className="px-6 py-4 text-center text-xs font-semibold text-gray-500 uppercase cursor-pointer hover:bg-gray-100 transition-colors"
                 onClick={() => handleSort('avg_retention')}
               >
-                Avg. Retention
-                <SortIcon field="avg_retention" />
+                <div className="inline-flex items-center">
+                  Avg. Retention
+                  <MetricTooltip metric="avg_retention" showLearnMore={false} />
+                  <SortIcon field="avg_retention" />
+                </div>
               </th>
               <th 
                 className="px-6 py-4 text-center text-xs font-semibold text-gray-500 uppercase cursor-pointer hover:bg-gray-100 transition-colors"
                 onClick={() => handleSort('cta_clicks')}
               >
-                CTA Clicks
-                <SortIcon field="cta_clicks" />
+                <div className="inline-flex items-center">
+                  CTA Clicks
+                  <MetricTooltip metric="cta_clicks" showLearnMore={false} />
+                  <SortIcon field="cta_clicks" />
+                </div>
               </th>
               <th 
                 className="px-6 py-4 text-center text-xs font-semibold text-gray-500 uppercase cursor-pointer hover:bg-gray-100 transition-colors"
                 onClick={() => handleSort('click_rate')}
               >
-                Click Rate
-                <SortIcon field="click_rate" />
+                <div className="inline-flex items-center">
+                  Click Rate
+                  <MetricTooltip metric="click_rate" showLearnMore={false} />
+                  <SortIcon field="click_rate" />
+                </div>
               </th>
               <th className="px-6 py-4 text-center text-xs font-semibold text-gray-500 uppercase">
-                Trend
+                <div className="inline-flex items-center">
+                  Trend
+                  <MetricTooltip metric="trend" showLearnMore={false} />
+                </div>
               </th>
               <th className="px-4 py-4 text-right text-xs font-semibold text-gray-500 uppercase">
                 {/* Action column */}
