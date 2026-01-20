@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { format, subDays, startOfDay, endOfDay } from 'date-fns';
 import { Link, useNavigate } from 'react-router-dom';
+import WebinarPerformanceTable from '@/components/dashboard/WebinarPerformanceTable';
 
 // Retention curve data - sample structure
 const retentionCurve = [
@@ -571,8 +572,13 @@ export default function ReportingDashboard() {
         </ResponsiveContainer>
       </div>
 
+      {/* Webinar Performance Table */}
+      <div className="mt-8">
+        <WebinarPerformanceTable />
+      </div>
+
       {/* Bottom Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
         {/* Recent Chats */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="p-6 border-b border-gray-100">
