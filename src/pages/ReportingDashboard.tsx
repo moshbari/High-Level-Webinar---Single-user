@@ -232,114 +232,35 @@ export default function ReportingDashboard() {
     enabled: activeTab === 'chat history'
   });
 
-  // Daily performance data
+  // Daily performance data - using server-side aggregation to bypass 1000-row limit
+  // Groups by Dubai timezone (Asia/Dubai) for day boundaries
   const { data: dailyPerformance = [] } = useQuery({
     queryKey: ['daily-performance', dateFilter, selectedWebinar],
     queryFn: async () => {
-      // Get viewer data from webinar_events
-      let eventsQuery = supabase
-        .from('webinar_events')
-        .select('created_at, session_id, watch_percent, event_type')
-        .gte('created_at', dateFilter.from.toISOString())
-        .lte('created_at', dateFilter.to.toISOString());
-      
-      if (selectedWebinar !== 'all') {
-        eventsQuery = eventsQuery.eq('webinar_id', selectedWebinar);
-      }
-      
-      const { data: events } = await eventsQuery;
-      
-      // Get leads data
-      let leadsQuery = supabase
-        .from('leads')
-        .select('captured_at')
-        .gte('captured_at', dateFilter.from.toISOString())
-        .lte('captured_at', dateFilter.to.toISOString());
-      
-      if (selectedWebinar !== 'all') {
-        leadsQuery = leadsQuery.eq('webinar_id', selectedWebinar);
-      }
-      
-      const { data: leads } = await leadsQuery;
-      
-      // Group by actual date (YYYY-MM-DD) - using UTC to match database
-      const dayMap = new Map<string, { 
-        sessions: Set<string>; 
-        leads: number; 
-        retentionSum: number; 
-        retentionCount: number 
-      }>();
-      
-      // Helper to get UTC date key (YYYY-MM-DD) from ISO string
-      const getDateKey = (isoString: string) => isoString.split('T')[0];
-      
-      // Process events for viewers and retention
-      events?.forEach(event => {
-        const dateKey = getDateKey(event.created_at);
-        
-        if (!dayMap.has(dateKey)) {
-          dayMap.set(dateKey, { 
-            sessions: new Set(), 
-            leads: 0, 
-            retentionSum: 0, 
-            retentionCount: 0 
-          });
-        }
-        
-        const dayData = dayMap.get(dateKey)!;
-        
-        if (event.event_type === 'join' && event.session_id) {
-          dayData.sessions.add(event.session_id);
-        }
-        
-        if (event.event_type?.startsWith('progress_') && event.watch_percent) {
-          dayData.retentionSum += event.watch_percent;
-          dayData.retentionCount++;
-        }
+      const { data, error } = await supabase.rpc('get_daily_performance', {
+        from_date: dateFilter.from.toISOString(),
+        to_date: dateFilter.to.toISOString(),
+        webinar_filter: selectedWebinar === 'all' ? null : selectedWebinar
       });
       
-      // Process leads
-      leads?.forEach(lead => {
-        const dateKey = getDateKey(lead.captured_at);
-        
-        if (!dayMap.has(dateKey)) {
-          dayMap.set(dateKey, { 
-            sessions: new Set(), 
-            leads: 0, 
-            retentionSum: 0, 
-            retentionCount: 0 
-          });
-        }
-        dayMap.get(dateKey)!.leads++;
-      });
+      if (error) {
+        console.error('Daily performance error:', error);
+        throw error;
+      }
       
-      // Generate last 7 days in order (oldest to newest) - using UTC dates
+      // Convert to chart format with day names
       const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-      const result = [];
-      const now = new Date();
       
-      for (let i = 6; i >= 0; i--) {
-        // Create date in UTC to match database storage
-        const date = new Date(Date.UTC(
-          now.getUTCFullYear(),
-          now.getUTCMonth(),
-          now.getUTCDate() - i
-        ));
-        const dateKey = date.toISOString().split('T')[0];
-        const data = dayMap.get(dateKey);
-        const dayName = days[date.getUTCDay()];
-        
-        result.push({
-          day: dayName,
-          viewers: data?.sessions.size || 0,
-          leads: data?.leads || 0,
-          retention: data?.retentionCount 
-            ? Math.round(data.retentionSum / data.retentionCount) 
-            : 0,
-        });
-      }
-      
-      return result;
+      return (data || []).map((row: { day_date: string; unique_viewers: number; leads_count: number; avg_retention: number }) => {
+        const date = new Date(row.day_date + 'T12:00:00'); // Noon to avoid timezone edge cases
+        return {
+          day: days[date.getDay()],
+          date: row.day_date, // Keep full date for tooltip/labels
+          viewers: Number(row.unique_viewers) || 0,
+          leads: Number(row.leads_count) || 0,
+          retention: Math.round(Number(row.avg_retention) || 0),
+        };
+      });
     }
   });
 
@@ -628,7 +549,9 @@ export default function ReportingDashboard() {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h3 className="text-lg font-semibold text-gray-900">📊 Daily Performance</h3>
-            <p className="text-sm text-gray-500">Viewers, leads, and retention this week</p>
+            <p className="text-sm text-gray-500">
+              Viewers, leads, and retention {dailyPerformance.length > 7 ? `(${dailyPerformance.length} days)` : 'this week'} — Dubai time
+            </p>
           </div>
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-2">
@@ -648,7 +571,19 @@ export default function ReportingDashboard() {
         <ResponsiveContainer width="100%" height={280}>
           <ComposedChart data={dailyPerformance}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-            <XAxis dataKey="day" stroke="#94a3b8" fontSize={12} />
+            <XAxis 
+              dataKey={dailyPerformance.length > 7 ? "date" : "day"} 
+              stroke="#94a3b8" 
+              fontSize={12}
+              tickFormatter={(value) => {
+                if (dailyPerformance.length > 7 && value.includes('-')) {
+                  // Show "Jan 15" format for longer ranges
+                  const date = new Date(value + 'T12:00:00');
+                  return format(date, 'MMM d');
+                }
+                return value; // Day name for 7 days or less
+              }}
+            />
             <YAxis yAxisId="left" stroke="#94a3b8" fontSize={12} />
             <YAxis yAxisId="right" orientation="right" stroke="#94a3b8" fontSize={12} domain={[0, 100]} tickFormatter={(v) => `${v}%`} />
             <Tooltip 
@@ -657,7 +592,14 @@ export default function ReportingDashboard() {
                 border: 'none', 
                 borderRadius: '12px', 
                 boxShadow: '0 10px 40px rgba(0,0,0,0.1)' 
-              }} 
+              }}
+              labelFormatter={(label) => {
+                if (typeof label === 'string' && label.includes('-')) {
+                  const date = new Date(label + 'T12:00:00');
+                  return format(date, 'EEEE, MMM d, yyyy');
+                }
+                return label;
+              }}
             />
             <Bar yAxisId="left" dataKey="viewers" fill="#6366f1" radius={[4, 4, 0, 0]} />
             <Bar yAxisId="left" dataKey="leads" fill="#10b981" radius={[4, 4, 0, 0]} />

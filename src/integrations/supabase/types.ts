@@ -698,6 +698,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_daily_performance: {
+        Args: { from_date: string; to_date: string; webinar_filter?: string }
+        Returns: {
+          avg_retention: number
+          day_date: string
+          leads_count: number
+          unique_viewers: number
+        }[]
+      }
       get_live_viewer_counts: {
         Args: { since_ts?: string }
         Returns: {
