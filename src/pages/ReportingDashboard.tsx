@@ -532,10 +532,10 @@ export default function ReportingDashboard() {
                 <div className="relative">
                   <div className="w-full h-8 bg-gray-100 rounded-lg overflow-hidden">
                     <div 
-                      className="h-full rounded-lg flex items-center justify-end pr-3 transition-all duration-500"
-                      style={{ width: `${item.percentage}%`, backgroundColor: item.color }}
+                      className="h-full rounded-lg flex items-center justify-end pr-2 transition-all duration-500"
+                      style={{ width: `${Math.max(item.percentage, 35)}%`, backgroundColor: item.color }}
                     >
-                      <span className="text-white text-sm font-bold">{item.percentage}% of viewers</span>
+                      <span className="text-white text-xs font-bold whitespace-nowrap">{item.percentage}% of viewers</span>
                     </div>
                   </div>
                 </div>
