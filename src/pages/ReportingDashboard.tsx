@@ -262,22 +262,25 @@ export default function ReportingDashboard() {
       
       const { data: leads } = await leadsQuery;
       
-      // Group by day and calculate metrics
+      // Group by actual date (YYYY-MM-DD) to avoid timezone issues
       const dayMap = new Map<string, { 
+        dateObj: Date;
         sessions: Set<string>; 
         leads: number; 
         retentionSum: number; 
         retentionCount: number 
       }>();
-      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      
+      // Helper to get date key (YYYY-MM-DD) from ISO string
+      const getDateKey = (isoString: string) => isoString.split('T')[0];
       
       // Process events for viewers and retention
       events?.forEach(event => {
-        const date = new Date(event.created_at);
-        const dayName = days[date.getDay()];
+        const dateKey = getDateKey(event.created_at);
         
-        if (!dayMap.has(dayName)) {
-          dayMap.set(dayName, { 
+        if (!dayMap.has(dateKey)) {
+          dayMap.set(dateKey, { 
+            dateObj: new Date(dateKey + 'T12:00:00'), // Noon to avoid timezone edge cases
             sessions: new Set(), 
             leads: 0, 
             retentionSum: 0, 
@@ -285,7 +288,7 @@ export default function ReportingDashboard() {
           });
         }
         
-        const dayData = dayMap.get(dayName)!;
+        const dayData = dayMap.get(dateKey)!;
         
         if (event.event_type === 'join' && event.session_id) {
           dayData.sessions.add(event.session_id);
@@ -299,32 +302,41 @@ export default function ReportingDashboard() {
       
       // Process leads
       leads?.forEach(lead => {
-        const date = new Date(lead.captured_at);
-        const dayName = days[date.getDay()];
+        const dateKey = getDateKey(lead.captured_at);
         
-        if (!dayMap.has(dayName)) {
-          dayMap.set(dayName, { 
+        if (!dayMap.has(dateKey)) {
+          dayMap.set(dateKey, { 
+            dateObj: new Date(dateKey + 'T12:00:00'),
             sessions: new Set(), 
             leads: 0, 
             retentionSum: 0, 
             retentionCount: 0 
           });
         }
-        dayMap.get(dayName)!.leads++;
+        dayMap.get(dateKey)!.leads++;
       });
       
-      // Convert to chart format (Mon-Sun order)
-      return ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day => {
-        const data = dayMap.get(day);
-        return {
-          day,
+      // Generate last 7 days in order (oldest to newest)
+      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      const result = [];
+      
+      for (let i = 6; i >= 0; i--) {
+        const date = subDays(new Date(), i);
+        const dateKey = format(date, 'yyyy-MM-dd');
+        const data = dayMap.get(dateKey);
+        const dayName = days[date.getDay()];
+        
+        result.push({
+          day: dayName,
           viewers: data?.sessions.size || 0,
           leads: data?.leads || 0,
           retention: data?.retentionCount 
             ? Math.round(data.retentionSum / data.retentionCount) 
             : 0,
-        };
-      });
+        });
+      }
+      
+      return result;
     }
   });
 
