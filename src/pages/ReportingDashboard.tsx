@@ -236,16 +236,95 @@ export default function ReportingDashboard() {
   const { data: dailyPerformance = [] } = useQuery({
     queryKey: ['daily-performance', dateFilter, selectedWebinar],
     queryFn: async () => {
-      // Get events grouped by day
-      const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+      // Get viewer data from webinar_events
+      let eventsQuery = supabase
+        .from('webinar_events')
+        .select('created_at, session_id, watch_percent, event_type')
+        .gte('created_at', dateFilter.from.toISOString())
+        .lte('created_at', dateFilter.to.toISOString());
       
-      // For now, return sample data - in production, aggregate from webinar_events
-      return days.map(day => ({
-        day,
-        viewers: Math.floor(Math.random() * 200) + 100,
-        leads: Math.floor(Math.random() * 60) + 20,
-        retention: Math.floor(Math.random() * 20) + 60,
-      }));
+      if (selectedWebinar !== 'all') {
+        eventsQuery = eventsQuery.eq('webinar_id', selectedWebinar);
+      }
+      
+      const { data: events } = await eventsQuery;
+      
+      // Get leads data
+      let leadsQuery = supabase
+        .from('leads')
+        .select('captured_at')
+        .gte('captured_at', dateFilter.from.toISOString())
+        .lte('captured_at', dateFilter.to.toISOString());
+      
+      if (selectedWebinar !== 'all') {
+        leadsQuery = leadsQuery.eq('webinar_id', selectedWebinar);
+      }
+      
+      const { data: leads } = await leadsQuery;
+      
+      // Group by day and calculate metrics
+      const dayMap = new Map<string, { 
+        sessions: Set<string>; 
+        leads: number; 
+        retentionSum: number; 
+        retentionCount: number 
+      }>();
+      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      
+      // Process events for viewers and retention
+      events?.forEach(event => {
+        const date = new Date(event.created_at);
+        const dayName = days[date.getDay()];
+        
+        if (!dayMap.has(dayName)) {
+          dayMap.set(dayName, { 
+            sessions: new Set(), 
+            leads: 0, 
+            retentionSum: 0, 
+            retentionCount: 0 
+          });
+        }
+        
+        const dayData = dayMap.get(dayName)!;
+        
+        if (event.event_type === 'join' && event.session_id) {
+          dayData.sessions.add(event.session_id);
+        }
+        
+        if (event.event_type?.startsWith('progress_') && event.watch_percent) {
+          dayData.retentionSum += event.watch_percent;
+          dayData.retentionCount++;
+        }
+      });
+      
+      // Process leads
+      leads?.forEach(lead => {
+        const date = new Date(lead.captured_at);
+        const dayName = days[date.getDay()];
+        
+        if (!dayMap.has(dayName)) {
+          dayMap.set(dayName, { 
+            sessions: new Set(), 
+            leads: 0, 
+            retentionSum: 0, 
+            retentionCount: 0 
+          });
+        }
+        dayMap.get(dayName)!.leads++;
+      });
+      
+      // Convert to chart format (Mon-Sun order)
+      return ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day => {
+        const data = dayMap.get(day);
+        return {
+          day,
+          viewers: data?.sessions.size || 0,
+          leads: data?.leads || 0,
+          retention: data?.retentionCount 
+            ? Math.round(data.retentionSum / data.retentionCount) 
+            : 0,
+        };
+      });
     }
   });
 
