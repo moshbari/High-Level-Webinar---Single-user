@@ -68,6 +68,11 @@ export const metricDefinitions: Record<string, MetricInfo> = {
     description: 'Performance change compared to the previous period.',
     calculation: 'Compares current period metrics to the same length period before it.',
   },
+  watch_time_distribution: {
+    name: 'Watch Time Distribution',
+    description: 'Shows what percentage of your audience watched each portion of the webinar.',
+    calculation: 'Viewers are grouped by how far they watched: 0-25%, 25-50%, 50-75%, or 75-100%. Each bar shows what % of total viewers fell into that bucket.',
+  },
 };
 
 interface MetricTooltipProps {

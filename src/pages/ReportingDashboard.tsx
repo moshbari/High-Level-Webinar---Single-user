@@ -516,14 +516,17 @@ export default function ReportingDashboard() {
 
         {/* Watch Time Distribution */}
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">⏱️ Watch Time Distribution</h3>
-          <p className="text-sm text-gray-500 mb-6">How much viewers watched</p>
+          <div className="flex items-center gap-1 mb-2">
+            <h3 className="text-lg font-semibold text-gray-900">⏱️ Watch Time Distribution</h3>
+            <MetricTooltip metric="watch_time_distribution" />
+          </div>
+          <p className="text-sm text-gray-500 mb-6">Percentage of viewers by watch duration</p>
           
           <div className="space-y-4">
             {watchTimeDistribution.map((item) => (
               <div key={item.range}>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-gray-700">{item.range}</span>
+                  <span className="text-sm font-medium text-gray-700">Watched {item.range}</span>
                   <span className="text-sm text-gray-500">{item.count} viewers</span>
                 </div>
                 <div className="relative">
@@ -532,7 +535,7 @@ export default function ReportingDashboard() {
                       className="h-full rounded-lg flex items-center justify-end pr-3 transition-all duration-500"
                       style={{ width: `${item.percentage}%`, backgroundColor: item.color }}
                     >
-                      <span className="text-white text-sm font-bold">{item.percentage}%</span>
+                      <span className="text-white text-sm font-bold">{item.percentage}% of viewers</span>
                     </div>
                   </div>
                 </div>
