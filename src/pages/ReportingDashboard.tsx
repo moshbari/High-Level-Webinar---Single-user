@@ -621,7 +621,7 @@ export default function ReportingDashboard() {
 
       {/* Webinar Performance Table */}
       <div className="mt-8">
-        <WebinarPerformanceTable />
+        <WebinarPerformanceTable dateFilter={dateFilter.from} />
       </div>
 
       {/* Bottom Row */}
