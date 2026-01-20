@@ -8,13 +8,14 @@ import {
 import { 
   Search, Download, Filter, Eye, MessageSquare, Users, MousePointer, 
   TrendingUp, Calendar, ChevronDown, ExternalLink, Play, Clock, 
-  ArrowUpRight, ArrowDownRight, Timer, Percent, ArrowLeft 
+  ArrowUpRight, ArrowDownRight, Timer, Percent, ArrowLeft, HelpCircle 
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { format, subDays, startOfDay, endOfDay } from 'date-fns';
 import { Link, useNavigate } from 'react-router-dom';
 import WebinarPerformanceTable from '@/components/dashboard/WebinarPerformanceTable';
+import { MetricTooltip } from '@/components/ui/metric-tooltip';
 
 // Retention curve data - sample structure
 const retentionCurve = [
@@ -305,7 +306,8 @@ export default function ReportingDashboard() {
     change, 
     changeType, 
     color, 
-    subtitle 
+    subtitle,
+    metricKey
   }: { 
     icon: React.ElementType; 
     label: string; 
@@ -314,6 +316,7 @@ export default function ReportingDashboard() {
     changeType: 'up' | 'down'; 
     color: string;
     subtitle?: string;
+    metricKey?: 'total_viewers' | 'leads_captured' | 'avg_retention' | 'chat_messages' | 'cta_clicks' | 'click_rate' | 'watching_now';
   }) => (
     <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
       <div className="flex items-start justify-between">
@@ -327,7 +330,10 @@ export default function ReportingDashboard() {
       </div>
       <div className="mt-4">
         <p className="text-3xl font-bold text-gray-900">{value.toLocaleString()}</p>
-        <p className="text-sm text-gray-500 mt-1">{label}</p>
+        <div className="flex items-center mt-1">
+          <p className="text-sm text-gray-500">{label}</p>
+          {metricKey && <MetricTooltip metric={metricKey} />}
+        </div>
         {subtitle && <p className="text-xs text-gray-400 mt-0.5">{subtitle}</p>}
       </div>
     </div>
@@ -397,6 +403,7 @@ export default function ReportingDashboard() {
           change="12.5%" 
           changeType="up"
           color="bg-gradient-to-br from-blue-500 to-blue-600"
+          metricKey="total_viewers"
         />
         <StatCard 
           icon={Users} 
@@ -405,6 +412,7 @@ export default function ReportingDashboard() {
           change="8.2%" 
           changeType="up"
           color="bg-gradient-to-br from-emerald-500 to-emerald-600"
+          metricKey="leads_captured"
         />
         <StatCard 
           icon={Timer} 
@@ -414,6 +422,7 @@ export default function ReportingDashboard() {
           changeType="up"
           color="bg-gradient-to-br from-cyan-500 to-teal-500"
           subtitle="Avg. 86 min watched"
+          metricKey="avg_retention"
         />
         <StatCard 
           icon={MessageSquare} 
@@ -422,6 +431,7 @@ export default function ReportingDashboard() {
           change="23.1%" 
           changeType="up"
           color="bg-gradient-to-br from-purple-500 to-purple-600"
+          metricKey="chat_messages"
         />
         <StatCard 
           icon={MousePointer} 
@@ -430,6 +440,7 @@ export default function ReportingDashboard() {
           change="5.4%" 
           changeType="down"
           color="bg-gradient-to-br from-amber-500 to-orange-500"
+          metricKey="cta_clicks"
         />
       </div>
 
@@ -999,7 +1010,17 @@ export default function ReportingDashboard() {
               <div className="h-6 w-px bg-gray-200" />
               <div>
                 <h1 className="text-xl font-bold text-gray-900">Webinar Dashboard</h1>
-                <p className="text-sm text-gray-500">Analytics & Reporting</p>
+                <div className="flex items-center gap-3">
+                  <p className="text-sm text-gray-500">Analytics & Reporting</p>
+                  <span className="text-gray-300">•</span>
+                  <Link 
+                    to="/analytics-help" 
+                    className="text-sm text-indigo-600 hover:text-indigo-700 font-medium flex items-center gap-1"
+                  >
+                    <HelpCircle className="w-3.5 h-3.5" />
+                    How analytics work
+                  </Link>
+                </div>
               </div>
             </div>
             
