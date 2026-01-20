@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Loader2, Mail, Lock, User } from 'lucide-react';
 import { toast } from 'sonner';
 import { z } from 'zod';
+import { ROUTES } from '@/lib/routes';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -40,12 +41,13 @@ export default function Auth() {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Redirect if already logged in
-  if (user && !authLoading) {
-    const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/laboratory';
-    navigate(from, { replace: true });
-    return null;
-  }
+  // Redirect if already logged in - moved to useEffect to avoid side-effects during render
+  useEffect(() => {
+    if (user && !authLoading) {
+      const from = (location.state as { from?: { pathname: string } })?.from?.pathname || ROUTES.HOME;
+      navigate(from, { replace: true });
+    }
+  }, [user, authLoading, location.state, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,7 +66,7 @@ export default function Auth() {
         }
       } else {
         toast.success('Welcome back!');
-        navigate('/laboratory');
+        navigate(ROUTES.HOME);
       }
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -98,7 +100,7 @@ export default function Auth() {
         }
       } else {
         toast.success('Account created successfully! Welcome to your free trial.');
-        navigate('/laboratory');
+        navigate(ROUTES.HOME);
       }
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -116,6 +118,15 @@ export default function Auth() {
   };
 
   if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  // If user exists, we're about to redirect - show loading
+  if (user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />

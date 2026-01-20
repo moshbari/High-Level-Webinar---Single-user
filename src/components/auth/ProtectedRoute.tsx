@@ -2,6 +2,7 @@ import { ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Loader2 } from 'lucide-react';
+import { ROUTES } from '@/lib/routes';
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -31,7 +32,7 @@ export function ProtectedRoute({ children, requireAdmin = false }: ProtectedRout
 
   // Admin-only routes check
   if (requireAdmin && !isAdmin) {
-    return <Navigate to="/laboratory" replace />;
+    return <Navigate to={ROUTES.HOME} replace />;
   }
 
   return <>{children}</>;

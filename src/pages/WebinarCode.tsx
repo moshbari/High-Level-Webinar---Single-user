@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, Edit, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useEffect } from 'react';
+import { ROUTES } from '@/lib/routes';
 
 export default function WebinarCode() {
   const navigate = useNavigate();
@@ -13,7 +14,7 @@ export default function WebinarCode() {
 
   useEffect(() => {
     if (!isLoading && !webinar && !error) {
-      navigate('/');
+      navigate(ROUTES.HOME);
     }
   }, [isLoading, webinar, error, navigate]);
 
@@ -33,7 +34,7 @@ export default function WebinarCode() {
       <header className="border-b border-border/50 bg-card/50 backdrop-blur-xl sticky top-0 z-50">
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={() => navigate('/')}>
+            <Button variant="ghost" size="icon" onClick={() => navigate(ROUTES.HOME)}>
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div>

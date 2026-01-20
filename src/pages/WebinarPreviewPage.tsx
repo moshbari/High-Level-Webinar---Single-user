@@ -4,6 +4,7 @@ import { useWebinar } from '@/hooks/useWebinars';
 import { generateEmbedCode } from '@/lib/generateEmbedCode';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Edit, Maximize2, Loader2 } from 'lucide-react';
+import { ROUTES } from '@/lib/routes';
 
 export default function WebinarPreviewPage() {
   const navigate = useNavigate();
@@ -12,7 +13,7 @@ export default function WebinarPreviewPage() {
 
   useEffect(() => {
     if (!isLoading && !webinar && !error) {
-      navigate('/');
+      navigate(ROUTES.HOME);
     }
   }, [isLoading, webinar, error, navigate]);
 
@@ -43,7 +44,7 @@ export default function WebinarPreviewPage() {
       <header className="border-b border-border/50 bg-card/50 backdrop-blur-xl">
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={() => navigate('/')}>
+            <Button variant="ghost" size="icon" onClick={() => navigate(ROUTES.HOME)}>
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div>

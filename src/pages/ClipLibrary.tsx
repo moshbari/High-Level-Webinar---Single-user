@@ -44,6 +44,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from '@/hooks/use-toast';
+import { ROUTES } from '@/lib/routes';
 
 export default function ClipLibrary() {
   const navigate = useNavigate();
@@ -112,7 +113,7 @@ export default function ClipLibrary() {
       <header className="border-b border-border/50 bg-card/50 backdrop-blur-xl sticky top-0 z-50">
         <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" onClick={() => navigate('/')}>
+            <Button variant="ghost" size="sm" onClick={() => navigate(ROUTES.HOME)}>
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back
             </Button>

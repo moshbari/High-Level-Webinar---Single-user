@@ -10,6 +10,7 @@ import { ArrowLeft, Save, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
 import { generateEmbedCode } from '@/lib/generateEmbedCode';
+import { ROUTES } from '@/lib/routes';
 
 export default function WebinarEditor() {
   const navigate = useNavigate();
@@ -101,7 +102,7 @@ export default function WebinarEditor() {
       <header className="border-b border-border/50 bg-card/50 backdrop-blur-xl sticky top-0 z-50">
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={() => navigate('/')}>
+            <Button variant="ghost" size="icon" onClick={() => navigate(ROUTES.HOME)}>
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div>
