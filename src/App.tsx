@@ -2,8 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import WebinarEditor from "./pages/WebinarEditor";
 import WebinarCode from "./pages/WebinarCode";
 import WebinarPreviewPage from "./pages/WebinarPreviewPage";
@@ -22,6 +21,8 @@ import AppSettings from "./pages/AppSettings";
 import Branding from "./pages/Branding";
 import AnalyticsHelp from "./pages/AnalyticsHelp";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
+import { AppErrorBoundary } from "./components/app/AppErrorBoundary";
+import { ROUTES } from "./lib/routes";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -38,38 +39,40 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
-        <Routes>
-          {/* Public routes */}
-          <Route path="/auth" element={<Auth />} />
-          
-          {/* Protected user routes */}
-          <Route path="/laboratory" element={<ProtectedRoute><Laboratory /></ProtectedRoute>} />
-          <Route path="/upgrade" element={<ProtectedRoute><Upgrade /></ProtectedRoute>} />
-          <Route path="/update-password" element={<ProtectedRoute><UpdatePassword /></ProtectedRoute>} />
-          
-          {/* Admin-only routes */}
-          <Route path="/app-settings" element={<ProtectedRoute requireAdmin><AppSettings /></ProtectedRoute>} />
-          <Route path="/branding" element={<ProtectedRoute requireAdmin><Branding /></ProtectedRoute>} />
-          
-          {/* Redirect root to laboratory */}
-          <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
-          
-          {/* Webinar dashboard routes (protected) */}
-          <Route path="/dashboard" element={<ProtectedRoute><ReportingDashboard /></ProtectedRoute>} />
-          <Route path="/analytics-help" element={<ProtectedRoute><AnalyticsHelp /></ProtectedRoute>} />
-          <Route path="/webinar/new" element={<ProtectedRoute><WebinarEditor /></ProtectedRoute>} />
-          <Route path="/webinar/:id/edit" element={<ProtectedRoute><WebinarEditor /></ProtectedRoute>} />
-          <Route path="/webinar/:id/code" element={<ProtectedRoute><WebinarCode /></ProtectedRoute>} />
-          <Route path="/webinar/:id/preview" element={<ProtectedRoute><WebinarPreviewPage /></ProtectedRoute>} />
-          <Route path="/chat-history" element={<ProtectedRoute><ChatHistory /></ProtectedRoute>} />
-          <Route path="/chat-history/:webinarId/:sessionDate/:userEmail" element={<ProtectedRoute><ChatDetail /></ProtectedRoute>} />
-          <Route path="/live" element={<ProtectedRoute><Live /></ProtectedRoute>} />
-          <Route path="/live-chat" element={<ProtectedRoute><LiveChat /></ProtectedRoute>} />
-          <Route path="/clips" element={<ProtectedRoute><ClipLibrary /></ProtectedRoute>} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
+      <AppErrorBoundary>
+        <BrowserRouter>
+          <Routes>
+            {/* Public routes */}
+            <Route path="/auth" element={<Auth />} />
+            
+            {/* Protected user routes */}
+            <Route path="/laboratory" element={<ProtectedRoute><Laboratory /></ProtectedRoute>} />
+            <Route path="/upgrade" element={<ProtectedRoute><Upgrade /></ProtectedRoute>} />
+            <Route path="/update-password" element={<ProtectedRoute><UpdatePassword /></ProtectedRoute>} />
+            
+            {/* Admin-only routes */}
+            <Route path="/app-settings" element={<ProtectedRoute requireAdmin><AppSettings /></ProtectedRoute>} />
+            <Route path="/branding" element={<ProtectedRoute requireAdmin><Branding /></ProtectedRoute>} />
+            
+            {/* Root redirects directly to laboratory - no component hop */}
+            <Route path="/" element={<ProtectedRoute><Navigate to={ROUTES.HOME} replace /></ProtectedRoute>} />
+            
+            {/* Webinar dashboard routes (protected) */}
+            <Route path="/dashboard" element={<ProtectedRoute><ReportingDashboard /></ProtectedRoute>} />
+            <Route path="/analytics-help" element={<ProtectedRoute><AnalyticsHelp /></ProtectedRoute>} />
+            <Route path="/webinar/new" element={<ProtectedRoute><WebinarEditor /></ProtectedRoute>} />
+            <Route path="/webinar/:id/edit" element={<ProtectedRoute><WebinarEditor /></ProtectedRoute>} />
+            <Route path="/webinar/:id/code" element={<ProtectedRoute><WebinarCode /></ProtectedRoute>} />
+            <Route path="/webinar/:id/preview" element={<ProtectedRoute><WebinarPreviewPage /></ProtectedRoute>} />
+            <Route path="/chat-history" element={<ProtectedRoute><ChatHistory /></ProtectedRoute>} />
+            <Route path="/chat-history/:webinarId/:sessionDate/:userEmail" element={<ProtectedRoute><ChatDetail /></ProtectedRoute>} />
+            <Route path="/live" element={<ProtectedRoute><Live /></ProtectedRoute>} />
+            <Route path="/live-chat" element={<ProtectedRoute><LiveChat /></ProtectedRoute>} />
+            <Route path="/clips" element={<ProtectedRoute><ClipLibrary /></ProtectedRoute>} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </AppErrorBoundary>
     </TooltipProvider>
   </QueryClientProvider>
 );

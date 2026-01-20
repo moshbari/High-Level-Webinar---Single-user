@@ -36,6 +36,7 @@ import { ChatSession, getSessionStatus, getStatusEmoji } from '@/types/liveChat'
 import { formatDistanceToNow } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
+import { ROUTES } from '@/lib/routes';
 
 export default function LiveChat() {
   const navigate = useNavigate();
@@ -262,7 +263,7 @@ export default function LiveChat() {
             onSelectSession={setSelectedSession}
             onTakeOver={handleTakeOver}
             onRefresh={refetchSessions}
-            onBack={() => navigate('/')}
+            onBack={() => navigate(ROUTES.HOME)}
           />
         )}
       </div>
@@ -274,7 +275,7 @@ export default function LiveChat() {
           <div className="p-4 border-b">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <Button variant="ghost" size="icon" onClick={() => navigate('/')}>
+              <Button variant="ghost" size="icon" onClick={() => navigate(ROUTES.HOME)}>
                   <ArrowLeft className="h-5 w-5" />
                 </Button>
                 <h1 className="text-xl font-bold flex items-center gap-2">
