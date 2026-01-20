@@ -262,16 +262,15 @@ export default function ReportingDashboard() {
       
       const { data: leads } = await leadsQuery;
       
-      // Group by actual date (YYYY-MM-DD) to avoid timezone issues
+      // Group by actual date (YYYY-MM-DD) - using UTC to match database
       const dayMap = new Map<string, { 
-        dateObj: Date;
         sessions: Set<string>; 
         leads: number; 
         retentionSum: number; 
         retentionCount: number 
       }>();
       
-      // Helper to get date key (YYYY-MM-DD) from ISO string
+      // Helper to get UTC date key (YYYY-MM-DD) from ISO string
       const getDateKey = (isoString: string) => isoString.split('T')[0];
       
       // Process events for viewers and retention
@@ -280,7 +279,6 @@ export default function ReportingDashboard() {
         
         if (!dayMap.has(dateKey)) {
           dayMap.set(dateKey, { 
-            dateObj: new Date(dateKey + 'T12:00:00'), // Noon to avoid timezone edge cases
             sessions: new Set(), 
             leads: 0, 
             retentionSum: 0, 
@@ -306,7 +304,6 @@ export default function ReportingDashboard() {
         
         if (!dayMap.has(dateKey)) {
           dayMap.set(dateKey, { 
-            dateObj: new Date(dateKey + 'T12:00:00'),
             sessions: new Set(), 
             leads: 0, 
             retentionSum: 0, 
@@ -316,15 +313,21 @@ export default function ReportingDashboard() {
         dayMap.get(dateKey)!.leads++;
       });
       
-      // Generate last 7 days in order (oldest to newest)
+      // Generate last 7 days in order (oldest to newest) - using UTC dates
       const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
       const result = [];
+      const now = new Date();
       
       for (let i = 6; i >= 0; i--) {
-        const date = subDays(new Date(), i);
-        const dateKey = format(date, 'yyyy-MM-dd');
+        // Create date in UTC to match database storage
+        const date = new Date(Date.UTC(
+          now.getUTCFullYear(),
+          now.getUTCMonth(),
+          now.getUTCDate() - i
+        ));
+        const dateKey = date.toISOString().split('T')[0];
         const data = dayMap.get(dateKey);
-        const dayName = days[date.getDay()];
+        const dayName = days[date.getUTCDay()];
         
         result.push({
           day: dayName,
