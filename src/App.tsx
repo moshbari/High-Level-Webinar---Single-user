@@ -20,6 +20,8 @@ import UpdatePassword from "./pages/UpdatePassword";
 import AppSettings from "./pages/AppSettings";
 import Branding from "./pages/Branding";
 import AnalyticsHelp from "./pages/AnalyticsHelp";
+import WatchWebinar from "./pages/WatchWebinar";
+import ReplayWebinar from "./pages/ReplayWebinar";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import { AppErrorBoundary } from "./components/app/AppErrorBoundary";
 import { ROUTES } from "./lib/routes";
@@ -41,9 +43,11 @@ const App = () => (
       <Sonner />
       <AppErrorBoundary>
         <BrowserRouter>
-          <Routes>
+        <Routes>
             {/* Public routes */}
             <Route path="/auth" element={<Auth />} />
+            <Route path="/watch/:webinarId" element={<WatchWebinar />} />
+            <Route path="/replay/:webinarId" element={<ReplayWebinar />} />
             
             {/* Protected user routes */}
             <Route path="/laboratory" element={<ProtectedRoute><Laboratory /></ProtectedRoute>} />

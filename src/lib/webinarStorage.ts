@@ -9,7 +9,7 @@ const getCurrentUserId = async (): Promise<string | null> => {
 };
 
 // Convert database row to WebinarConfig
-const rowToConfig = (row: any): WebinarConfig => ({
+export const rowToConfig = (row: any): WebinarConfig => ({
   id: row.id,
   webinarName: row.webinar_name,
   headerTitle: row.header_title,
