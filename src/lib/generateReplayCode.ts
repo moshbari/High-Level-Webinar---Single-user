@@ -775,8 +775,9 @@ export const generateReplayCode = (config: WebinarConfig): string => {
       resetHideTimer();
     }
 
-    // Desktop: hover shows controls
+    // Desktop: hover shows controls immediately
     if (!isMobile) {
+      videoWrapper.addEventListener('mouseenter', showControls);
       videoWrapper.addEventListener('mousemove', showControls);
       videoWrapper.addEventListener('mouseleave', () => {
         if (!video.paused) {
@@ -786,6 +787,9 @@ export const generateReplayCode = (config: WebinarConfig): string => {
         }
       });
     }
+    
+    // Show controls initially on page load (video starts paused)
+    showControls();
 
     // Handle video click (tap on mobile, click on desktop)
     function handleVideoClick(e) {
