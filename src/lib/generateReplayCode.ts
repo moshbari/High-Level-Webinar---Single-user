@@ -3,6 +3,7 @@ import { WebinarConfig } from '@/types/webinar';
 /**
  * Generates replay-specific embed code with full video controls.
  * Based on generateEmbedCode but with time-locking removed and controls enabled.
+ * Controls are overlay-based and appear on hover/tap with auto-hide.
  */
 export const generateReplayCode = (config: WebinarConfig): string => {
   const ctaBannerHtml = config.enableCta ? `
@@ -241,6 +242,8 @@ export const generateReplayCode = (config: WebinarConfig): string => {
       font-weight: 600;
     }
     .viewer-count { display: flex; align-items: center; gap: 0.5rem; color: var(--text-muted); font-size: 0.9rem; }
+    
+    /* Video wrapper with overlay controls */
     .video-wrapper {
       flex: 1;
       display: flex;
@@ -249,6 +252,7 @@ export const generateReplayCode = (config: WebinarConfig): string => {
       background: #000;
       position: relative;
       min-height: 0;
+      cursor: pointer;
     }
     @media (max-width: 768px) {
       .video-wrapper { flex: none; height: 40vh; min-height: 200px; }
@@ -258,89 +262,212 @@ export const generateReplayCode = (config: WebinarConfig): string => {
       object-fit: contain;
       background: #000;
     }
-    .video-controls {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      padding: 0.75rem 1.5rem;
-      background: rgba(0,0,0,0.8);
-      border-top: 1px solid var(--border);
-    }
-    .play-pause-btn {
-      background: var(--primary);
+    
+    /* Large center play button */
+    .center-play-button {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 72px;
+      height: 72px;
+      background: rgba(0, 0, 0, 0.6);
       border: none;
       border-radius: 50%;
-      width: 40px; height: 40px;
-      display: flex; align-items: center; justify-content: center;
       cursor: pointer;
-      transition: transform 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s ease, transform 0.2s ease;
+      pointer-events: none;
+      z-index: 20;
     }
-    .play-pause-btn:hover { transform: scale(1.1); }
-    .play-pause-btn svg { width: 20px; height: 20px; fill: white; }
-    .volume-container { display: flex; align-items: center; gap: 0.5rem; }
-    .volume-btn {
+    .video-wrapper.paused .center-play-button {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .center-play-button:hover {
+      background: rgba(0, 0, 0, 0.8);
+      transform: translate(-50%, -50%) scale(1.1);
+    }
+    .center-play-button svg {
+      width: 32px;
+      height: 32px;
+      fill: white;
+      margin-left: 4px;
+    }
+    @media (max-width: 768px) {
+      .center-play-button {
+        width: 64px;
+        height: 64px;
+      }
+      .center-play-button svg {
+        width: 28px;
+        height: 28px;
+      }
+    }
+    
+    /* Overlay controls - gradient from transparent to dark */
+    .video-controls-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(transparent, rgba(0, 0, 0, 0.85));
+      padding: 40px 16px 12px 16px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+      z-index: 15;
+    }
+    .video-wrapper:hover .video-controls-overlay,
+    .video-wrapper.paused .video-controls-overlay,
+    .video-wrapper.controls-visible .video-controls-overlay {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    
+    /* Seek bar */
+    .seek-bar-container {
+      width: 100%;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 2px;
+      cursor: pointer;
+      margin-bottom: 12px;
+      position: relative;
+      transition: height 0.1s ease;
+    }
+    .seek-bar-container:hover {
+      height: 6px;
+    }
+    .seek-bar-fill {
+      height: 100%;
+      background: #ef4444;
+      border-radius: 2px;
+      position: relative;
+      transition: width 0.1s linear;
+    }
+    .seek-bar-fill::after {
+      content: '';
+      position: absolute;
+      right: -6px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 12px;
+      height: 12px;
+      background: #ef4444;
+      border-radius: 50%;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .seek-bar-container:hover .seek-bar-fill::after {
+      opacity: 1;
+    }
+    
+    /* Control bar */
+    .control-bar {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .control-bar button {
       background: transparent;
       border: none;
       color: white;
       cursor: pointer;
-      width: 32px; height: 32px;
-      display: flex; align-items: center; justify-content: center;
+      padding: 8px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
     }
-    .volume-btn svg { width: 20px; height: 20px; }
+    .control-bar button:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+    .control-bar button svg {
+      width: 20px;
+      height: 20px;
+    }
+    
+    /* Volume group */
+    .volume-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
     .volume-slider {
-      width: 80px;
+      width: 60px;
       height: 4px;
       -webkit-appearance: none;
-      background: rgba(255,255,255,0.3);
+      background: rgba(255, 255, 255, 0.3);
       border-radius: 2px;
       cursor: pointer;
     }
     .volume-slider::-webkit-slider-thumb {
       -webkit-appearance: none;
-      width: 12px; height: 12px;
-      border-radius: 50%;
+      width: 12px;
+      height: 12px;
       background: white;
+      border-radius: 50%;
       cursor: pointer;
     }
-    .progress-container {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-    .progress-bar {
-      flex: 1;
-      height: 6px;
-      background: rgba(255,255,255,0.2);
-      border-radius: 3px;
+    .volume-slider::-moz-range-thumb {
+      width: 12px;
+      height: 12px;
+      background: white;
+      border-radius: 50%;
       cursor: pointer;
-      position: relative;
-    }
-    .progress-fill {
-      height: 100%;
-      background: var(--primary);
-      border-radius: 3px;
-      transition: width 0.1s;
-    }
-    .time-display { color: var(--text-muted); font-size: 0.85rem; white-space: nowrap; }
-    .speed-selector {
-      background: rgba(255,255,255,0.1);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      color: white;
-      padding: 0.4rem 0.6rem;
-      font-size: 0.8rem;
-      cursor: pointer;
-    }
-    .fullscreen-btn {
-      background: transparent;
       border: none;
-      color: white;
-      cursor: pointer;
-      width: 32px; height: 32px;
-      display: flex; align-items: center; justify-content: center;
     }
-    .fullscreen-btn svg { width: 20px; height: 20px; }
+    @media (max-width: 768px) {
+      .volume-slider { width: 50px; }
+    }
+    
+    /* Time display */
+    .time-display {
+      color: white;
+      font-size: 13px;
+      font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+      margin-left: auto;
+    }
+    @media (max-width: 768px) {
+      .time-display { font-size: 12px; }
+    }
+    
+    /* Speed selector */
+    .speed-selector {
+      background: transparent;
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 4px;
+      padding: 4px 8px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .speed-selector:hover {
+      border-color: rgba(255, 255, 255, 0.5);
+    }
+    .speed-selector option {
+      background: #1a1a1a;
+      color: white;
+    }
+    @media (max-width: 768px) {
+      .speed-selector {
+        padding: 8px 10px;
+        font-size: 13px;
+      }
+      .control-bar {
+        gap: 8px;
+      }
+      .control-bar button {
+        padding: 12px;
+      }
+    }
+    
+    /* Chat section */
     .chat-section {
       width: 380px;
       display: flex;
@@ -472,39 +599,64 @@ export const generateReplayCode = (config: WebinarConfig): string => {
           <span id="viewerCount">0</span> views
         </div>
       </div>
-      <div class="video-wrapper">
+      
+      <!-- Video wrapper with overlay controls -->
+      <div class="video-wrapper paused" id="videoWrapper" onclick="handleVideoClick(event)">
         <video id="webinarVideo" playsinline preload="metadata">
           <source src="${config.videoUrl}" type="video/mp4">
         </video>
-      </div>
-      <div class="video-controls">
-        <button class="play-pause-btn" id="playPauseBtn" onclick="togglePlayPause()">
-          <svg id="playIcon" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          <svg id="pauseIcon" viewBox="0 0 24 24" style="display:none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+        
+        <!-- Large center play button -->
+        <button class="center-play-button" id="centerPlayBtn" onclick="togglePlayPause(event)">
+          <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
         </button>
-        <div class="volume-container">
-          <button class="volume-btn" onclick="toggleMute()">
-            <svg id="volumeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
-            <svg id="mutedIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
-          </button>
-          <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="100" oninput="setVolume(this.value)">
-        </div>
-        <div class="progress-container">
-          <span class="time-display" id="currentTime">0:00</span>
-          <div class="progress-bar" id="progressBar" onclick="seekTo(event)">
-            <div class="progress-fill" id="progressFill"></div>
+        
+        <!-- Bottom controls overlay -->
+        <div class="video-controls-overlay" onclick="event.stopPropagation()">
+          <!-- Seek bar -->
+          <div class="seek-bar-container" id="seekBar" onclick="seekTo(event)">
+            <div class="seek-bar-fill" id="seekBarFill" style="width: 0%"></div>
           </div>
-          <span class="time-display" id="duration">0:00</span>
+          
+          <!-- Control bar -->
+          <div class="control-bar">
+            <!-- Play/Pause -->
+            <button id="playPauseBtn" onclick="togglePlayPause(event)">
+              <svg id="playIcon" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              <svg id="pauseIcon" viewBox="0 0 24 24" fill="white" style="display:none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+            </button>
+            
+            <!-- Volume -->
+            <div class="volume-group">
+              <button onclick="toggleMute(event)">
+                <svg id="volumeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="white"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+                <svg id="mutedIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="white"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+              </button>
+              <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="100" oninput="setVolume(this.value)" onclick="event.stopPropagation()">
+            </div>
+            
+            <!-- Time display -->
+            <span class="time-display">
+              <span id="currentTime">0:00</span> / <span id="duration">0:00</span>
+            </span>
+            
+            <!-- Speed selector -->
+            <select class="speed-selector" id="speedSelector" onchange="setSpeed(this.value)" onclick="event.stopPropagation()">
+              <option value="0.5">0.5x</option>
+              <option value="0.75">0.75x</option>
+              <option value="1" selected>1x</option>
+              <option value="1.25">1.25x</option>
+              <option value="1.5">1.5x</option>
+              <option value="2">2x</option>
+            </select>
+            
+            <!-- Fullscreen -->
+            <button onclick="toggleFullscreen(event)">
+              <svg id="fullscreenIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+              <svg id="exitFullscreenIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+            </button>
+          </div>
         </div>
-        <select class="speed-selector" id="speedSelector" onchange="setSpeed(this.value)">
-          <option value="0.5">0.5x</option>
-          <option value="1" selected>1x</option>
-          <option value="1.5">1.5x</option>
-          <option value="2">2x</option>
-        </select>
-        <button class="fullscreen-btn" onclick="toggleFullscreen()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
-        </button>
       </div>
       ${ctaBannerHtml}
     </div>
@@ -558,13 +710,18 @@ export const generateReplayCode = (config: WebinarConfig): string => {
     let leadId = null;
     let seenReplyIds = new Set();
     let replyPollingId = null;
+    let hideControlsTimeout = null;
+    let isMobile = /Mobi|Android/i.test(navigator.userAgent);
 
     const video = document.getElementById('webinarVideo');
+    const videoWrapper = document.getElementById('videoWrapper');
     const playIcon = document.getElementById('playIcon');
     const pauseIcon = document.getElementById('pauseIcon');
-    const progressFill = document.getElementById('progressFill');
+    const seekBarFill = document.getElementById('seekBarFill');
     const currentTimeEl = document.getElementById('currentTime');
     const durationEl = document.getElementById('duration');
+    const fullscreenIcon = document.getElementById('fullscreenIcon');
+    const exitFullscreenIcon = document.getElementById('exitFullscreenIcon');
 
     // Initialize video
     video.addEventListener('loadedmetadata', () => {
@@ -574,21 +731,83 @@ export const generateReplayCode = (config: WebinarConfig): string => {
 
     video.addEventListener('timeupdate', () => {
       const progress = (video.currentTime / video.duration) * 100;
-      progressFill.style.width = progress + '%';
+      seekBarFill.style.width = progress + '%';
       currentTimeEl.textContent = formatTime(video.currentTime);
     });
 
     video.addEventListener('play', () => {
       playIcon.style.display = 'none';
       pauseIcon.style.display = 'block';
+      videoWrapper.classList.remove('paused');
+      resetHideTimer();
     });
 
     video.addEventListener('pause', () => {
       playIcon.style.display = 'block';
       pauseIcon.style.display = 'none';
+      videoWrapper.classList.add('paused');
+      clearHideTimer();
     });
 
+    video.addEventListener('ended', () => {
+      videoWrapper.classList.add('paused');
+    });
+
+    // Auto-hide controls logic
+    function resetHideTimer() {
+      clearHideTimer();
+      if (!video.paused) {
+        hideControlsTimeout = setTimeout(() => {
+          videoWrapper.classList.remove('controls-visible');
+        }, 3000);
+      }
+    }
+
+    function clearHideTimer() {
+      if (hideControlsTimeout) {
+        clearTimeout(hideControlsTimeout);
+        hideControlsTimeout = null;
+      }
+    }
+
+    function showControls() {
+      videoWrapper.classList.add('controls-visible');
+      resetHideTimer();
+    }
+
+    // Desktop: hover shows controls
+    if (!isMobile) {
+      videoWrapper.addEventListener('mousemove', showControls);
+      videoWrapper.addEventListener('mouseleave', () => {
+        if (!video.paused) {
+          hideControlsTimeout = setTimeout(() => {
+            videoWrapper.classList.remove('controls-visible');
+          }, 1000);
+        }
+      });
+    }
+
+    // Handle video click (tap on mobile, click on desktop)
+    function handleVideoClick(e) {
+      if (e.target.closest('.video-controls-overlay') || e.target.closest('.center-play-button')) {
+        return;
+      }
+      
+      if (isMobile) {
+        // Mobile: tap toggles controls visibility
+        if (videoWrapper.classList.contains('controls-visible') || video.paused) {
+          togglePlayPause(e);
+        } else {
+          showControls();
+        }
+      } else {
+        // Desktop: click toggles play/pause
+        togglePlayPause(e);
+      }
+    }
+
     function formatTime(seconds) {
+      if (!seconds || isNaN(seconds)) return '0:00';
       const h = Math.floor(seconds / 3600);
       const m = Math.floor((seconds % 3600) / 60);
       const s = Math.floor(seconds % 60);
@@ -598,7 +817,8 @@ export const generateReplayCode = (config: WebinarConfig): string => {
       return m + ':' + String(s).padStart(2, '0');
     }
 
-    function togglePlayPause() {
+    function togglePlayPause(e) {
+      if (e) e.stopPropagation();
       if (video.paused) {
         video.play();
         trackJoinOnce();
@@ -607,7 +827,8 @@ export const generateReplayCode = (config: WebinarConfig): string => {
       }
     }
 
-    function toggleMute() {
+    function toggleMute(e) {
+      if (e) e.stopPropagation();
       video.muted = !video.muted;
       updateVolumeIcon();
     }
@@ -638,7 +859,8 @@ export const generateReplayCode = (config: WebinarConfig): string => {
     }
 
     function seekTo(e) {
-      const bar = document.getElementById('progressBar');
+      e.stopPropagation();
+      const bar = document.getElementById('seekBar');
       const rect = bar.getBoundingClientRect();
       const pos = (e.clientX - rect.left) / rect.width;
       video.currentTime = pos * video.duration;
@@ -648,14 +870,24 @@ export const generateReplayCode = (config: WebinarConfig): string => {
       video.playbackRate = parseFloat(value);
     }
 
-    function toggleFullscreen() {
-      const wrapper = document.querySelector('.video-wrapper');
+    function toggleFullscreen(e) {
+      if (e) e.stopPropagation();
       if (document.fullscreenElement) {
         document.exitFullscreen();
       } else {
-        wrapper.requestFullscreen();
+        videoWrapper.requestFullscreen();
       }
     }
+
+    document.addEventListener('fullscreenchange', () => {
+      if (document.fullscreenElement) {
+        fullscreenIcon.style.display = 'none';
+        exitFullscreenIcon.style.display = 'block';
+      } else {
+        fullscreenIcon.style.display = 'block';
+        exitFullscreenIcon.style.display = 'none';
+      }
+    });
 
     function updateViewerCount() {
       const count = Math.floor(Math.random() * (CONFIG.maxViewers - CONFIG.minViewers + 1)) + CONFIG.minViewers;
@@ -680,7 +912,7 @@ export const generateReplayCode = (config: WebinarConfig): string => {
         user_email: userData?.email || 'anonymous@replay.local',
         event_type: eventType,
         session_id: sessionId,
-        device_type: /Mobi|Android/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
+        device_type: isMobile ? 'mobile' : 'desktop',
         source: 'replay',
         ...extra
       };
