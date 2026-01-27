@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
-import { ArrowLeft, Mic, Loader2, Check, AlertCircle } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { ArrowLeft, Mic, Loader2, Check, AlertCircle, Eye, Edit3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useWebinarNotes } from '@/hooks/useWebinarNotes';
@@ -13,12 +13,37 @@ interface WebinarNotesMobileProps {
   onClose: () => void;
 }
 
+// Helper function to render text with clickable links
+const renderContentWithLinks = (text: string) => {
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  const parts = text.split(urlRegex);
+  
+  return parts.map((part, index) => {
+    if (part.match(urlRegex)) {
+      return (
+        <a
+          key={index}
+          href={part}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-primary underline break-all"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {part}
+        </a>
+      );
+    }
+    return <span key={index}>{part}</span>;
+  });
+};
+
 export const WebinarNotesMobile = ({
   webinarId,
   webinarName,
   onClose,
 }: WebinarNotesMobileProps) => {
   const { content, updateContent, saveStatus, isLoading, retrySave } = useWebinarNotes(webinarId);
+  const [isPreviewMode, setIsPreviewMode] = useState(false);
   
   const { isRecording, isProcessing, toggleRecording } = useVoiceDictation({
     onTranscription: (text) => {
@@ -67,6 +92,7 @@ export const WebinarNotesMobile = ({
       case 'error':
         return (
           <button 
+            type="button"
             onClick={retrySave}
             className="flex items-center gap-1.5 text-destructive text-sm"
           >
@@ -91,6 +117,7 @@ export const WebinarNotesMobile = ({
       {/* Header */}
       <div className="flex items-center gap-3 p-4 border-b border-border shrink-0">
         <Button 
+          type="button"
           variant="ghost" 
           size="icon" 
           onClick={onClose}
@@ -102,11 +129,23 @@ export const WebinarNotesMobile = ({
           <h3 className="font-semibold truncate">Notes</h3>
           <p className="text-sm text-muted-foreground truncate">{webinarName}</p>
         </div>
+        {/* Preview/Edit toggle */}
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          onClick={() => setIsPreviewMode(!isPreviewMode)}
+          className="shrink-0 h-11 w-11"
+          title={isPreviewMode ? "Edit notes" : "Preview with clickable links"}
+        >
+          {isPreviewMode ? <Edit3 className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+        </Button>
       </div>
 
       {/* Voice Dictation Button */}
       <div className="p-4 flex justify-center shrink-0">
         <Button
+          type="button"
           variant={isRecording ? 'destructive' : 'secondary'}
           onClick={toggleRecording}
           disabled={isProcessing}
@@ -132,6 +171,15 @@ export const WebinarNotesMobile = ({
           <div className="flex-1 flex items-center justify-center">
             <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
           </div>
+        ) : isPreviewMode ? (
+          <div 
+            className="flex-1 overflow-auto text-base leading-relaxed whitespace-pre-wrap border rounded-md p-3 bg-muted/30"
+            style={{ fontSize: '16px' }}
+          >
+            {content ? renderContentWithLinks(content) : (
+              <span className="text-muted-foreground">No notes yet...</span>
+            )}
+          </div>
         ) : (
           <Textarea
             value={content}
@@ -144,8 +192,13 @@ export const WebinarNotesMobile = ({
       </div>
 
       {/* Save Status Footer */}
-      <div className="p-4 border-t border-border shrink-0">
+      <div className="p-4 border-t border-border shrink-0 flex items-center justify-between">
         {renderSaveStatus()}
+        {!isPreviewMode && content && (
+          <span className="text-xs text-muted-foreground">
+            Tap 👁 to view clickable links
+          </span>
+        )}
       </div>
     </motion.div>
   );

@@ -1,5 +1,5 @@
-import { useEffect, useRef } from 'react';
-import { X, Mic, Loader2, Check, AlertCircle, RefreshCw } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { X, Mic, Loader2, Check, AlertCircle, Eye, Edit3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useWebinarNotes } from '@/hooks/useWebinarNotes';
@@ -13,6 +13,30 @@ interface WebinarNotesPanelProps {
   onClose: () => void;
 }
 
+// Helper function to render text with clickable links
+const renderContentWithLinks = (text: string) => {
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  const parts = text.split(urlRegex);
+  
+  return parts.map((part, index) => {
+    if (part.match(urlRegex)) {
+      return (
+        <a
+          key={index}
+          href={part}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-primary underline break-all"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {part}
+        </a>
+      );
+    }
+    return <span key={index}>{part}</span>;
+  });
+};
+
 export const WebinarNotesPanel = ({
   webinarId,
   webinarName,
@@ -20,6 +44,7 @@ export const WebinarNotesPanel = ({
 }: WebinarNotesPanelProps) => {
   const panelRef = useRef<HTMLDivElement>(null);
   const { content, updateContent, saveStatus, isLoading, retrySave } = useWebinarNotes(webinarId);
+  const [isPreviewMode, setIsPreviewMode] = useState(false);
   
   const { isRecording, isProcessing, toggleRecording } = useVoiceDictation({
     onTranscription: (text) => {
@@ -70,6 +95,7 @@ export const WebinarNotesPanel = ({
       case 'error':
         return (
           <button 
+            type="button"
             onClick={retrySave}
             className="flex items-center gap-1.5 text-destructive text-sm hover:underline"
           >
@@ -98,14 +124,26 @@ export const WebinarNotesPanel = ({
             <h3 className="font-semibold text-lg">Notes</h3>
             <p className="text-sm text-muted-foreground truncate">{webinarName}</p>
           </div>
-          <Button variant="ghost" size="icon" onClick={onClose} className="shrink-0">
-            <X className="w-5 h-5" />
-          </Button>
+          <div className="flex items-center gap-1">
+            <Button 
+              type="button"
+              variant="ghost" 
+              size="icon" 
+              onClick={() => setIsPreviewMode(!isPreviewMode)}
+              title={isPreviewMode ? "Edit notes" : "Preview with clickable links"}
+            >
+              {isPreviewMode ? <Edit3 className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+            </Button>
+            <Button type="button" variant="ghost" size="icon" onClick={onClose} className="shrink-0">
+              <X className="w-5 h-5" />
+            </Button>
+          </div>
         </div>
 
         {/* Voice Dictation Button */}
         <div className="p-4 border-b border-border">
           <Button
+            type="button"
             variant={isRecording ? 'destructive' : 'secondary'}
             onClick={toggleRecording}
             disabled={isProcessing}
@@ -139,6 +177,15 @@ export const WebinarNotesPanel = ({
             <div className="flex-1 flex items-center justify-center">
               <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
             </div>
+          ) : isPreviewMode ? (
+            <div 
+              className="flex-1 overflow-auto text-base leading-relaxed whitespace-pre-wrap border rounded-md p-3 bg-muted/30"
+              style={{ minHeight: '300px' }}
+            >
+              {content ? renderContentWithLinks(content) : (
+                <span className="text-muted-foreground">No notes yet...</span>
+              )}
+            </div>
           ) : (
             <Textarea
               value={content}
@@ -154,7 +201,7 @@ export const WebinarNotesPanel = ({
         <div className="p-4 border-t border-border flex items-center justify-between">
           {renderSaveStatus()}
           <span className="text-xs text-muted-foreground">
-            Auto-saves as you type
+            {isPreviewMode ? 'Links are clickable in preview' : 'Auto-saves as you type'}
           </span>
         </div>
       </motion.div>
