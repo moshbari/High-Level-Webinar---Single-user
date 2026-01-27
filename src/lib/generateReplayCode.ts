@@ -281,8 +281,7 @@ export const generateReplayCode = (config: WebinarConfig): string => {
       opacity: 0;
       transition: opacity 0.3s ease, transform 0.2s ease;
       pointer-events: none;
-      /* Must stay above the fixed CTA bar on desktop */
-      z-index: 260;
+      z-index: 20;
     }
     .video-wrapper.paused .center-play-button {
       opacity: 1;
@@ -320,8 +319,7 @@ export const generateReplayCode = (config: WebinarConfig): string => {
       opacity: 0;
       transition: opacity 0.3s ease;
       pointer-events: none;
-      /* Must stay above the fixed CTA bar on desktop (CTA uses z-index: 150) */
-      z-index: 250;
+      z-index: 15;
     }
     .video-wrapper:hover .video-controls-overlay,
     .video-wrapper.paused .video-controls-overlay,
