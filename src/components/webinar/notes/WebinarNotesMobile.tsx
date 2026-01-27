@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ArrowLeft, Mic, Loader2, Check, AlertCircle, Eye, Edit3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -44,6 +44,7 @@ export const WebinarNotesMobile = ({
 }: WebinarNotesMobileProps) => {
   const { content, updateContent, saveStatus, isLoading, retrySave } = useWebinarNotes(webinarId);
   const [isPreviewMode, setIsPreviewMode] = useState(false);
+  const didInitModeRef = useRef(false);
   
   const { isRecording, isProcessing, toggleRecording } = useVoiceDictation({
     onTranscription: (text) => {
@@ -52,6 +53,16 @@ export const WebinarNotesMobile = ({
     },
     addTimestamp: true,
   });
+
+  // On mobile, default to Preview mode once notes are loaded (so links are immediately tappable).
+  // If there are no notes yet, keep Edit mode.
+  useEffect(() => {
+    if (didInitModeRef.current) return;
+    if (isLoading) return;
+
+    setIsPreviewMode(Boolean(content && content.trim().length > 0));
+    didInitModeRef.current = true;
+  }, [isLoading, content]);
 
   // Adjust height when keyboard opens (using visual viewport)
   useEffect(() => {
@@ -197,6 +208,11 @@ export const WebinarNotesMobile = ({
         {!isPreviewMode && content && (
           <span className="text-xs text-muted-foreground">
             Tap 👁 to view clickable links
+          </span>
+        )}
+        {isPreviewMode && (
+          <span className="text-xs text-muted-foreground">
+            Tap ✎ to edit
           </span>
         )}
       </div>
