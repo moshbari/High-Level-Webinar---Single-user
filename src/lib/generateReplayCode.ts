@@ -35,14 +35,16 @@ export const generateReplayCode = (config: WebinarConfig): string => {
 
   const ctaStyles = config.enableCta ? `
     .cta-banner {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 380px;
+      /* Desktop: keep CTA in normal document flow (below video) so it never covers video controls */
+      position: relative;
+      width: 100%;
+      bottom: auto;
+      left: auto;
+      right: auto;
       background: linear-gradient(90deg, rgba(20,20,30,0.98) 0%, rgba(30,30,45,0.98) 100%);
       border-top: 1px solid var(--border);
       padding: 1rem 2rem;
-      z-index: 150;
+      z-index: 1;
       animation: slideUp 0.5s ease;
     }
     @keyframes slideUp {
@@ -251,6 +253,7 @@ export const generateReplayCode = (config: WebinarConfig): string => {
       justify-content: center;
       background: #000;
       position: relative;
+      overflow: hidden;
       min-height: 0;
       cursor: pointer;
     }
