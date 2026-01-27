@@ -504,6 +504,41 @@ export type Database = {
         }
         Relationships: []
       }
+      webinar_notes: {
+        Row: {
+          content: string | null
+          created_at: string | null
+          id: string
+          updated_at: string | null
+          user_id: string
+          webinar_id: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string | null
+          id?: string
+          updated_at?: string | null
+          user_id: string
+          webinar_id: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string | null
+          id?: string
+          updated_at?: string | null
+          user_id?: string
+          webinar_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "webinar_notes_webinar_id_fkey"
+            columns: ["webinar_id"]
+            isOneToOne: false
+            referencedRelation: "webinars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       webinars: {
         Row: {
           background_color: string

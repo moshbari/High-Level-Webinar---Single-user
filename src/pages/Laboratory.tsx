@@ -2,9 +2,11 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useWebinars, useDeleteWebinar, useSaveWebinar } from '@/hooks/useWebinars';
 import { useLiveViewerCounts } from '@/hooks/useLiveViewerCounts';
+import { useWebinarNotesIndicators } from '@/hooks/useWebinarNotes';
 import { getWebinar } from '@/lib/webinarStorage';
 import { generateEmbedCode } from '@/lib/generateEmbedCode';
 import { TrialWarningBar } from '@/components/auth/TrialWarningBar';
+import { WebinarNotesButton } from '@/components/webinar/notes';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Plus, Radio, Loader2, MessageSquare, Edit, Eye, Code, Copy, Clipboard, Trash2, Clock, BarChart3, Headphones, LogOut, Settings, User, ExternalLink, PlayCircle, Link } from 'lucide-react';
@@ -53,6 +55,10 @@ export default function Laboratory() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
   const [duplicating, setDuplicating] = useState(false);
+
+  // Get webinar IDs for notes indicators
+  const webinarIds = useMemo(() => webinars.map(w => w.id), [webinars]);
+  const notesIndicators = useWebinarNotesIndicators(webinarIds);
 
   const handleSignOut = async () => {
     await signOut();
@@ -277,6 +283,12 @@ export default function Laboratory() {
                   </div>
                   <div className="flex items-center justify-end gap-1 mt-3 pt-3 border-t border-border/50">
                     <TooltipProvider delayDuration={300}>
+                      {/* Notes Button - FIRST */}
+                      <WebinarNotesButton
+                        webinarId={webinar.id}
+                        webinarName={webinar.webinarName}
+                        hasNotes={!!notesIndicators[webinar.id]}
+                      />
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Button variant="ghost" size="sm" onClick={() => navigate(`/webinar/${webinar.id}/edit`)} className="h-8 px-2">
@@ -416,6 +428,13 @@ export default function Laboratory() {
                       <TableCell>
                         <div className="flex items-center justify-end gap-1">
                           <TooltipProvider delayDuration={300}>
+                            {/* Notes Button - FIRST */}
+                            <WebinarNotesButton
+                              webinarId={webinar.id}
+                              webinarName={webinar.webinarName}
+                              hasNotes={!!notesIndicators[webinar.id]}
+                            />
+
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <Button
