@@ -22,6 +22,7 @@ import Branding from "./pages/Branding";
 import AnalyticsHelp from "./pages/AnalyticsHelp";
 import WatchWebinar from "./pages/WatchWebinar";
 import ReplayWebinar from "./pages/ReplayWebinar";
+import RegisterPage from "./pages/RegisterPage";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import { AppErrorBoundary } from "./components/app/AppErrorBoundary";
 import { ROUTES } from "./lib/routes";
@@ -48,6 +49,7 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/watch/:webinarId" element={<WatchWebinar />} />
             <Route path="/replay/:webinarId" element={<ReplayWebinar />} />
+            <Route path="/register/:webinarId" element={<RegisterPage />} />
             
             {/* Protected user routes */}
             <Route path="/laboratory" element={<ProtectedRoute><Laboratory /></ProtectedRoute>} />

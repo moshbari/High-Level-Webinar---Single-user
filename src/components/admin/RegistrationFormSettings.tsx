@@ -5,19 +5,49 @@ import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ClipboardList, ChevronDown, Settings2 } from 'lucide-react';
+import { ClipboardList, ChevronDown, Settings2, Link, Copy, Check } from 'lucide-react';
 import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
 
 interface RegistrationFormSettingsProps {
   config: Omit<WebinarConfig, 'id' | 'createdAt' | 'updatedAt'>;
   onChange: (config: Omit<WebinarConfig, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  webinarId?: string; // Optional webinar ID for generating hosted URL
 }
 
-export function RegistrationFormSettings({ config, onChange }: RegistrationFormSettingsProps) {
+export function RegistrationFormSettings({ config, onChange, webinarId }: RegistrationFormSettingsProps) {
   const [advancedOpen, setAdvancedOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const { toast } = useToast();
   
   const updateField = <K extends keyof typeof config>(field: K, value: typeof config[K]) => {
     onChange({ ...config, [field]: value });
+  };
+
+  // Generate the hosted registration URL
+  const hostedUrl = webinarId 
+    ? `${window.location.origin}/register/${webinarId}`
+    : null;
+
+  const copyHostedUrl = async () => {
+    if (!hostedUrl) return;
+    
+    try {
+      await navigator.clipboard.writeText(hostedUrl);
+      setCopied(true);
+      toast({
+        title: "URL Copied!",
+        description: "Registration page URL copied to clipboard.",
+      });
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      toast({
+        title: "Copy failed",
+        description: "Please copy the URL manually.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -168,6 +198,39 @@ export function RegistrationFormSettings({ config, onChange }: RegistrationFormS
                 />
                 <p className="text-xs text-muted-foreground">Redirect URL after successful registration</p>
               </div>
+              
+              {/* Hosted Registration Page URL */}
+              {hostedUrl && (
+                <div className="p-4 rounded-lg border border-border/50 bg-secondary/30 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Link className="w-4 h-4 text-primary" />
+                    <Label className="text-sm font-medium">Hosted Registration Page</Label>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Share this link directly – no embedding needed
+                  </p>
+                  <div className="flex gap-2">
+                    <Input
+                      value={hostedUrl}
+                      readOnly
+                      className="input-field flex-1 text-sm font-mono"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      onClick={copyHostedUrl}
+                      className="shrink-0"
+                    >
+                      {copied ? (
+                        <Check className="w-4 h-4 text-green-500" />
+                      ) : (
+                        <Copy className="w-4 h-4" />
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              )}
               
               <div className="flex items-center justify-between p-3 rounded-lg bg-secondary/50">
                 <div>
