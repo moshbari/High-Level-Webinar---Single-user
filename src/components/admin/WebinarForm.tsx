@@ -27,9 +27,10 @@ import { VideoSequenceBuilder } from './VideoSequenceBuilder';
 interface WebinarFormProps {
   config: Omit<WebinarConfig, 'id' | 'createdAt' | 'updatedAt'>;
   onChange: (config: Omit<WebinarConfig, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  webinarId?: string; // Optional webinar ID for existing webinars
 }
 
-export function WebinarForm({ config, onChange }: WebinarFormProps) {
+export function WebinarForm({ config, onChange, webinarId }: WebinarFormProps) {
   const updateField = <K extends keyof typeof config>(field: K, value: typeof config[K]) => {
     onChange({ ...config, [field]: value });
   };
@@ -798,7 +799,7 @@ export function WebinarForm({ config, onChange }: WebinarFormProps) {
       </Card>
 
       {/* Registration Form */}
-      <RegistrationFormSettings config={config} onChange={onChange} />
+      <RegistrationFormSettings config={config} onChange={onChange} webinarId={webinarId} />
       
       {/* Registration Form Preview */}
       {config.enableRegistrationForm && (

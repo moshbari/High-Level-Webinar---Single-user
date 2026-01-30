@@ -143,7 +143,7 @@ export default function WebinarEditor() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <WebinarForm config={config} onChange={setConfig} />
+            <WebinarForm config={config} onChange={setConfig} webinarId={isEditing ? id : undefined} />
           </motion.div>
           
           {showPreview && (
