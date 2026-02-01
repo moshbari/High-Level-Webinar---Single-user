@@ -1900,8 +1900,13 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       if (e.key === 'Enter') sendMessage();
     });
 
-    // Disable right-click on video
-    document.getElementById('webinarVideo').addEventListener('contextmenu', e => e.preventDefault());
+    // Disable right-click on video (only for regular video mode)
+    if (!CONFIG.useYouTube) {
+      const videoEl = document.getElementById('webinarVideo');
+      if (videoEl) {
+        videoEl.addEventListener('contextmenu', e => e.preventDefault());
+      }
+    }
 
     ${ctaScript}
 
