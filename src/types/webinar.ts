@@ -9,7 +9,6 @@ export interface WebinarConfig {
   
   // Video
   videoUrl: string;
-  youtubeVideoId: string;
   durationSeconds: number;
   videoMode: VideoMode;
   videoSequence: VideoSequenceItem[];
@@ -145,7 +144,6 @@ export const DEFAULT_WEBINAR_CONFIG: Omit<WebinarConfig, 'id' | 'createdAt' | 'u
   headerTitle: 'Customers - Exclusive Training Session',
   logoText: 'W',
   videoUrl: '',
-  youtubeVideoId: '',
   durationSeconds: 13200, // 3 hours 40 minutes
   videoMode: 'single',
   videoSequence: [],

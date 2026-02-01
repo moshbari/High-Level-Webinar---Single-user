@@ -1,11 +1,6 @@
 import { WebinarConfig } from '@/types/webinar';
 
-// Helper to determine if using YouTube mode
-const isYouTubeMode = (config: WebinarConfig): boolean => 
-  config.videoMode === 'youtube' && !!config.youtubeVideoId;
-
 export const generateEmbedCode = (config: WebinarConfig): string => {
-  const useYouTube = isYouTubeMode(config);
   const ctaBannerHtml = config.enableCta ? `
   <!-- CTA Banner -->
   <div class="cta-banner hidden" id="ctaBanner">
@@ -531,35 +526,6 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       height: 100%;
       object-fit: contain;
       background: #000;
-    }
-    
-    /* YouTube Player Container */
-    #youtubePlayerContainer {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-    }
-    
-    #youtubePlayerContainer iframe {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 100%;
-      height: 100%;
-      transform: translate(-50%, -50%);
-      pointer-events: none;
-    }
-    
-    /* Click overlay for YouTube to prevent interaction */
-    #youtubePlayerContainer::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      z-index: 1;
     }
     
     .sound-controls {
@@ -1132,15 +1098,9 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
         </div>
       </div>
       <div class="video-wrapper">
-        ${useYouTube ? `
-        <div id="youtubePlayerContainer" style="width:100%;height:100%;background:#000;">
-          <div id="youtubePlayer"></div>
-        </div>
-        ` : `
         <video id="webinarVideo" playsinline>
           <source src="${config.videoUrl}" type="video/mp4">
         </video>
-        `}
         <div class="sound-controls" id="soundControls" style="display:none;">
           <button class="mute-btn" id="muteBtn" onclick="toggleMute()">
             <svg id="volumeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1213,14 +1173,11 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
   <!-- Desktop-only floating CTA (mobile version is in-flow above) -->
   <div class="cta-desktop-floating">${config.ctaStyle === 'floating' ? ctaFloatingHtml : ''}</div>
 
-  ${useYouTube ? `<script src="https://www.youtube.com/iframe_api"></script>` : ''}
   <script>
     const CONFIG = {
       webinarId: "${config.id}",
       webinarName: "${config.webinarName}",
       videoUrl: "${config.videoUrl}",
-      youtubeVideoId: "${config.youtubeVideoId || ''}",
-      useYouTube: ${useYouTube},
       durationSeconds: ${config.durationSeconds},
       startHour: ${config.startHour},
       startMinute: ${config.startMinute},
@@ -1244,47 +1201,6 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       trackingWebhookUrl: "${config.trackingWebhookUrl || 'https://moshbari.cloud/webhook/webinar-tracking'}",
       supabaseUrl: "https://xidtgjtbhskltygixljs.supabase.co"
     };
-
-    // ========== YouTube postMessage Error Suppression ==========
-    // YouTube's iframe API often throws harmless postMessage targetOrigin errors
-    // when embedded in iframes or cross-origin contexts. Suppress this noise.
-    (function() {
-      function isYouTubePostMessageNoise(msg, file) {
-        const isPostMessageError = String(msg || '').includes("Failed to execute 'postMessage' on 'DOMWindow'");
-        const isYouTubeOrigin = String(file || '').includes('youtube');
-        return isPostMessageError && isYouTubeOrigin;
-      }
-
-      // Suppress synchronous errors
-      window.addEventListener('error', function(e) {
-        if (isYouTubePostMessageNoise(e?.message, e?.filename)) {
-          e.preventDefault();
-          e.stopImmediatePropagation();
-          return true;
-        }
-      }, true);
-
-      // Suppress promise rejections (YouTube API uses promises internally)
-      window.addEventListener('unhandledrejection', function(e) {
-        const reason = e?.reason;
-        const msg = reason?.message || String(reason || '');
-        if (msg.includes("Failed to execute 'postMessage'") || msg.includes('postMessage')) {
-          e.preventDefault();
-          e.stopImmediatePropagation();
-          return true;
-        }
-      }, true);
-
-      // Override console.error to filter YouTube postMessage noise
-      const origConsoleError = console.error;
-      console.error = function(...args) {
-        const str = args.map(a => String(a)).join(' ');
-        if (str.includes("Failed to execute 'postMessage'") && str.includes('youtube')) {
-          return; // Silently ignore
-        }
-        origConsoleError.apply(console, args);
-      };
-    })();
 
     let userData = null;
     let leadId = null;
@@ -1548,145 +1464,54 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
     }
 
-    // YouTube player reference (if using YouTube mode)
-    let ytPlayer = null;
-    let ytPlayerReady = false;
-
-    
-    // YouTube IFrame API callback
-    if (CONFIG.useYouTube) {
-      window.onYouTubeIframeAPIReady = function() {
-        // Player will be created when startWebinar is called
-      };
-    }
-    
-    function createYouTubePlayer(startSeconds) {
-      const container = document.getElementById('youtubePlayer');
-      const containerParent = document.getElementById('youtubePlayerContainer');
-      
-      ytPlayer = new YT.Player('youtubePlayer', {
-        width: '100%',
-        height: '100%',
-        videoId: CONFIG.youtubeVideoId,
-        playerVars: {
-          'autoplay': 1,
-          'mute': 1,
-          'controls': 0,
-          'disablekb': 1,
-          'fs': 0,
-          'iv_load_policy': 3,
-          'modestbranding': 1,
-          'playsinline': 1,
-          'rel': 0,
-          'showinfo': 0,
-          'start': Math.floor(startSeconds),
-          'cc_load_policy': 0,
-          'origin': window.location.origin
-        },
-        events: {
-          'onReady': onYTPlayerReady,
-          'onStateChange': onYTPlayerStateChange
-        }
-      });
-    }
-    
-    function onYTPlayerReady(event) {
-      ytPlayerReady = true;
-      const loadingOverlay = document.getElementById('loadingOverlay');
-      loadingOverlay.classList.add('hidden');
-      event.target.playVideo();
-    }
-    
-    function onYTPlayerStateChange(event) {
-      // Handle state changes
-      if (event.data === YT.PlayerState.ENDED) {
-        const { state, startTime } = getWebinarState();
-        if (state === 'ended') {
-          showEnded(startTime);
-        }
-      }
-    }
-
     function startWebinar() {
       document.getElementById('countdownOverlay').classList.add('hidden');
       document.getElementById('webinarRoom').style.display = 'flex';
       
+      const video = document.getElementById('webinarVideo');
       const loadingOverlay = document.getElementById('loadingOverlay');
       
-      if (CONFIG.useYouTube) {
-        // YouTube mode
+      function seekToLivePosition() {
         const { state, elapsed } = getWebinarState();
         if (state !== 'live') return;
         
-        const startSeconds = elapsed || 0;
-        
-        // Check if YouTube API is loaded
-        if (typeof YT !== 'undefined' && YT.Player) {
-          createYouTubePlayer(startSeconds);
-        } else {
-          // Wait for API to load
-          window.onYouTubeIframeAPIReady = function() {
-            createYouTubePlayer(startSeconds);
-          };
+        const targetTime = elapsed || 0;
+        // Only seek if we're more than 2 seconds off to avoid constant seeking
+        if (Math.abs(video.currentTime - targetTime) > 2) {
+          video.currentTime = targetTime;
         }
-        
-        // Re-sync YouTube when user returns to tab
-        document.addEventListener('visibilitychange', function() {
-          if (document.visibilityState === 'visible' && ytPlayer && ytPlayerReady) {
-            const { state, elapsed } = getWebinarState();
-            if (state === 'live') {
-              const targetTime = elapsed || 0;
-              const currentTime = ytPlayer.getCurrentTime();
-              if (Math.abs(currentTime - targetTime) > 3) {
-                ytPlayer.seekTo(targetTime, true);
-              }
-              if (ytPlayer.getPlayerState() !== YT.PlayerState.PLAYING) {
-                ytPlayer.playVideo();
-              }
-            }
-          }
-        });
-      } else {
-        // Regular video mode
-        const video = document.getElementById('webinarVideo');
-        
-        function seekToLivePosition() {
-          const { state, elapsed } = getWebinarState();
-          if (state !== 'live') return;
-          
-          const targetTime = elapsed || 0;
-          if (Math.abs(video.currentTime - targetTime) > 2) {
-            video.currentTime = targetTime;
-          }
-          loadingOverlay.classList.add('hidden');
-        }
-        
-        if (video.readyState >= 1) {
-          seekToLivePosition();
-        } else {
-          video.addEventListener('loadedmetadata', seekToLivePosition, { once: true });
-        }
-        
-        video.muted = true;
-        video.play().catch(() => {});
-        
-        // Re-sync video when user returns to tab
-        document.addEventListener('visibilitychange', function() {
-          if (document.visibilityState === 'visible') {
-            const { state, elapsed } = getWebinarState();
-            if (state === 'live' && video) {
-              const targetTime = elapsed || 0;
-              video.currentTime = targetTime;
-              if (video.paused) {
-                video.play().catch(() => {});
-              }
-            }
-          }
-        });
+        // Hide loading overlay once synced
+        loadingOverlay.classList.add('hidden');
       }
+      
+      // Wait for video metadata to load before seeking
+      if (video.readyState >= 1) {
+        seekToLivePosition();
+      } else {
+        video.addEventListener('loadedmetadata', seekToLivePosition, { once: true });
+      }
+      
+      video.muted = true;
+      video.play().catch(() => {});
       
       updateViewerCount();
       setInterval(updateViewerCount, 30000);
+      
+      // Re-sync video when user returns to tab (browser pauses video when tab is hidden)
+      document.addEventListener('visibilitychange', function() {
+        if (document.visibilityState === 'visible') {
+          const { state, elapsed } = getWebinarState();
+          if (state === 'live' && video) {
+            const targetTime = elapsed || 0;
+            // Always re-sync when returning to tab
+            video.currentTime = targetTime;
+            // Resume playback if paused
+            if (video.paused) {
+              video.play().catch(() => {});
+            }
+          }
+        }
+      });
       
       // Check for ended state
       setInterval(() => {
@@ -1701,13 +1526,6 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       document.getElementById('webinarRoom').style.display = 'none';
       document.getElementById('endedOverlay').classList.remove('hidden');
       
-      // Stop YouTube player if active
-      if (CONFIG.useYouTube && ytPlayer && ytPlayerReady) {
-        try {
-          ytPlayer.stopVideo();
-        } catch (e) {}
-      }
-      
       // Calculate next session time (tomorrow at the same time)
       const nextStart = new Date(startTime);
       nextStart.setDate(nextStart.getDate() + 1);
@@ -1720,6 +1538,7 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
         const diff = nextStart - localTime;
         
         if (diff <= 0) {
+          // Next session started, reload page
           location.reload();
           return;
         }
@@ -1743,85 +1562,44 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
     }
 
     function initialUnmute() {
-      if (CONFIG.useYouTube) {
-        if (ytPlayer && ytPlayerReady) {
-          ytPlayer.unMute();
-          ytPlayer.setVolume(100);
-        }
-      } else {
-        const video = document.getElementById('webinarVideo');
-        video.muted = false;
-      }
+      const video = document.getElementById('webinarVideo');
+      video.muted = false;
       document.getElementById('unmuteNotice').style.display = 'none';
       document.getElementById('soundControls').style.display = 'flex';
       updateVolumeIcon();
     }
     
     function toggleMute() {
-      if (CONFIG.useYouTube) {
-        if (ytPlayer && ytPlayerReady) {
-          if (ytPlayer.isMuted()) {
-            ytPlayer.unMute();
-          } else {
-            ytPlayer.mute();
-          }
-        }
-      } else {
-        const video = document.getElementById('webinarVideo');
-        video.muted = !video.muted;
-      }
+      const video = document.getElementById('webinarVideo');
+      video.muted = !video.muted;
       updateVolumeIcon();
     }
     
     function setVolume(value) {
-      if (CONFIG.useYouTube) {
-        if (ytPlayer && ytPlayerReady) {
-          ytPlayer.setVolume(value);
-          if (value == 0) {
-            ytPlayer.mute();
-          } else if (ytPlayer.isMuted()) {
-            ytPlayer.unMute();
-          }
-        }
-      } else {
-        const video = document.getElementById('webinarVideo');
-        video.volume = value / 100;
-        if (value == 0) {
-          video.muted = true;
-        } else if (video.muted) {
-          video.muted = false;
-        }
+      const video = document.getElementById('webinarVideo');
+      video.volume = value / 100;
+      if (value == 0) {
+        video.muted = true;
+      } else if (video.muted) {
+        video.muted = false;
       }
       updateVolumeIcon();
     }
     
     function updateVolumeIcon() {
+      const video = document.getElementById('webinarVideo');
       const volumeIcon = document.getElementById('volumeIcon');
       const mutedIcon = document.getElementById('mutedIcon');
       const slider = document.getElementById('volumeSlider');
       
-      let isMuted = false;
-      let volume = 100;
-      
-      if (CONFIG.useYouTube) {
-        if (ytPlayer && ytPlayerReady) {
-          isMuted = ytPlayer.isMuted();
-          volume = ytPlayer.getVolume();
-        }
-      } else {
-        const video = document.getElementById('webinarVideo');
-        isMuted = video.muted;
-        volume = video.volume * 100;
-      }
-      
-      if (isMuted || volume === 0) {
+      if (video.muted || video.volume === 0) {
         volumeIcon.style.display = 'none';
         mutedIcon.style.display = 'block';
         slider.value = 0;
       } else {
         volumeIcon.style.display = 'block';
         mutedIcon.style.display = 'none';
-        slider.value = volume;
+        slider.value = video.volume * 100;
       }
     }
 
@@ -1942,13 +1720,8 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       if (e.key === 'Enter') sendMessage();
     });
 
-    // Disable right-click on video (only for regular video mode)
-    if (!CONFIG.useYouTube) {
-      const videoEl = document.getElementById('webinarVideo');
-      if (videoEl) {
-        videoEl.addEventListener('contextmenu', e => e.preventDefault());
-      }
-    }
+    // Disable right-click on video
+    document.getElementById('webinarVideo').addEventListener('contextmenu', e => e.preventDefault());
 
     ${ctaScript}
 

@@ -15,7 +15,6 @@ export const rowToConfig = (row: any): WebinarConfig => ({
   headerTitle: row.header_title,
   logoText: row.logo_text,
   videoUrl: row.video_url,
-  youtubeVideoId: row.youtube_video_id ?? '',
   durationSeconds: row.duration_minutes * 60,
   videoMode: row.video_mode ?? 'single',
   videoSequence: (row.video_sequence as VideoSequenceItem[]) ?? [],
@@ -79,7 +78,6 @@ const configToRow = (config: Omit<WebinarConfig, 'id' | 'createdAt' | 'updatedAt
   header_title: config.headerTitle,
   logo_text: config.logoText,
   video_url: config.videoUrl,
-  youtube_video_id: config.youtubeVideoId,
   duration_minutes: Math.ceil(config.durationSeconds / 60),
   video_mode: config.videoMode,
   video_sequence: config.videoSequence,
@@ -178,8 +176,8 @@ export const saveWebinar = async (config: Omit<WebinarConfig, 'id' | 'createdAt'
     .single();
   
   if (error) {
-    console.error('Error saving webinar:', error.message, error.code, error.details);
-    throw new Error(error.message || 'Failed to save webinar');
+    console.error('Error saving webinar:', error);
+    return null;
   }
   
   return rowToConfig(data);
@@ -193,7 +191,6 @@ export const updateWebinar = async (id: string, config: Partial<WebinarConfig>):
   if (rest.headerTitle !== undefined) updateData.header_title = rest.headerTitle;
   if (rest.logoText !== undefined) updateData.logo_text = rest.logoText;
   if (rest.videoUrl !== undefined) updateData.video_url = rest.videoUrl;
-  if (rest.youtubeVideoId !== undefined) updateData.youtube_video_id = rest.youtubeVideoId;
   if (rest.durationSeconds !== undefined) updateData.duration_minutes = Math.ceil(rest.durationSeconds / 60);
   if (rest.videoMode !== undefined) updateData.video_mode = rest.videoMode;
   if (rest.videoSequence !== undefined) updateData.video_sequence = rest.videoSequence;

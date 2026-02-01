@@ -19,7 +19,6 @@ import {
   BarChart3,
   Film,
   Layers,
-  Youtube,
 } from 'lucide-react';
 import { RegistrationFormSettings } from './RegistrationFormSettings';
 import { RegistrationFormPreview } from './RegistrationFormPreview';
@@ -101,26 +100,16 @@ export function WebinarForm({ config, onChange, webinarId }: WebinarFormProps) {
             <RadioGroup
               value={config.videoMode}
               onValueChange={(v) => updateField('videoMode', v as VideoMode)}
-              className="grid grid-cols-3 gap-3"
+              className="grid grid-cols-2 gap-3"
             >
               <label className={`flex items-center gap-3 p-4 rounded-lg border cursor-pointer transition-colors ${config.videoMode === 'single' ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50'}`}>
                 <RadioGroupItem value="single" id="single" />
                 <div>
                   <div className="flex items-center gap-2 font-medium">
                     <Video className="w-4 h-4" />
-                    Direct Video
+                    Single Video
                   </div>
-                  <p className="text-xs text-muted-foreground">MP4 URL</p>
-                </div>
-              </label>
-              <label className={`flex items-center gap-3 p-4 rounded-lg border cursor-pointer transition-colors ${config.videoMode === 'youtube' ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50'}`}>
-                <RadioGroupItem value="youtube" id="youtube" />
-                <div>
-                  <div className="flex items-center gap-2 font-medium">
-                    <Youtube className="w-4 h-4" />
-                    YouTube
-                  </div>
-                  <p className="text-xs text-muted-foreground">YouTube URL</p>
+                  <p className="text-xs text-muted-foreground">One video file</p>
                 </div>
               </label>
               <label className={`flex items-center gap-3 p-4 rounded-lg border cursor-pointer transition-colors ${config.videoMode === 'multi' ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50'}`}>
@@ -128,7 +117,7 @@ export function WebinarForm({ config, onChange, webinarId }: WebinarFormProps) {
                 <div>
                   <div className="flex items-center gap-2 font-medium">
                     <Layers className="w-4 h-4" />
-                    Multi-Clip
+                    Multi-Clip Sequence
                   </div>
                   <p className="text-xs text-muted-foreground">Multiple clips</p>
                 </div>
@@ -136,7 +125,7 @@ export function WebinarForm({ config, onChange, webinarId }: WebinarFormProps) {
             </RadioGroup>
           </div>
 
-          {config.videoMode === 'single' && (
+          {config.videoMode === 'single' ? (
             <>
               <div className="space-y-2">
                 <Label htmlFor="videoUrl">Video URL</Label>
@@ -206,110 +195,7 @@ export function WebinarForm({ config, onChange, webinarId }: WebinarFormProps) {
                 </div>
               </div>
             </>
-          )}
-          
-          {config.videoMode === 'youtube' && (
-            <>
-              <div className="space-y-2">
-                <Label htmlFor="youtubeUrl">YouTube URL</Label>
-                <Input
-                  id="youtubeUrl"
-                  type="url"
-                  value={config.youtubeVideoId ? `https://www.youtube.com/watch?v=${config.youtubeVideoId}` : ''}
-                  onChange={(e) => {
-                    const url = e.target.value;
-                    // Extract video ID from various YouTube URL formats
-                    let videoId = '';
-                    const patterns = [
-                      /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/v\/)([^&\n?#]+)/,
-                      /^([a-zA-Z0-9_-]{11})$/ // Just the ID
-                    ];
-                    for (const pattern of patterns) {
-                      const match = url.match(pattern);
-                      if (match) {
-                        videoId = match[1];
-                        break;
-                      }
-                    }
-                    updateField('youtubeVideoId', videoId);
-                  }}
-                  placeholder="https://www.youtube.com/watch?v=..."
-                  className="input-field"
-                />
-                <p className="text-xs text-muted-foreground">
-                  Paste any YouTube URL (watch, share, or embed link)
-                </p>
-                {config.youtubeVideoId && (
-                  <p className="text-xs text-green-500">
-                    ✓ Video ID detected: {config.youtubeVideoId}
-                  </p>
-                )}
-              </div>
-              <div className="space-y-2">
-                <Label>Duration</Label>
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="space-y-1">
-                    <Label htmlFor="ytDurationHours" className="text-xs text-muted-foreground">Hours</Label>
-                    <Input
-                      id="ytDurationHours"
-                      type="number"
-                      value={Math.floor((config.durationSeconds || 0) / 3600)}
-                      onChange={(e) => {
-                        const hours = parseInt(e.target.value) || 0;
-                        const currentMinutes = Math.floor(((config.durationSeconds || 0) % 3600) / 60);
-                        const currentSeconds = (config.durationSeconds || 0) % 60;
-                        updateField('durationSeconds', hours * 3600 + currentMinutes * 60 + currentSeconds);
-                      }}
-                      className="input-field"
-                      min={0}
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <Label htmlFor="ytDurationMinutes" className="text-xs text-muted-foreground">Minutes</Label>
-                    <Input
-                      id="ytDurationMinutes"
-                      type="number"
-                      value={Math.floor(((config.durationSeconds || 0) % 3600) / 60)}
-                      onChange={(e) => {
-                        const minutes = Math.min(59, parseInt(e.target.value) || 0);
-                        const currentHours = Math.floor((config.durationSeconds || 0) / 3600);
-                        const currentSeconds = (config.durationSeconds || 0) % 60;
-                        updateField('durationSeconds', currentHours * 3600 + minutes * 60 + currentSeconds);
-                      }}
-                      className="input-field"
-                      min={0}
-                      max={59}
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <Label htmlFor="ytDurationSecs" className="text-xs text-muted-foreground">Seconds</Label>
-                    <Input
-                      id="ytDurationSecs"
-                      type="number"
-                      value={(config.durationSeconds || 0) % 60}
-                      onChange={(e) => {
-                        const seconds = Math.min(59, parseInt(e.target.value) || 0);
-                        const currentHours = Math.floor((config.durationSeconds || 0) / 3600);
-                        const currentMinutes = Math.floor(((config.durationSeconds || 0) % 3600) / 60);
-                        updateField('durationSeconds', currentHours * 3600 + currentMinutes * 60 + seconds);
-                      }}
-                      className="input-field"
-                      min={0}
-                      max={59}
-                    />
-                  </div>
-                </div>
-                <p className="text-xs text-muted-foreground">Enter the total duration of the YouTube video</p>
-              </div>
-              <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
-                <p className="text-xs text-amber-400">
-                  <strong>Note:</strong> YouTube branding is minimized but a small watermark may still appear per YouTube's Terms of Service.
-                </p>
-              </div>
-            </>
-          )}
-          
-          {config.videoMode === 'multi' && (
+          ) : (
             <VideoSequenceBuilder
               sequence={config.videoSequence}
               onChange={(seq) => updateField('videoSequence', seq)}
@@ -317,7 +203,61 @@ export function WebinarForm({ config, onChange, webinarId }: WebinarFormProps) {
           )}
         </CardContent>
       </Card>
-
+          <div className="space-y-2">
+            <Label>Duration</Label>
+            <div className="grid grid-cols-3 gap-3">
+              <div className="space-y-1">
+                <Label htmlFor="durationHours" className="text-xs text-muted-foreground">Hours</Label>
+                <Input
+                  id="durationHours"
+                  type="number"
+                  value={Math.floor((config.durationSeconds || 0) / 3600)}
+                  onChange={(e) => {
+                    const hours = parseInt(e.target.value) || 0;
+                    const currentMinutes = Math.floor(((config.durationSeconds || 0) % 3600) / 60);
+                    const currentSeconds = (config.durationSeconds || 0) % 60;
+                    updateField('durationSeconds', hours * 3600 + currentMinutes * 60 + currentSeconds);
+                  }}
+                  className="input-field"
+                  min={0}
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="durationMinutes" className="text-xs text-muted-foreground">Minutes</Label>
+                <Input
+                  id="durationMinutes"
+                  type="number"
+                  value={Math.floor(((config.durationSeconds || 0) % 3600) / 60)}
+                  onChange={(e) => {
+                    const minutes = Math.min(59, parseInt(e.target.value) || 0);
+                    const currentHours = Math.floor((config.durationSeconds || 0) / 3600);
+                    const currentSeconds = (config.durationSeconds || 0) % 60;
+                    updateField('durationSeconds', currentHours * 3600 + minutes * 60 + currentSeconds);
+                  }}
+                  className="input-field"
+                  min={0}
+                  max={59}
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="durationSecs" className="text-xs text-muted-foreground">Seconds</Label>
+                <Input
+                  id="durationSecs"
+                  type="number"
+                  value={(config.durationSeconds || 0) % 60}
+                  onChange={(e) => {
+                    const seconds = Math.min(59, parseInt(e.target.value) || 0);
+                    const currentHours = Math.floor((config.durationSeconds || 0) / 3600);
+                    const currentMinutes = Math.floor(((config.durationSeconds || 0) % 3600) / 60);
+                    updateField('durationSeconds', currentHours * 3600 + currentMinutes * 60 + seconds);
+                  }}
+                  className="input-field"
+                  min={0}
+                  max={59}
+                />
+              </div>
+            </div>
+          </div>
       <Card className="glass-card">
         <CardHeader className="pb-4">
           <CardTitle className="flex items-center gap-2 text-lg font-display">
