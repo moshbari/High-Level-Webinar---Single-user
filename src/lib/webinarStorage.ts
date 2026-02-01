@@ -178,8 +178,8 @@ export const saveWebinar = async (config: Omit<WebinarConfig, 'id' | 'createdAt'
     .single();
   
   if (error) {
-    console.error('Error saving webinar:', error);
-    return null;
+    console.error('Error saving webinar:', error.message, error.code, error.details);
+    throw new Error(error.message || 'Failed to save webinar');
   }
   
   return rowToConfig(data);
