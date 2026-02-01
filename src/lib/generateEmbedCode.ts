@@ -1510,6 +1510,32 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
     // YouTube player reference (if using YouTube mode)
     let ytPlayer = null;
     let ytPlayerReady = false;
+
+    // YouTube sometimes throws a noisy (but harmless) postMessage targetOrigin error
+    // when embedded inside certain hosts/iframes. Suppress only that exact case.
+    if (CONFIG.useYouTube) {
+      window.addEventListener(
+        'error',
+        function (e) {
+          try {
+            const msg = String(e?.message || '');
+            const file = String(e?.filename || '');
+
+            const isYouTubeWidgetApi = file.includes('youtube') && file.includes('widgetapi');
+            const isKnownPostMessageNoise = msg.includes("Failed to execute 'postMessage' on 'DOMWindow'");
+
+            if (isYouTubeWidgetApi && isKnownPostMessageNoise) {
+              e.preventDefault();
+              return true;
+            }
+          } catch (_) {
+            // ignore
+          }
+          return false;
+        },
+        true
+      );
+    }
     
     // YouTube IFrame API callback
     if (CONFIG.useYouTube) {
