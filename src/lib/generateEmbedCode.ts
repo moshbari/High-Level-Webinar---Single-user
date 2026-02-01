@@ -1245,6 +1245,47 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       supabaseUrl: "https://xidtgjtbhskltygixljs.supabase.co"
     };
 
+    // ========== YouTube postMessage Error Suppression ==========
+    // YouTube's iframe API often throws harmless postMessage targetOrigin errors
+    // when embedded in iframes or cross-origin contexts. Suppress this noise.
+    (function() {
+      function isYouTubePostMessageNoise(msg, file) {
+        const isPostMessageError = String(msg || '').includes("Failed to execute 'postMessage' on 'DOMWindow'");
+        const isYouTubeOrigin = String(file || '').includes('youtube');
+        return isPostMessageError && isYouTubeOrigin;
+      }
+
+      // Suppress synchronous errors
+      window.addEventListener('error', function(e) {
+        if (isYouTubePostMessageNoise(e?.message, e?.filename)) {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          return true;
+        }
+      }, true);
+
+      // Suppress promise rejections (YouTube API uses promises internally)
+      window.addEventListener('unhandledrejection', function(e) {
+        const reason = e?.reason;
+        const msg = reason?.message || String(reason || '');
+        if (msg.includes("Failed to execute 'postMessage'") || msg.includes('postMessage')) {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          return true;
+        }
+      }, true);
+
+      // Override console.error to filter YouTube postMessage noise
+      const origConsoleError = console.error;
+      console.error = function(...args) {
+        const str = args.map(a => String(a)).join(' ');
+        if (str.includes("Failed to execute 'postMessage'") && str.includes('youtube')) {
+          return; // Silently ignore
+        }
+        origConsoleError.apply(console, args);
+      };
+    })();
+
     let userData = null;
     let leadId = null;
     let isTyping = false;
@@ -1511,31 +1552,6 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
     let ytPlayer = null;
     let ytPlayerReady = false;
 
-    // YouTube sometimes throws a noisy (but harmless) postMessage targetOrigin error
-    // when embedded inside certain hosts/iframes. Suppress only that exact case.
-    if (CONFIG.useYouTube) {
-      window.addEventListener(
-        'error',
-        function (e) {
-          try {
-            const msg = String(e?.message || '');
-            const file = String(e?.filename || '');
-
-            const isYouTubeWidgetApi = file.includes('youtube') && file.includes('widgetapi');
-            const isKnownPostMessageNoise = msg.includes("Failed to execute 'postMessage' on 'DOMWindow'");
-
-            if (isYouTubeWidgetApi && isKnownPostMessageNoise) {
-              e.preventDefault();
-              return true;
-            }
-          } catch (_) {
-            // ignore
-          }
-          return false;
-        },
-        true
-      );
-    }
     
     // YouTube IFrame API callback
     if (CONFIG.useYouTube) {
