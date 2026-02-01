@@ -601,6 +601,7 @@ export type Database = {
           webhook_url: string
           webinar_name: string
           welcome_message: string
+          youtube_video_id: string | null
         }
         Insert: {
           background_color?: string
@@ -663,6 +664,7 @@ export type Database = {
           webhook_url?: string
           webinar_name: string
           welcome_message?: string
+          youtube_video_id?: string | null
         }
         Update: {
           background_color?: string
@@ -725,6 +727,7 @@ export type Database = {
           webhook_url?: string
           webinar_name?: string
           welcome_message?: string
+          youtube_video_id?: string | null
         }
         Relationships: []
       }

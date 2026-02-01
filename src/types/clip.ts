@@ -27,7 +27,7 @@ export interface VideoSequenceClip {
   order: number;
 }
 
-export type VideoMode = 'single' | 'multi';
+export type VideoMode = 'single' | 'multi' | 'youtube';
 
 export const DEFAULT_CLIP: Omit<Clip, 'id' | 'createdAt' | 'updatedAt'> = {
   userId: null,
