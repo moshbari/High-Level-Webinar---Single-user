@@ -124,6 +124,7 @@ export interface DbLead {
 export type WebinarState = 'countdown' | 'live' | 'ended';
 
 export const TIMEZONES = [
+  { value: 'UTC', label: 'UTC' },
   { value: 'America/New_York', label: 'Eastern Time (ET)' },
   { value: 'America/Chicago', label: 'Central Time (CT)' },
   { value: 'America/Denver', label: 'Mountain Time (MT)' },
