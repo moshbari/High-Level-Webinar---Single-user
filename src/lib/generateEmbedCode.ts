@@ -1242,8 +1242,8 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       enableTracking: ${config.enableTracking ?? true},
       trackingWebhookUrl: "${config.trackingWebhookUrl || 'https://moshbari.cloud/webhook/webinar-tracking'}",
       supabaseUrl: "https://xidtgjtbhskltygixljs.supabase.co",
-      justInTimeEnabled: ${config.justInTimeEnabled || false},
-      justInTimeMinutes: ${config.justInTimeMinutes || 15},
+      justInTimeEnabled: ${config.justInTimeEnabled ?? false},
+      justInTimeMinutes: ${config.justInTimeMinutes ?? 15},
       isYouTube: ${isYouTube},
       youtubeId: "${youtubeId || ''}"
     };
@@ -1449,15 +1449,16 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
 
       // Just-in-Time mode: use a dynamic start time stored in sessionStorage
       if (CONFIG.justInTimeEnabled) {
+        const storageKey = 'jit_start_' + CONFIG.webinarId;
+
         // 0 minutes = start immediately, no countdown at all
         if (CONFIG.justInTimeMinutes <= 0) {
+          sessionStorage.removeItem(storageKey);
           const jitStart = new Date(localTime.getTime() - 1000); // 1s in the past = already live
           const jitEnd = new Date(jitStart.getTime() + CONFIG.durationSeconds * 1000);
           const elapsed = (localTime - jitStart) / 1000;
           return { state: 'live', startTime: jitStart, endTime: jitEnd, elapsed };
         }
-
-        const storageKey = 'jit_start_' + CONFIG.webinarId;
         let jitStartMs = sessionStorage.getItem(storageKey);
         
         if (!jitStartMs) {
@@ -1588,9 +1589,49 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
         }
       };
 
+      const registerIframeVisibilityFallback = function() {
+        const container = document.getElementById('ytPlayerContainer');
+        if (!container) return;
+
+        let overlayHidden = false;
+        const revealVideo = function() {
+          if (overlayHidden) return;
+          overlayHidden = true;
+          hideLoadingOverlay();
+        };
+
+        const attachToIframe = function() {
+          const iframe = container.querySelector('iframe');
+          if (!iframe) return false;
+
+          iframe.addEventListener('load', revealVideo, { once: true });
+          setTimeout(revealVideo, 1200);
+          return true;
+        };
+
+        if (attachToIframe()) return;
+
+        const observer = new MutationObserver(function() {
+          if (attachToIframe()) {
+            observer.disconnect();
+          }
+        });
+
+        observer.observe(container, { childList: true, subtree: true });
+
+        setTimeout(function() {
+          observer.disconnect();
+          if (container.querySelector('iframe')) {
+            revealVideo();
+          }
+        }, 4000);
+      };
+
       const initYouTubePlayer = function() {
         const { elapsed } = getWebinarState();
         const startSeconds = Math.floor(elapsed || 0);
+
+        registerIframeVisibilityFallback();
 
         ytPlayer = new YT.Player('ytPlayerContainer', {
           videoId: CONFIG.youtubeId,
