@@ -17,6 +17,16 @@ const getBorderRadius = (radius: string) => {
 
 export function RegistrationFormPreview({ config }: RegistrationFormPreviewProps) {
   const nextSession = useMemo(() => {
+    if (config.justInTimeEnabled) {
+      return {
+        isJit: true,
+        minutesAway: config.justInTimeMinutes,
+        date: '',
+        time: '',
+        timezone: '',
+      };
+    }
+
     const now = new Date();
     const sessionDate = new Date(now);
     sessionDate.setHours(config.startHour, config.startMinute, 0, 0);
@@ -29,11 +39,13 @@ export function RegistrationFormPreview({ config }: RegistrationFormPreviewProps
     const tzLabel = tz ? tz.label.split(' ')[0] : 'Local';
     
     return {
+      isJit: false,
+      minutesAway: 0,
       date: sessionDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
       time: sessionDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }),
       timezone: tzLabel
     };
-  }, [config.startHour, config.startMinute, config.timezone]);
+  }, [config.justInTimeEnabled, config.justInTimeMinutes, config.startHour, config.startMinute, config.timezone]);
 
   const isDark = config.regFormTheme === 'dark';
   const borderRadius = getBorderRadius(config.regFormBorderRadius);
