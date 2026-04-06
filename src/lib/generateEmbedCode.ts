@@ -1603,7 +1603,9 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
               ytPlayerReady = true;
               event.target.mute();
               event.target.playVideo();
-              loadingOverlay.classList.add('hidden');
+              // Force-hide loading overlay
+              var lo = document.getElementById('loadingOverlay');
+              if (lo) lo.style.display = 'none';
             },
             onStateChange: function(event) {
               // If video ends or is paused externally, force replay
