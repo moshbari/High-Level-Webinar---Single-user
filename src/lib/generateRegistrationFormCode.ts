@@ -214,12 +214,17 @@ export const generateRegistrationFormCode = (config: WebinarConfig): string => {
       startHour: ${config.startHour},
       startMinute: ${config.startMinute},
       timezone: '${config.timezone}',
+      justInTimeEnabled: ${config.justInTimeEnabled},
+      justInTimeMinutes: ${config.justInTimeMinutes},
       ghlWebhookUrl: '${config.regFormGhlWebhookUrl}',
       thankYouUrl: '${config.regFormThankYouUrl}'
     };
     
-    // Calculate next session
-    function getNextSession() {
+    function getSessionDisplay() {
+      if (CONFIG.justInTimeEnabled) {
+        return '⚡ Starting in just ' + CONFIG.justInTimeMinutes + ' minutes!';
+      }
+
       const now = new Date();
       const session = new Date(now);
       session.setHours(CONFIG.startHour, CONFIG.startMinute, 0, 0);
@@ -227,18 +232,16 @@ export const generateRegistrationFormCode = (config: WebinarConfig): string => {
       if (session <= now) {
         session.setDate(session.getDate() + 1);
       }
-      
-      return session;
+
+      const dateStr = session.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+      const timeStr = session.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+      return '📅 Next Session: ' + dateStr + ' at ' + timeStr;
     }
     
-    // Display next session datetime
     ${config.regFormShowDatetime ? `
     const sessionEl = document.getElementById('sessionDateTime');
     if (sessionEl) {
-      const next = getNextSession();
-      const dateStr = next.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-      const timeStr = next.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-      sessionEl.textContent = '📅 Next Session: ' + dateStr + ' at ' + timeStr;
+      sessionEl.textContent = getSessionDisplay();
     }
     ` : ''}
     
