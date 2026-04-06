@@ -1453,8 +1453,8 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
         let jitStartMs = sessionStorage.getItem(storageKey);
         
         if (!jitStartMs) {
-          // Calculate a start time: random offset between 1 and justInTimeMinutes from now
-          const offsetMs = (Math.floor(Math.random() * (CONFIG.justInTimeMinutes - 1)) + 1) * 60 * 1000;
+          // Calculate a start time: 0 = immediate, otherwise random offset between 1 and justInTimeMinutes
+          const offsetMs = CONFIG.justInTimeMinutes <= 0 ? 0 : (Math.floor(Math.random() * (CONFIG.justInTimeMinutes - 1)) + 1) * 60 * 1000;
           const jitStart = new Date(localTime.getTime() + offsetMs);
           jitStartMs = String(jitStart.getTime());
           sessionStorage.setItem(storageKey, jitStartMs);
@@ -1474,7 +1474,7 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
         
         // Session ended — clear and create new JIT session
         sessionStorage.removeItem(storageKey);
-        const offsetMs = (Math.floor(Math.random() * (CONFIG.justInTimeMinutes - 1)) + 1) * 60 * 1000;
+        const offsetMs = CONFIG.justInTimeMinutes <= 0 ? 0 : (Math.floor(Math.random() * (CONFIG.justInTimeMinutes - 1)) + 1) * 60 * 1000;
         const newStart = new Date(localTime.getTime() + offsetMs);
         sessionStorage.setItem(storageKey, String(newStart.getTime()));
         const newEnd = new Date(newStart.getTime() + CONFIG.durationSeconds * 1000);
