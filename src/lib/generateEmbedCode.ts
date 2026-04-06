@@ -1131,9 +1131,14 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
         </div>
       </div>
       <div class="video-wrapper">
+        ${isYouTube ? `
+        <div id="ytPlayerContainer"></div>
+        <div class="youtube-overlay" id="youtubeOverlay"></div>
+        ` : `
         <video id="webinarVideo" playsinline>
           <source src="${config.videoUrl}" type="video/mp4">
         </video>
+        `}
         <div class="sound-controls" id="soundControls" style="display:none;">
           <button class="mute-btn" id="muteBtn" onclick="toggleMute()">
             <svg id="volumeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
