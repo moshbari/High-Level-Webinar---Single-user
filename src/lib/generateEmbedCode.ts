@@ -1,6 +1,22 @@
 import { WebinarConfig } from '@/types/webinar';
 
+// Extract YouTube video ID from various URL formats
+function extractYouTubeId(url: string): string | null {
+  if (!url) return null;
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtube\.com\/embed\/|youtube\.com\/v\/|youtu\.be\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/,
+    /^([a-zA-Z0-9_-]{11})$/ // bare video ID
+  ];
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match) return match[1];
+  }
+  return null;
+}
+
 export const generateEmbedCode = (config: WebinarConfig): string => {
+  const youtubeId = extractYouTubeId(config.videoUrl);
+  const isYouTube = !!youtubeId;
   const ctaBannerHtml = config.enableCta ? `
   <!-- CTA Banner -->
   <div class="cta-banner hidden" id="ctaBanner">
