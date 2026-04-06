@@ -1,6 +1,22 @@
 import { WebinarConfig } from '@/types/webinar';
 
+// Extract YouTube video ID from various URL formats
+function extractYouTubeId(url: string): string | null {
+  if (!url) return null;
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtube\.com\/embed\/|youtube\.com\/v\/|youtu\.be\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/,
+    /^([a-zA-Z0-9_-]{11})$/ // bare video ID
+  ];
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match) return match[1];
+  }
+  return null;
+}
+
 export const generateEmbedCode = (config: WebinarConfig): string => {
+  const youtubeId = extractYouTubeId(config.videoUrl);
+  const isYouTube = !!youtubeId;
   const ctaBannerHtml = config.enableCta ? `
   <!-- CTA Banner -->
   <div class="cta-banner hidden" id="ctaBanner">
@@ -526,6 +542,23 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       height: 100%;
       object-fit: contain;
       background: #000;
+    }
+    
+    /* YouTube player styles */
+    .video-wrapper iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+    
+    .youtube-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 10;
+      cursor: default;
     }
     
     .sound-controls {
@@ -1098,9 +1131,14 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
         </div>
       </div>
       <div class="video-wrapper">
+        ${isYouTube ? `
+        <div id="ytPlayerContainer"></div>
+        <div class="youtube-overlay" id="youtubeOverlay"></div>
+        ` : `
         <video id="webinarVideo" playsinline>
           <source src="${config.videoUrl}" type="video/mp4">
         </video>
+        `}
         <div class="sound-controls" id="soundControls" style="display:none;">
           <button class="mute-btn" id="muteBtn" onclick="toggleMute()">
             <svg id="volumeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1201,7 +1239,9 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       trackingWebhookUrl: "${config.trackingWebhookUrl || 'https://moshbari.cloud/webhook/webinar-tracking'}",
       supabaseUrl: "https://xidtgjtbhskltygixljs.supabase.co",
       justInTimeEnabled: ${config.justInTimeEnabled || false},
-      justInTimeMinutes: ${config.justInTimeMinutes || 15}
+      justInTimeMinutes: ${config.justInTimeMinutes || 15},
+      isYouTube: ${isYouTube},
+      youtubeId: "${youtubeId || ''}"
     };
 
     let userData = null;
@@ -1500,27 +1540,125 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
     }
 
+    let ytPlayer = null;
+    let ytPlayerReady = false;
+    let ytMuted = true;
+
     function startWebinar() {
       document.getElementById('countdownOverlay').classList.add('hidden');
       document.getElementById('webinarRoom').style.display = 'flex';
       
-      const video = document.getElementById('webinarVideo');
       const loadingOverlay = document.getElementById('loadingOverlay');
+      
+      if (CONFIG.isYouTube) {
+        startYouTubeWebinar(loadingOverlay);
+      } else {
+        startMP4Webinar(loadingOverlay);
+      }
+      
+      updateViewerCount();
+      setInterval(updateViewerCount, 30000);
+      
+      // Check for ended state
+      setInterval(() => {
+        const { state, startTime } = getWebinarState();
+        if (state === 'ended') {
+          showEnded(startTime);
+        }
+      }, 1000);
+    }
+
+    function startYouTubeWebinar(loadingOverlay) {
+      // Load YouTube IFrame API
+      const tag = document.createElement('script');
+      tag.src = 'https://www.youtube.com/iframe_api';
+      document.head.appendChild(tag);
+      
+      window.onYouTubeIframeAPIReady = function() {
+        const { elapsed } = getWebinarState();
+        const startSeconds = Math.floor(elapsed || 0);
+        
+        ytPlayer = new YT.Player('ytPlayerContainer', {
+          videoId: CONFIG.youtubeId,
+          playerVars: {
+            autoplay: 1,
+            mute: 1,
+            controls: 0,
+            disablekb: 1,
+            fs: 0,
+            iv_load_policy: 3,
+            modestbranding: 1,
+            rel: 0,
+            showinfo: 0,
+            playsinline: 1,
+            start: startSeconds,
+            origin: window.location.origin
+          },
+          events: {
+            onReady: function(event) {
+              ytPlayerReady = true;
+              event.target.mute();
+              event.target.playVideo();
+              loadingOverlay.classList.add('hidden');
+            },
+            onStateChange: function(event) {
+              // If video ends or is paused externally, force replay
+              if (event.data === YT.PlayerState.ENDED || event.data === YT.PlayerState.PAUSED) {
+                const { state } = getWebinarState();
+                if (state === 'live') {
+                  event.target.playVideo();
+                }
+              }
+            }
+          }
+        });
+      };
+      
+      // Re-sync YouTube when user returns to tab
+      document.addEventListener('visibilitychange', function() {
+        if (document.visibilityState === 'visible' && ytPlayerReady && ytPlayer) {
+          const { state, elapsed } = getWebinarState();
+          if (state === 'live') {
+            const targetTime = Math.floor(elapsed || 0);
+            const currentTime = ytPlayer.getCurrentTime();
+            if (Math.abs(currentTime - targetTime) > 3) {
+              ytPlayer.seekTo(targetTime, true);
+            }
+            if (ytPlayer.getPlayerState() !== YT.PlayerState.PLAYING) {
+              ytPlayer.playVideo();
+            }
+          }
+        }
+      });
+      
+      // Prevent seeking via periodic sync check
+      setInterval(function() {
+        if (!ytPlayerReady || !ytPlayer) return;
+        const { state, elapsed } = getWebinarState();
+        if (state === 'live') {
+          const targetTime = elapsed || 0;
+          const currentTime = ytPlayer.getCurrentTime();
+          if (Math.abs(currentTime - targetTime) > 5) {
+            ytPlayer.seekTo(targetTime, true);
+          }
+        }
+      }, 3000);
+    }
+
+    function startMP4Webinar(loadingOverlay) {
+      const video = document.getElementById('webinarVideo');
       
       function seekToLivePosition() {
         const { state, elapsed } = getWebinarState();
         if (state !== 'live') return;
         
         const targetTime = elapsed || 0;
-        // Only seek if we're more than 2 seconds off to avoid constant seeking
         if (Math.abs(video.currentTime - targetTime) > 2) {
           video.currentTime = targetTime;
         }
-        // Hide loading overlay once synced
         loadingOverlay.classList.add('hidden');
       }
       
-      // Wait for video metadata to load before seeking
       if (video.readyState >= 1) {
         seekToLivePosition();
       } else {
@@ -1530,32 +1668,19 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       video.muted = true;
       video.play().catch(() => {});
       
-      updateViewerCount();
-      setInterval(updateViewerCount, 30000);
-      
-      // Re-sync video when user returns to tab (browser pauses video when tab is hidden)
+      // Re-sync video when user returns to tab
       document.addEventListener('visibilitychange', function() {
         if (document.visibilityState === 'visible') {
           const { state, elapsed } = getWebinarState();
           if (state === 'live' && video) {
             const targetTime = elapsed || 0;
-            // Always re-sync when returning to tab
             video.currentTime = targetTime;
-            // Resume playback if paused
             if (video.paused) {
               video.play().catch(() => {});
             }
           }
         }
       });
-      
-      // Check for ended state
-      setInterval(() => {
-        const { state, startTime } = getWebinarState();
-        if (state === 'ended') {
-          showEnded(startTime);
-        }
-      }, 1000);
     }
 
     function showEnded(startTime) {
@@ -1598,44 +1723,93 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
     }
 
     function initialUnmute() {
-      const video = document.getElementById('webinarVideo');
-      video.muted = false;
+      if (CONFIG.isYouTube) {
+        if (ytPlayerReady && ytPlayer) {
+          ytPlayer.unMute();
+          ytPlayer.setVolume(100);
+          ytMuted = false;
+        }
+      } else {
+        const video = document.getElementById('webinarVideo');
+        video.muted = false;
+      }
       document.getElementById('unmuteNotice').style.display = 'none';
       document.getElementById('soundControls').style.display = 'flex';
       updateVolumeIcon();
     }
     
     function toggleMute() {
-      const video = document.getElementById('webinarVideo');
-      video.muted = !video.muted;
+      if (CONFIG.isYouTube) {
+        if (ytPlayerReady && ytPlayer) {
+          if (ytPlayer.isMuted()) {
+            ytPlayer.unMute();
+            ytMuted = false;
+          } else {
+            ytPlayer.mute();
+            ytMuted = true;
+          }
+        }
+      } else {
+        const video = document.getElementById('webinarVideo');
+        video.muted = !video.muted;
+      }
       updateVolumeIcon();
     }
     
     function setVolume(value) {
-      const video = document.getElementById('webinarVideo');
-      video.volume = value / 100;
-      if (value == 0) {
-        video.muted = true;
-      } else if (video.muted) {
-        video.muted = false;
+      if (CONFIG.isYouTube) {
+        if (ytPlayerReady && ytPlayer) {
+          ytPlayer.setVolume(value);
+          if (value == 0) {
+            ytPlayer.mute();
+            ytMuted = true;
+          } else if (ytPlayer.isMuted()) {
+            ytPlayer.unMute();
+            ytMuted = false;
+          }
+        }
+      } else {
+        const video = document.getElementById('webinarVideo');
+        video.volume = value / 100;
+        if (value == 0) {
+          video.muted = true;
+        } else if (video.muted) {
+          video.muted = false;
+        }
       }
       updateVolumeIcon();
     }
     
     function updateVolumeIcon() {
-      const video = document.getElementById('webinarVideo');
       const volumeIcon = document.getElementById('volumeIcon');
       const mutedIcon = document.getElementById('mutedIcon');
       const slider = document.getElementById('volumeSlider');
       
-      if (video.muted || video.volume === 0) {
+      let isMuted = false;
+      let currentVolume = 100;
+      
+      if (CONFIG.isYouTube) {
+        if (ytPlayerReady && ytPlayer) {
+          isMuted = ytPlayer.isMuted();
+          currentVolume = ytPlayer.getVolume();
+        } else {
+          isMuted = true;
+          currentVolume = 0;
+        }
+      } else {
+        const video = document.getElementById('webinarVideo');
+        isMuted = video.muted || video.volume === 0;
+        currentVolume = video.volume * 100;
+      }
+      
+      if (isMuted || currentVolume === 0) {
         volumeIcon.style.display = 'none';
         mutedIcon.style.display = 'block';
         slider.value = 0;
       } else {
         volumeIcon.style.display = 'block';
         mutedIcon.style.display = 'none';
-        slider.value = video.volume * 100;
+        slider.value = currentVolume;
       }
     }
 
@@ -1757,7 +1931,8 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
     });
 
     // Disable right-click on video
-    document.getElementById('webinarVideo').addEventListener('contextmenu', e => e.preventDefault());
+    const videoEl = document.getElementById('webinarVideo') || document.getElementById('youtubeOverlay');
+    if (videoEl) videoEl.addEventListener('contextmenu', e => e.preventDefault());
 
     ${ctaScript}
 
