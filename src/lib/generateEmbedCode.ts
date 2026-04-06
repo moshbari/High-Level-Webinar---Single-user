@@ -1449,12 +1449,19 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
 
       // Just-in-Time mode: use a dynamic start time stored in sessionStorage
       if (CONFIG.justInTimeEnabled) {
+        // 0 minutes = start immediately, no countdown at all
+        if (CONFIG.justInTimeMinutes <= 0) {
+          const jitStart = new Date(localTime.getTime() - 1000); // 1s in the past = already live
+          const jitEnd = new Date(jitStart.getTime() + CONFIG.durationSeconds * 1000);
+          const elapsed = (localTime - jitStart) / 1000;
+          return { state: 'live', startTime: jitStart, endTime: jitEnd, elapsed };
+        }
+
         const storageKey = 'jit_start_' + CONFIG.webinarId;
         let jitStartMs = sessionStorage.getItem(storageKey);
         
         if (!jitStartMs) {
-          // Calculate a start time: 0 = immediate, otherwise random offset between 1 and justInTimeMinutes
-          const offsetMs = CONFIG.justInTimeMinutes <= 0 ? 0 : (Math.floor(Math.random() * (CONFIG.justInTimeMinutes - 1)) + 1) * 60 * 1000;
+          const offsetMs = (Math.floor(Math.random() * (CONFIG.justInTimeMinutes - 1)) + 1) * 60 * 1000;
           const jitStart = new Date(localTime.getTime() + offsetMs);
           jitStartMs = String(jitStart.getTime());
           sessionStorage.setItem(storageKey, jitStartMs);
@@ -1474,7 +1481,7 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
         
         // Session ended — clear and create new JIT session
         sessionStorage.removeItem(storageKey);
-        const offsetMs = CONFIG.justInTimeMinutes <= 0 ? 0 : (Math.floor(Math.random() * (CONFIG.justInTimeMinutes - 1)) + 1) * 60 * 1000;
+        const offsetMs = (Math.floor(Math.random() * (CONFIG.justInTimeMinutes - 1)) + 1) * 60 * 1000;
         const newStart = new Date(localTime.getTime() + offsetMs);
         sessionStorage.setItem(storageKey, String(newStart.getTime()));
         const newEnd = new Date(newStart.getTime() + CONFIG.durationSeconds * 1000);
