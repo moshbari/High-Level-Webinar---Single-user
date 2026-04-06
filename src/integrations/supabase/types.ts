@@ -563,6 +563,8 @@ export type Database = {
           error_message: string
           header_title: string
           id: string
+          just_in_time_enabled: boolean
+          just_in_time_minutes: number
           lead_webhook_url: string
           logo_text: string
           max_viewers: number
@@ -626,6 +628,8 @@ export type Database = {
           error_message?: string
           header_title?: string
           id?: string
+          just_in_time_enabled?: boolean
+          just_in_time_minutes?: number
           lead_webhook_url?: string
           logo_text?: string
           max_viewers?: number
@@ -689,6 +693,8 @@ export type Database = {
           error_message?: string
           header_title?: string
           id?: string
+          just_in_time_enabled?: boolean
+          just_in_time_minutes?: number
           lead_webhook_url?: string
           logo_text?: string
           max_viewers?: number

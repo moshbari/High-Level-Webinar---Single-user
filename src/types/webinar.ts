@@ -78,6 +78,10 @@ export interface WebinarConfig {
   regFormPrivacyText: string;
   regFormTheme: 'dark' | 'light';
   
+  // Just-in-Time Sessions
+  justInTimeEnabled: boolean;
+  justInTimeMinutes: number;
+  
   // Metadata
   createdAt: string;
   updatedAt: string;
@@ -198,4 +202,7 @@ export const DEFAULT_WEBINAR_CONFIG: Omit<WebinarConfig, 'id' | 'createdAt' | 'u
   regFormShowPrivacy: true,
   regFormPrivacyText: 'We respect your privacy. Unsubscribe anytime.',
   regFormTheme: 'dark',
+  // Just-in-Time Sessions
+  justInTimeEnabled: false,
+  justInTimeMinutes: 15,
 };

@@ -68,6 +68,9 @@ export const rowToConfig = (row: any): WebinarConfig => ({
   regFormShowPrivacy: row.reg_form_show_privacy ?? true,
   regFormPrivacyText: row.reg_form_privacy_text ?? 'We respect your privacy. Unsubscribe anytime.',
   regFormTheme: row.reg_form_theme ?? 'dark',
+  // Just-in-Time Sessions
+  justInTimeEnabled: row.just_in_time_enabled ?? false,
+  justInTimeMinutes: row.just_in_time_minutes ?? 15,
   createdAt: row.created_at,
   updatedAt: row.updated_at,
 });
@@ -131,6 +134,9 @@ const configToRow = (config: Omit<WebinarConfig, 'id' | 'createdAt' | 'updatedAt
   reg_form_show_privacy: config.regFormShowPrivacy,
   reg_form_privacy_text: config.regFormPrivacyText,
   reg_form_theme: config.regFormTheme,
+  // Just-in-Time Sessions
+  just_in_time_enabled: config.justInTimeEnabled,
+  just_in_time_minutes: config.justInTimeMinutes,
 });
 
 export const getWebinars = async (): Promise<WebinarConfig[]> => {
@@ -244,6 +250,9 @@ export const updateWebinar = async (id: string, config: Partial<WebinarConfig>):
   if (rest.regFormShowPrivacy !== undefined) updateData.reg_form_show_privacy = rest.regFormShowPrivacy;
   if (rest.regFormPrivacyText !== undefined) updateData.reg_form_privacy_text = rest.regFormPrivacyText;
   if (rest.regFormTheme !== undefined) updateData.reg_form_theme = rest.regFormTheme;
+  // Just-in-Time Sessions
+  if (rest.justInTimeEnabled !== undefined) updateData.just_in_time_enabled = rest.justInTimeEnabled;
+  if (rest.justInTimeMinutes !== undefined) updateData.just_in_time_minutes = rest.justInTimeMinutes;
 
   const { data, error } = await supabase
     .from('webinars')
