@@ -1474,7 +1474,7 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
         
         // Session ended — clear and create new JIT session
         sessionStorage.removeItem(storageKey);
-        const offsetMs = (Math.floor(Math.random() * (CONFIG.justInTimeMinutes - 1)) + 1) * 60 * 1000;
+        const offsetMs = CONFIG.justInTimeMinutes <= 0 ? 0 : (Math.floor(Math.random() * (CONFIG.justInTimeMinutes - 1)) + 1) * 60 * 1000;
         const newStart = new Date(localTime.getTime() + offsetMs);
         sessionStorage.setItem(storageKey, String(newStart.getTime()));
         const newEnd = new Date(newStart.getTime() + CONFIG.durationSeconds * 1000);
