@@ -1590,8 +1590,8 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       };
 
       const registerIframeVisibilityFallback = function() {
-        const container = document.getElementById('ytPlayerContainer');
-        if (!container) return;
+        const videoWrapper = document.querySelector('.video-wrapper');
+        if (!videoWrapper) return;
 
         let overlayHidden = false;
         const revealVideo = function() {
@@ -1600,8 +1600,19 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
           hideLoadingOverlay();
         };
 
+        const getYouTubeIframe = function() {
+          const playerNode = document.getElementById('ytPlayerContainer');
+          if (!playerNode) return null;
+
+          if (playerNode.tagName === 'IFRAME') {
+            return playerNode;
+          }
+
+          return playerNode.querySelector('iframe') || videoWrapper.querySelector('iframe[src*="youtube.com"]');
+        };
+
         const attachToIframe = function() {
-          const iframe = container.querySelector('iframe');
+          const iframe = getYouTubeIframe();
           if (!iframe) return false;
 
           iframe.addEventListener('load', revealVideo, { once: true });
@@ -1617,11 +1628,11 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
           }
         });
 
-        observer.observe(container, { childList: true, subtree: true });
+        observer.observe(videoWrapper, { childList: true, subtree: true });
 
         setTimeout(function() {
           observer.disconnect();
-          if (container.querySelector('iframe')) {
+          if (getYouTubeIframe()) {
             revealVideo();
           }
         }, 4000);
@@ -1676,7 +1687,12 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
         });
 
         setTimeout(function() {
-          if (document.getElementById('ytPlayerContainer')?.querySelector('iframe')) {
+          const playerNode = document.getElementById('ytPlayerContainer');
+          const iframe = playerNode?.tagName === 'IFRAME'
+            ? playerNode
+            : playerNode?.querySelector('iframe') || document.querySelector('.video-wrapper iframe[src*="youtube.com"]');
+
+          if (iframe) {
             hideLoadingOverlay();
           }
         }, 2500);
