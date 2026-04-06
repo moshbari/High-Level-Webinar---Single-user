@@ -19,7 +19,9 @@ import {
   BarChart3,
   Film,
   Layers,
+  Timer,
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { RegistrationFormSettings } from './RegistrationFormSettings';
 import { RegistrationFormPreview } from './RegistrationFormPreview';
 import { VideoSequenceBuilder } from './VideoSequenceBuilder';
