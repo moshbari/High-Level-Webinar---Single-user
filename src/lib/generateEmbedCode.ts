@@ -1573,15 +1573,18 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
     }
 
     function startYouTubeWebinar(loadingOverlay) {
-      // Load YouTube IFrame API
-      const tag = document.createElement('script');
-      tag.src = 'https://www.youtube.com/iframe_api';
-      document.head.appendChild(tag);
-      
-      window.onYouTubeIframeAPIReady = function() {
+      const hideLoadingOverlay = function() {
+        const lo = document.getElementById('loadingOverlay');
+        if (lo) {
+          lo.classList.add('hidden');
+          lo.style.display = 'none';
+        }
+      };
+
+      const initYouTubePlayer = function() {
         const { elapsed } = getWebinarState();
         const startSeconds = Math.floor(elapsed || 0);
-        
+
         ytPlayer = new YT.Player('ytPlayerContainer', {
           videoId: CONFIG.youtubeId,
           playerVars: {
@@ -1593,34 +1596,56 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
             iv_load_policy: 3,
             modestbranding: 1,
             rel: 0,
-            showinfo: 0,
             playsinline: 1,
             start: startSeconds,
-            origin: window.location.origin
+            origin: window.location.origin,
+            enablejsapi: 1
           },
           events: {
             onReady: function(event) {
               ytPlayerReady = true;
               event.target.mute();
+              event.target.seekTo(startSeconds, true);
               event.target.playVideo();
-              // Force-hide loading overlay
-              var lo = document.getElementById('loadingOverlay');
-              if (lo) lo.style.display = 'none';
+              hideLoadingOverlay();
             },
             onStateChange: function(event) {
-              // If video ends or is paused externally, force replay
+              if (event.data === YT.PlayerState.PLAYING || event.data === YT.PlayerState.BUFFERING) {
+                hideLoadingOverlay();
+              }
+
               if (event.data === YT.PlayerState.ENDED || event.data === YT.PlayerState.PAUSED) {
                 const { state } = getWebinarState();
                 if (state === 'live') {
                   event.target.playVideo();
                 }
               }
+            },
+            onError: function() {
+              hideLoadingOverlay();
             }
           }
         });
+
+        setTimeout(function() {
+          if (document.getElementById('ytPlayerContainer')?.querySelector('iframe')) {
+            hideLoadingOverlay();
+          }
+        }, 2500);
       };
+
+      if (window.YT && window.YT.Player) {
+        initYouTubePlayer();
+      } else {
+        window.onYouTubeIframeAPIReady = initYouTubePlayer;
+
+        if (!document.querySelector('script[src="https://www.youtube.com/iframe_api"]')) {
+          const tag = document.createElement('script');
+          tag.src = 'https://www.youtube.com/iframe_api';
+          document.head.appendChild(tag);
+        }
+      }
       
-      // Re-sync YouTube when user returns to tab
       document.addEventListener('visibilitychange', function() {
         if (document.visibilityState === 'visible' && ytPlayerReady && ytPlayer) {
           const { state, elapsed } = getWebinarState();
@@ -1637,7 +1662,6 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
         }
       });
       
-      // Prevent seeking via periodic sync check
       setInterval(function() {
         if (!ytPlayerReady || !ytPlayer) return;
         const { state, elapsed } = getWebinarState();
