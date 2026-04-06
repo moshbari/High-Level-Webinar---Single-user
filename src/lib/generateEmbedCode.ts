@@ -1900,12 +1900,15 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
 
     function toggleMute() {
       if (CONFIG.isYouTube) {
-        if (ytMuted) {
-          recreateYouTubePlayerUnmuted();
-          ytMuted = false;
-        } else if (ytPlayerReady && ytPlayer) {
-          ytPlayer.mute();
-          ytMuted = true;
+        if (ytPlayerReady && ytPlayer) {
+          if (ytMuted) {
+            ytPlayer.unMute();
+            ytPlayer.setVolume(100);
+            ytMuted = false;
+          } else {
+            ytPlayer.mute();
+            ytMuted = true;
+          }
         }
       } else {
         const video = document.getElementById('webinarVideo');
@@ -1921,7 +1924,9 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
             ytPlayer.mute();
             ytMuted = true;
           } else if (ytMuted) {
-            recreateYouTubePlayerUnmuted();
+            ytPlayer.unMute();
+            ytPlayer.setVolume(value);
+            ytMuted = false;
           } else {
             ytPlayer.setVolume(value);
           }
