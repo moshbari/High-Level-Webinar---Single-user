@@ -1555,6 +1555,7 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
     let ytPlayer = null;
     let ytPlayerReady = false;
     let ytMuted = true;
+    let pendingUnmute = false;
 
     function startWebinar() {
       document.getElementById('countdownOverlay').classList.add('hidden');
@@ -1667,6 +1668,14 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
               event.target.seekTo(startSeconds, true);
               event.target.playVideo();
               hideLoadingOverlay();
+
+              if (pendingUnmute) {
+                pendingUnmute = false;
+                event.target.unMute();
+                event.target.setVolume(100);
+                ytMuted = false;
+                updateVolumeIcon();
+              }
             },
             onStateChange: function(event) {
               if (event.data === YT.PlayerState.PLAYING || event.data === YT.PlayerState.BUFFERING) {
@@ -1822,6 +1831,8 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
           ytPlayer.unMute();
           ytPlayer.setVolume(100);
           ytMuted = false;
+        } else {
+          pendingUnmute = true;
         }
       } else {
         const video = document.getElementById('webinarVideo');
