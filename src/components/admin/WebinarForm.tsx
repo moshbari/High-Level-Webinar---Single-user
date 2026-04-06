@@ -298,6 +298,7 @@ export function WebinarForm({ config, onChange, webinarId }: WebinarFormProps) {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="0">Immediately (0 minutes)</SelectItem>
                       <SelectItem value="5">5 minutes</SelectItem>
                       <SelectItem value="10">10 minutes</SelectItem>
                       <SelectItem value="15">15 minutes</SelectItem>
