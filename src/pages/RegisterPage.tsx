@@ -73,6 +73,21 @@ export default function RegisterPage() {
   const nextSession = useMemo(() => {
     if (!config) return null;
     
+    // Just-in-Time mode: show dynamic "starting soon" time
+    if (config.justInTimeEnabled) {
+      const now = new Date();
+      const jitStart = new Date(now.getTime() + config.justInTimeMinutes * 60 * 1000);
+      
+      return {
+        date: jitStart.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+        time: jitStart.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }),
+        timezone: 'Your Time',
+        isJit: true,
+        minutesAway: config.justInTimeMinutes
+      };
+    }
+    
+    // Fixed schedule mode
     const now = new Date();
     const sessionDate = new Date(now);
     sessionDate.setHours(config.startHour, config.startMinute, 0, 0);
@@ -87,7 +102,9 @@ export default function RegisterPage() {
     return {
       date: sessionDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
       time: sessionDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }),
-      timezone: tzLabel
+      timezone: tzLabel,
+      isJit: false,
+      minutesAway: 0
     };
   }, [config]);
 
@@ -258,7 +275,10 @@ export default function RegisterPage() {
             style={{ background: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }}
           >
             <span className="text-sm">
-              📅 Next Session: {nextSession.date} at {nextSession.time} ({nextSession.timezone})
+              {nextSession.isJit 
+                ? `⚡ Starting in just ${nextSession.minutesAway} minutes!`
+                : `📅 Next Session: ${nextSession.date} at ${nextSession.time} (${nextSession.timezone})`
+              }
             </span>
           </div>
         )}
