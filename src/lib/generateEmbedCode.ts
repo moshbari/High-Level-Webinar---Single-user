@@ -1931,7 +1931,8 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
     });
 
     // Disable right-click on video
-    document.getElementById('webinarVideo').addEventListener('contextmenu', e => e.preventDefault());
+    const videoEl = document.getElementById('webinarVideo') || document.getElementById('youtubeOverlay');
+    if (videoEl) videoEl.addEventListener('contextmenu', e => e.preventDefault());
 
     ${ctaScript}
 
