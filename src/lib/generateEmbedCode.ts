@@ -1199,7 +1199,9 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       ctaButtonUrl: "${config.ctaButtonUrl}",
       enableTracking: ${config.enableTracking ?? true},
       trackingWebhookUrl: "${config.trackingWebhookUrl || 'https://moshbari.cloud/webhook/webinar-tracking'}",
-      supabaseUrl: "https://xidtgjtbhskltygixljs.supabase.co"
+      supabaseUrl: "https://xidtgjtbhskltygixljs.supabase.co",
+      justInTimeEnabled: ${config.justInTimeEnabled || false},
+      justInTimeMinutes: ${config.justInTimeMinutes || 15}
     };
 
     let userData = null;
