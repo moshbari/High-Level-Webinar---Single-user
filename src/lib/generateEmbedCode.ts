@@ -544,6 +544,23 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       background: #000;
     }
     
+    /* YouTube player styles */
+    .video-wrapper iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+    
+    .youtube-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 10;
+      cursor: default;
+    }
+    
     .sound-controls {
       position: absolute;
       top: 1rem;
