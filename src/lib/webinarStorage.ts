@@ -250,6 +250,9 @@ export const updateWebinar = async (id: string, config: Partial<WebinarConfig>):
   if (rest.regFormShowPrivacy !== undefined) updateData.reg_form_show_privacy = rest.regFormShowPrivacy;
   if (rest.regFormPrivacyText !== undefined) updateData.reg_form_privacy_text = rest.regFormPrivacyText;
   if (rest.regFormTheme !== undefined) updateData.reg_form_theme = rest.regFormTheme;
+  // Just-in-Time Sessions
+  if (rest.justInTimeEnabled !== undefined) updateData.just_in_time_enabled = rest.justInTimeEnabled;
+  if (rest.justInTimeMinutes !== undefined) updateData.just_in_time_minutes = rest.justInTimeMinutes;
 
   const { data, error } = await supabase
     .from('webinars')

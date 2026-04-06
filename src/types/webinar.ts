@@ -202,4 +202,7 @@ export const DEFAULT_WEBINAR_CONFIG: Omit<WebinarConfig, 'id' | 'createdAt' | 'u
   regFormShowPrivacy: true,
   regFormPrivacyText: 'We respect your privacy. Unsubscribe anytime.',
   regFormTheme: 'dark',
+  // Just-in-Time Sessions
+  justInTimeEnabled: false,
+  justInTimeMinutes: 15,
 };

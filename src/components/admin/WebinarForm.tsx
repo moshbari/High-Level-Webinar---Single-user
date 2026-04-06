@@ -260,6 +260,57 @@ export function WebinarForm({ config, onChange, webinarId }: WebinarFormProps) {
               </div>
             </div>
           </div>
+      {/* Just-in-Time Sessions */}
+      <Card className="glass-card">
+        <CardHeader className="pb-4">
+          <CardTitle className="flex items-center gap-2 text-lg font-display">
+            <Timer className="w-5 h-5 text-primary" />
+            Just-in-Time Sessions
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between">
+            <Label htmlFor="justInTimeEnabled" className="cursor-pointer">
+              Enable Just-in-Time Sessions
+            </Label>
+            <Switch
+              id="justInTimeEnabled"
+              checked={config.justInTimeEnabled}
+              onCheckedChange={(v) => updateField('justInTimeEnabled', v)}
+            />
+          </div>
+          <AnimatePresence>
+            {config.justInTimeEnabled && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="overflow-hidden"
+              >
+                <div className="space-y-2 pt-2">
+                  <Label htmlFor="justInTimeMinutes">First session available within</Label>
+                  <Select
+                    value={config.justInTimeMinutes.toString()}
+                    onValueChange={(v) => updateField('justInTimeMinutes', parseInt(v))}
+                  >
+                    <SelectTrigger className="input-field">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="5">5 minutes</SelectItem>
+                      <SelectItem value="10">10 minutes</SelectItem>
+                      <SelectItem value="15">15 minutes</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">Sessions start within this time after a visitor lands on the registration page</p>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </CardContent>
+      </Card>
+
       <Card className="glass-card">
         <CardHeader className="pb-4">
           <CardTitle className="flex items-center gap-2 text-lg font-display">
