@@ -563,6 +563,7 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       bottom: 0;
       z-index: 15;
       cursor: default;
+      pointer-events: none;
     }
     
     .sound-controls {
@@ -1143,6 +1144,7 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
           <source src="${config.videoUrl}" type="video/mp4">
         </video>
         `}
+        ${isYouTube ? '' : `
         <div class="sound-controls" id="soundControls" style="display:none;">
           <button class="mute-btn" id="muteBtn" onclick="toggleMute()">
             <svg id="volumeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1166,6 +1168,7 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
           </svg>
           <span>Click to unmute</span>
         </div>
+        `}
         <div class="loading-overlay" id="loadingOverlay">
           <div class="loading-spinner"></div>
           <span class="loading-text">Joining live session...</span>
@@ -1650,8 +1653,8 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
           playerVars: {
             autoplay: 1,
             mute: 1,
-            controls: 0,
-            disablekb: 1,
+            controls: 1,
+            disablekb: 0,
             fs: 0,
             iv_load_policy: 3,
             modestbranding: 1,
