@@ -563,7 +563,6 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       bottom: 0;
       z-index: 15;
       cursor: default;
-      pointer-events: none;
     }
     
     .sound-controls {
@@ -1144,7 +1143,6 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
           <source src="${config.videoUrl}" type="video/mp4">
         </video>
         `}
-        ${isYouTube ? '' : `
         <div class="sound-controls" id="soundControls" style="display:none;">
           <button class="mute-btn" id="muteBtn" onclick="toggleMute()">
             <svg id="volumeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1168,7 +1166,6 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
           </svg>
           <span>Click to unmute</span>
         </div>
-        `}
         <div class="loading-overlay" id="loadingOverlay">
           <div class="loading-spinner"></div>
           <span class="loading-text">Joining live session...</span>
@@ -1653,8 +1650,8 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
           playerVars: {
             autoplay: 1,
             mute: 1,
-            controls: 1,
-            disablekb: 0,
+            controls: 0,
+            disablekb: 1,
             fs: 0,
             iv_load_policy: 3,
             modestbranding: 1,
@@ -1830,13 +1827,7 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
 
     function initialUnmute() {
       if (CONFIG.isYouTube) {
-        if (ytPlayerReady && ytPlayer) {
-          ytPlayer.unMute();
-          ytPlayer.setVolume(100);
-          ytMuted = false;
-        } else {
-          pendingUnmute = true;
-        }
+        recreateYouTubePlayerUnmuted();
       } else {
         const video = document.getElementById('webinarVideo');
         video.muted = false;
@@ -1846,16 +1837,75 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       updateVolumeIcon();
     }
     
+    function recreateYouTubePlayerUnmuted() {
+      if (!ytPlayer) return;
+
+      const { elapsed } = getWebinarState();
+      const startSeconds = Math.floor(elapsed || 0);
+
+      // Destroy current muted player
+      try { ytPlayer.destroy(); } catch(e) {}
+      ytPlayer = null;
+      ytPlayerReady = false;
+
+      // Ensure the container div exists for the new player
+      const wrapper = document.querySelector('.video-wrapper');
+      let container = document.getElementById('ytPlayerContainer');
+      if (!container) {
+        container = document.createElement('div');
+        container.id = 'ytPlayerContainer';
+        const overlay = document.getElementById('youtubeOverlay');
+        if (overlay) {
+          wrapper.insertBefore(container, overlay);
+        } else {
+          wrapper.insertBefore(container, wrapper.firstChild);
+        }
+      }
+
+      ytPlayer = new YT.Player('ytPlayerContainer', {
+        videoId: CONFIG.youtubeId,
+        playerVars: {
+          autoplay: 1,
+          mute: 0,
+          controls: 0,
+          disablekb: 1,
+          fs: 0,
+          iv_load_policy: 3,
+          modestbranding: 1,
+          rel: 0,
+          playsinline: 1,
+          start: startSeconds,
+          origin: window.location.origin,
+          enablejsapi: 1
+        },
+        events: {
+          onReady: function(event) {
+            ytPlayerReady = true;
+            ytMuted = false;
+            event.target.seekTo(startSeconds, true);
+            event.target.playVideo();
+          },
+          onStateChange: function(event) {
+            if (event.data === YT.PlayerState.ENDED || event.data === YT.PlayerState.PAUSED) {
+              const { state } = getWebinarState();
+              if (state === 'live') {
+                event.target.playVideo();
+              }
+            }
+          },
+          onError: function() {}
+        }
+      });
+    }
+
     function toggleMute() {
       if (CONFIG.isYouTube) {
-        if (ytPlayerReady && ytPlayer) {
-          if (ytPlayer.isMuted()) {
-            ytPlayer.unMute();
-            ytMuted = false;
-          } else {
-            ytPlayer.mute();
-            ytMuted = true;
-          }
+        if (ytMuted) {
+          recreateYouTubePlayerUnmuted();
+          ytMuted = false;
+        } else if (ytPlayerReady && ytPlayer) {
+          ytPlayer.mute();
+          ytMuted = true;
         }
       } else {
         const video = document.getElementById('webinarVideo');
@@ -1867,13 +1917,13 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
     function setVolume(value) {
       if (CONFIG.isYouTube) {
         if (ytPlayerReady && ytPlayer) {
-          ytPlayer.setVolume(value);
           if (value == 0) {
             ytPlayer.mute();
             ytMuted = true;
-          } else if (ytPlayer.isMuted()) {
-            ytPlayer.unMute();
-            ytMuted = false;
+          } else if (ytMuted) {
+            recreateYouTubePlayerUnmuted();
+          } else {
+            ytPlayer.setVolume(value);
           }
         }
       } else {
