@@ -1403,6 +1403,41 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       const options = { timeZone: CONFIG.timezone };
       const localTime = new Date(now.toLocaleString('en-US', options));
 
+      // Just-in-Time mode: use a dynamic start time stored in sessionStorage
+      if (CONFIG.justInTimeEnabled) {
+        const storageKey = 'jit_start_' + CONFIG.webinarId;
+        let jitStartMs = sessionStorage.getItem(storageKey);
+        
+        if (!jitStartMs) {
+          // Calculate a start time: random offset between 1 and justInTimeMinutes from now
+          const offsetMs = (Math.floor(Math.random() * (CONFIG.justInTimeMinutes - 1)) + 1) * 60 * 1000;
+          const jitStart = new Date(localTime.getTime() + offsetMs);
+          jitStartMs = String(jitStart.getTime());
+          sessionStorage.setItem(storageKey, jitStartMs);
+        }
+        
+        const jitStart = new Date(Number(jitStartMs));
+        const jitEnd = new Date(jitStart.getTime() + CONFIG.durationSeconds * 1000);
+        
+        if (localTime < jitStart) {
+          return { state: 'countdown', startTime: jitStart, endTime: jitEnd };
+        }
+        
+        if (localTime >= jitStart && localTime < jitEnd) {
+          const elapsed = (localTime - jitStart) / 1000;
+          return { state: 'live', startTime: jitStart, endTime: jitEnd, elapsed };
+        }
+        
+        // Session ended — clear and create new JIT session
+        sessionStorage.removeItem(storageKey);
+        const offsetMs = (Math.floor(Math.random() * (CONFIG.justInTimeMinutes - 1)) + 1) * 60 * 1000;
+        const newStart = new Date(localTime.getTime() + offsetMs);
+        sessionStorage.setItem(storageKey, String(newStart.getTime()));
+        const newEnd = new Date(newStart.getTime() + CONFIG.durationSeconds * 1000);
+        return { state: 'countdown', startTime: newStart, endTime: newEnd };
+      }
+
+      // Fixed schedule mode (original logic)
       // Today's scheduled start time in the configured timezone
       const todayStart = new Date(localTime);
       todayStart.setHours(CONFIG.startHour, CONFIG.startMinute, 0, 0);
@@ -1410,7 +1445,6 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       const todayEnd = new Date(todayStart.getTime() + CONFIG.durationSeconds * 1000);
 
       // If we're before today's start time, we might still be inside yesterday's session
-      // (e.g. webinar starts at 23:00 and lasts 3 hours → continues past midnight)
       if (localTime < todayStart) {
         const yesterdayStart = new Date(todayStart);
         yesterdayStart.setDate(yesterdayStart.getDate() - 1);
