@@ -275,7 +275,10 @@ export default function RegisterPage() {
             style={{ background: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }}
           >
             <span className="text-sm">
-              📅 Next Session: {nextSession.date} at {nextSession.time} ({nextSession.timezone})
+              {nextSession.isJit 
+                ? `⚡ Starting in just ${nextSession.minutesAway} minutes!`
+                : `📅 Next Session: ${nextSession.date} at ${nextSession.time} (${nextSession.timezone})`
+              }
             </span>
           </div>
         )}
