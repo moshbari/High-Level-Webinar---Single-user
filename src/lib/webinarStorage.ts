@@ -68,6 +68,9 @@ export const rowToConfig = (row: any): WebinarConfig => ({
   regFormShowPrivacy: row.reg_form_show_privacy ?? true,
   regFormPrivacyText: row.reg_form_privacy_text ?? 'We respect your privacy. Unsubscribe anytime.',
   regFormTheme: row.reg_form_theme ?? 'dark',
+  // Just-in-Time Sessions
+  justInTimeEnabled: row.just_in_time_enabled ?? false,
+  justInTimeMinutes: row.just_in_time_minutes ?? 15,
   createdAt: row.created_at,
   updatedAt: row.updated_at,
 });
