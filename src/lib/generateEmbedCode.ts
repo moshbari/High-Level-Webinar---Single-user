@@ -545,10 +545,14 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
     }
     
     /* YouTube player styles */
-    .video-wrapper iframe {
+    .video-wrapper iframe,
+    #ytPlayerContainer {
       width: 100%;
       height: 100%;
       border: 0;
+      position: absolute;
+      top: 0;
+      left: 0;
     }
     
     .youtube-overlay {
@@ -557,7 +561,7 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       left: 0;
       right: 0;
       bottom: 0;
-      z-index: 10;
+      z-index: 15;
       cursor: default;
     }
     
