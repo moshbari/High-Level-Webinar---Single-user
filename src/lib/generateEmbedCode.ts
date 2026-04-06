@@ -1723,44 +1723,93 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
     }
 
     function initialUnmute() {
-      const video = document.getElementById('webinarVideo');
-      video.muted = false;
+      if (CONFIG.isYouTube) {
+        if (ytPlayerReady && ytPlayer) {
+          ytPlayer.unMute();
+          ytPlayer.setVolume(100);
+          ytMuted = false;
+        }
+      } else {
+        const video = document.getElementById('webinarVideo');
+        video.muted = false;
+      }
       document.getElementById('unmuteNotice').style.display = 'none';
       document.getElementById('soundControls').style.display = 'flex';
       updateVolumeIcon();
     }
     
     function toggleMute() {
-      const video = document.getElementById('webinarVideo');
-      video.muted = !video.muted;
+      if (CONFIG.isYouTube) {
+        if (ytPlayerReady && ytPlayer) {
+          if (ytPlayer.isMuted()) {
+            ytPlayer.unMute();
+            ytMuted = false;
+          } else {
+            ytPlayer.mute();
+            ytMuted = true;
+          }
+        }
+      } else {
+        const video = document.getElementById('webinarVideo');
+        video.muted = !video.muted;
+      }
       updateVolumeIcon();
     }
     
     function setVolume(value) {
-      const video = document.getElementById('webinarVideo');
-      video.volume = value / 100;
-      if (value == 0) {
-        video.muted = true;
-      } else if (video.muted) {
-        video.muted = false;
+      if (CONFIG.isYouTube) {
+        if (ytPlayerReady && ytPlayer) {
+          ytPlayer.setVolume(value);
+          if (value == 0) {
+            ytPlayer.mute();
+            ytMuted = true;
+          } else if (ytPlayer.isMuted()) {
+            ytPlayer.unMute();
+            ytMuted = false;
+          }
+        }
+      } else {
+        const video = document.getElementById('webinarVideo');
+        video.volume = value / 100;
+        if (value == 0) {
+          video.muted = true;
+        } else if (video.muted) {
+          video.muted = false;
+        }
       }
       updateVolumeIcon();
     }
     
     function updateVolumeIcon() {
-      const video = document.getElementById('webinarVideo');
       const volumeIcon = document.getElementById('volumeIcon');
       const mutedIcon = document.getElementById('mutedIcon');
       const slider = document.getElementById('volumeSlider');
       
-      if (video.muted || video.volume === 0) {
+      let isMuted = false;
+      let currentVolume = 100;
+      
+      if (CONFIG.isYouTube) {
+        if (ytPlayerReady && ytPlayer) {
+          isMuted = ytPlayer.isMuted();
+          currentVolume = ytPlayer.getVolume();
+        } else {
+          isMuted = true;
+          currentVolume = 0;
+        }
+      } else {
+        const video = document.getElementById('webinarVideo');
+        isMuted = video.muted || video.volume === 0;
+        currentVolume = video.volume * 100;
+      }
+      
+      if (isMuted || currentVolume === 0) {
         volumeIcon.style.display = 'none';
         mutedIcon.style.display = 'block';
         slider.value = 0;
       } else {
         volumeIcon.style.display = 'block';
         mutedIcon.style.display = 'none';
-        slider.value = video.volume * 100;
+        slider.value = currentVolume;
       }
     }
 
