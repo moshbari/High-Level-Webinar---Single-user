@@ -78,6 +78,10 @@ export interface WebinarConfig {
   regFormPrivacyText: string;
   regFormTheme: 'dark' | 'light';
   
+  // Just-in-Time Sessions
+  justInTimeEnabled: boolean;
+  justInTimeMinutes: number;
+  
   // Metadata
   createdAt: string;
   updatedAt: string;
