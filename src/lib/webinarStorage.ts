@@ -134,6 +134,9 @@ const configToRow = (config: Omit<WebinarConfig, 'id' | 'createdAt' | 'updatedAt
   reg_form_show_privacy: config.regFormShowPrivacy,
   reg_form_privacy_text: config.regFormPrivacyText,
   reg_form_theme: config.regFormTheme,
+  // Just-in-Time Sessions
+  just_in_time_enabled: config.justInTimeEnabled,
+  just_in_time_minutes: config.justInTimeMinutes,
 });
 
 export const getWebinars = async (): Promise<WebinarConfig[]> => {
