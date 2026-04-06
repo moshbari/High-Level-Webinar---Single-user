@@ -1540,27 +1540,125 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
     }
 
+    let ytPlayer = null;
+    let ytPlayerReady = false;
+    let ytMuted = true;
+
     function startWebinar() {
       document.getElementById('countdownOverlay').classList.add('hidden');
       document.getElementById('webinarRoom').style.display = 'flex';
       
-      const video = document.getElementById('webinarVideo');
       const loadingOverlay = document.getElementById('loadingOverlay');
+      
+      if (CONFIG.isYouTube) {
+        startYouTubeWebinar(loadingOverlay);
+      } else {
+        startMP4Webinar(loadingOverlay);
+      }
+      
+      updateViewerCount();
+      setInterval(updateViewerCount, 30000);
+      
+      // Check for ended state
+      setInterval(() => {
+        const { state, startTime } = getWebinarState();
+        if (state === 'ended') {
+          showEnded(startTime);
+        }
+      }, 1000);
+    }
+
+    function startYouTubeWebinar(loadingOverlay) {
+      // Load YouTube IFrame API
+      const tag = document.createElement('script');
+      tag.src = 'https://www.youtube.com/iframe_api';
+      document.head.appendChild(tag);
+      
+      window.onYouTubeIframeAPIReady = function() {
+        const { elapsed } = getWebinarState();
+        const startSeconds = Math.floor(elapsed || 0);
+        
+        ytPlayer = new YT.Player('ytPlayerContainer', {
+          videoId: CONFIG.youtubeId,
+          playerVars: {
+            autoplay: 1,
+            mute: 1,
+            controls: 0,
+            disablekb: 1,
+            fs: 0,
+            iv_load_policy: 3,
+            modestbranding: 1,
+            rel: 0,
+            showinfo: 0,
+            playsinline: 1,
+            start: startSeconds,
+            origin: window.location.origin
+          },
+          events: {
+            onReady: function(event) {
+              ytPlayerReady = true;
+              event.target.mute();
+              event.target.playVideo();
+              loadingOverlay.classList.add('hidden');
+            },
+            onStateChange: function(event) {
+              // If video ends or is paused externally, force replay
+              if (event.data === YT.PlayerState.ENDED || event.data === YT.PlayerState.PAUSED) {
+                const { state } = getWebinarState();
+                if (state === 'live') {
+                  event.target.playVideo();
+                }
+              }
+            }
+          }
+        });
+      };
+      
+      // Re-sync YouTube when user returns to tab
+      document.addEventListener('visibilitychange', function() {
+        if (document.visibilityState === 'visible' && ytPlayerReady && ytPlayer) {
+          const { state, elapsed } = getWebinarState();
+          if (state === 'live') {
+            const targetTime = Math.floor(elapsed || 0);
+            const currentTime = ytPlayer.getCurrentTime();
+            if (Math.abs(currentTime - targetTime) > 3) {
+              ytPlayer.seekTo(targetTime, true);
+            }
+            if (ytPlayer.getPlayerState() !== YT.PlayerState.PLAYING) {
+              ytPlayer.playVideo();
+            }
+          }
+        }
+      });
+      
+      // Prevent seeking via periodic sync check
+      setInterval(function() {
+        if (!ytPlayerReady || !ytPlayer) return;
+        const { state, elapsed } = getWebinarState();
+        if (state === 'live') {
+          const targetTime = elapsed || 0;
+          const currentTime = ytPlayer.getCurrentTime();
+          if (Math.abs(currentTime - targetTime) > 5) {
+            ytPlayer.seekTo(targetTime, true);
+          }
+        }
+      }, 3000);
+    }
+
+    function startMP4Webinar(loadingOverlay) {
+      const video = document.getElementById('webinarVideo');
       
       function seekToLivePosition() {
         const { state, elapsed } = getWebinarState();
         if (state !== 'live') return;
         
         const targetTime = elapsed || 0;
-        // Only seek if we're more than 2 seconds off to avoid constant seeking
         if (Math.abs(video.currentTime - targetTime) > 2) {
           video.currentTime = targetTime;
         }
-        // Hide loading overlay once synced
         loadingOverlay.classList.add('hidden');
       }
       
-      // Wait for video metadata to load before seeking
       if (video.readyState >= 1) {
         seekToLivePosition();
       } else {
@@ -1570,32 +1668,19 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       video.muted = true;
       video.play().catch(() => {});
       
-      updateViewerCount();
-      setInterval(updateViewerCount, 30000);
-      
-      // Re-sync video when user returns to tab (browser pauses video when tab is hidden)
+      // Re-sync video when user returns to tab
       document.addEventListener('visibilitychange', function() {
         if (document.visibilityState === 'visible') {
           const { state, elapsed } = getWebinarState();
           if (state === 'live' && video) {
             const targetTime = elapsed || 0;
-            // Always re-sync when returning to tab
             video.currentTime = targetTime;
-            // Resume playback if paused
             if (video.paused) {
               video.play().catch(() => {});
             }
           }
         }
       });
-      
-      // Check for ended state
-      setInterval(() => {
-        const { state, startTime } = getWebinarState();
-        if (state === 'ended') {
-          showEnded(startTime);
-        }
-      }, 1000);
     }
 
     function showEnded(startTime) {
