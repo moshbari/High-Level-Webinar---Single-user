@@ -1859,17 +1859,6 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
 
     function initialUnmute() {
       if (CONFIG.isYouTube) {
-        if (useNativeYouTubeControls) {
-          if (ytPlayerReady && ytPlayer) {
-            ytPlayer.unMute();
-            ytPlayer.setVolume(100);
-            ytPlayer.playVideo();
-            ytMuted = false;
-          }
-          updateVolumeIcon();
-          return;
-        }
-
         recreateYouTubePlayerUnmuted();
       } else {
         const video = document.getElementById('webinarVideo');
