@@ -139,7 +139,7 @@ export function WebinarForm({ config, onChange, webinarId }: WebinarFormProps) {
                   placeholder="https://example.com/webinar.mp4"
                   className="input-field"
                 />
-                <p className="text-xs text-muted-foreground">Direct MP4 link to your webinar video</p>
+                <p className="text-xs text-muted-foreground">Direct MP4 link or YouTube link of your webinar video</p>
               </div>
               <div className="space-y-2">
                 <Label>Duration</Label>
