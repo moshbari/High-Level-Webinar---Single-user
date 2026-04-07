@@ -1556,8 +1556,7 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
     let ytPlayerReady = false;
     let ytMuted = true;
     let pendingUnmute = false;
-    const isAppleMobileBrowser = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-    const useNativeYouTubeControls = CONFIG.isYouTube && isAppleMobileBrowser;
+     const useNativeYouTubeControls = false;
 
     function configureYouTubeInteractionMode() {
       if (!CONFIG.isYouTube) return;
@@ -1860,17 +1859,6 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
 
     function initialUnmute() {
       if (CONFIG.isYouTube) {
-        if (useNativeYouTubeControls) {
-          if (ytPlayerReady && ytPlayer) {
-            ytPlayer.unMute();
-            ytPlayer.setVolume(100);
-            ytPlayer.playVideo();
-            ytMuted = false;
-          }
-          updateVolumeIcon();
-          return;
-        }
-
         recreateYouTubePlayerUnmuted();
       } else {
         const video = document.getElementById('webinarVideo');
