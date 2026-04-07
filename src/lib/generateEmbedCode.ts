@@ -1556,10 +1556,43 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
     let ytPlayerReady = false;
     let ytMuted = true;
     let pendingUnmute = false;
+    const isAppleMobileBrowser = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const useNativeYouTubeControls = CONFIG.isYouTube && isAppleMobileBrowser;
+
+    function configureYouTubeInteractionMode() {
+      if (!CONFIG.isYouTube) return;
+
+      const overlay = document.getElementById('youtubeOverlay');
+      const unmuteNotice = document.getElementById('unmuteNotice');
+      const soundControls = document.getElementById('soundControls');
+
+      if (useNativeYouTubeControls) {
+        if (overlay) {
+          overlay.style.pointerEvents = 'none';
+          overlay.style.display = 'none';
+        }
+
+        if (unmuteNotice) {
+          unmuteNotice.style.display = 'none';
+        }
+
+        if (soundControls) {
+          soundControls.style.display = 'none';
+        }
+
+        return;
+      }
+
+      if (overlay) {
+        overlay.style.pointerEvents = 'auto';
+        overlay.style.display = 'block';
+      }
+    }
 
     function startWebinar() {
       document.getElementById('countdownOverlay').classList.add('hidden');
       document.getElementById('webinarRoom').style.display = 'flex';
+      configureYouTubeInteractionMode();
       
       const loadingOverlay = document.getElementById('loadingOverlay');
       
@@ -1650,9 +1683,9 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
           playerVars: {
             autoplay: 1,
             mute: 1,
-            controls: 0,
-            disablekb: 1,
-            fs: 0,
+            controls: useNativeYouTubeControls ? 1 : 0,
+            disablekb: useNativeYouTubeControls ? 0 : 1,
+            fs: useNativeYouTubeControls ? 1 : 0,
             iv_load_policy: 3,
             modestbranding: 1,
             rel: 0,
@@ -1827,6 +1860,17 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
 
     function initialUnmute() {
       if (CONFIG.isYouTube) {
+        if (useNativeYouTubeControls) {
+          if (ytPlayerReady && ytPlayer) {
+            ytPlayer.unMute();
+            ytPlayer.setVolume(100);
+            ytPlayer.playVideo();
+            ytMuted = false;
+          }
+          updateVolumeIcon();
+          return;
+        }
+
         recreateYouTubePlayerUnmuted();
       } else {
         const video = document.getElementById('webinarVideo');
@@ -1867,9 +1911,9 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
         playerVars: {
           autoplay: 1,
           mute: 0,
-          controls: 0,
-          disablekb: 1,
-          fs: 0,
+          controls: useNativeYouTubeControls ? 1 : 0,
+          disablekb: useNativeYouTubeControls ? 0 : 1,
+          fs: useNativeYouTubeControls ? 1 : 0,
           iv_load_policy: 3,
           modestbranding: 1,
           rel: 0,
