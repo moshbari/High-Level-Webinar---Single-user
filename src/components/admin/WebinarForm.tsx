@@ -312,7 +312,7 @@ export function WebinarForm({ config, onChange, webinarId }: WebinarFormProps) {
         </CardContent>
       </Card>
 
-      <Card className="glass-card">
+      <Card className={`glass-card ${config.justInTimeEnabled ? 'opacity-50 pointer-events-none' : ''}`}>
         <CardHeader className="pb-4">
           <CardTitle className="flex items-center gap-2 text-lg font-display">
             <Clock className="w-5 h-5 text-primary" />
