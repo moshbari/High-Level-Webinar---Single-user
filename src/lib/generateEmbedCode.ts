@@ -560,15 +560,9 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       top: 0;
       left: 0;
       right: 0;
-      bottom: 60px;
+      bottom: 0;
       z-index: 15;
       cursor: default;
-    }
-    
-    @media (max-width: 768px) {
-      .youtube-overlay {
-        bottom: 40px;
-      }
     }
     
     .sound-controls {
@@ -1831,27 +1825,12 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       document.getElementById('viewerCount').textContent = count;
     }
 
-    function isMobileDevice() {
-      return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
-    }
-
     function initialUnmute() {
       if (CONFIG.isYouTube) {
-        if (isMobileDevice()) {
-          // On mobile, don't recreate — use direct API calls within this user gesture
-          if (ytPlayerReady && ytPlayer) {
-            ytPlayer.unMute();
-            ytPlayer.setVolume(100);
-            ytPlayer.playVideo();
-            ytMuted = false;
-          }
-        } else {
-          recreateYouTubePlayerUnmuted();
-        }
+        recreateYouTubePlayerUnmuted();
       } else {
         const video = document.getElementById('webinarVideo');
         video.muted = false;
-        video.play().catch(function(){});
       }
       document.getElementById('unmuteNotice').style.display = 'none';
       document.getElementById('soundControls').style.display = 'flex';
@@ -2117,21 +2096,6 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
     // Disable right-click on video
     const videoEl = document.getElementById('webinarVideo') || document.getElementById('youtubeOverlay');
     if (videoEl) videoEl.addEventListener('contextmenu', e => e.preventDefault());
-
-    // Mobile: tap overlay to start YouTube playback if not playing
-    if (CONFIG.isYouTube) {
-      const ytOverlay = document.getElementById('youtubeOverlay');
-      if (ytOverlay) {
-        ytOverlay.addEventListener('click', function() {
-          if (ytPlayerReady && ytPlayer) {
-            const pState = ytPlayer.getPlayerState();
-            if (pState !== YT.PlayerState.PLAYING && pState !== YT.PlayerState.BUFFERING) {
-              ytPlayer.playVideo();
-            }
-          }
-        });
-      }
-    }
 
     ${ctaScript}
 
