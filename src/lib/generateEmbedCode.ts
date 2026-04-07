@@ -1600,7 +1600,6 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       if (!unmuteNotice) return;
 
       if (window.getComputedStyle(unmuteNotice).display !== 'none') {
-        event.preventDefault();
         initialUnmute();
       }
     }
@@ -1697,7 +1696,7 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
         ytPlayer = new YT.Player('ytPlayerContainer', {
           videoId: CONFIG.youtubeId,
           playerVars: {
-            autoplay: isAppleMobileYouTube ? 0 : 1,
+            autoplay: 1,
             mute: 1,
             controls: useNativeYouTubeControls ? 1 : 0,
             disablekb: useNativeYouTubeControls ? 0 : 1,
@@ -1716,10 +1715,7 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
               ytMuted = true;
               event.target.mute();
               event.target.seekTo(startSeconds, true);
-
-              if (!isAppleMobileYouTube) {
-                event.target.playVideo();
-              }
+              event.target.playVideo();
 
               hideLoadingOverlay();
 
@@ -1887,13 +1883,9 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       if (CONFIG.isYouTube) {
         if (isAppleMobileYouTube) {
           if (ytPlayerReady && ytPlayer) {
-            const { elapsed } = getWebinarState();
-            const startSeconds = Math.floor(elapsed || 0);
-
-            ytPlayer.seekTo(startSeconds, true);
+            ytPlayer.playVideo();
             ytPlayer.unMute();
             ytPlayer.setVolume(100);
-            ytPlayer.playVideo();
             ytMuted = false;
           } else {
             pendingUnmute = true;
