@@ -139,7 +139,7 @@ export function WebinarForm({ config, onChange, webinarId }: WebinarFormProps) {
                   placeholder="https://example.com/webinar.mp4"
                   className="input-field"
                 />
-                <p className="text-xs text-muted-foreground">Direct MP4 link to your webinar video</p>
+                <p className="text-xs text-muted-foreground">Direct MP4 link or YouTube link of your webinar video</p>
               </div>
               <div className="space-y-2">
                 <Label>Duration</Label>
@@ -312,7 +312,7 @@ export function WebinarForm({ config, onChange, webinarId }: WebinarFormProps) {
         </CardContent>
       </Card>
 
-      <Card className="glass-card">
+      <Card className={`glass-card ${config.justInTimeEnabled ? 'opacity-50 pointer-events-none' : ''}`}>
         <CardHeader className="pb-4">
           <CardTitle className="flex items-center gap-2 text-lg font-display">
             <Clock className="w-5 h-5 text-primary" />
