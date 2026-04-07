@@ -560,9 +560,15 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       top: 0;
       left: 0;
       right: 0;
-      bottom: 0;
+      bottom: 60px;
       z-index: 15;
       cursor: default;
+    }
+    
+    @media (max-width: 768px) {
+      .youtube-overlay {
+        bottom: 40px;
+      }
     }
     
     .sound-controls {
