@@ -1145,7 +1145,7 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       <div class="video-wrapper">
         ${isYouTube ? `
         <div id="ytPlayerContainer"></div>
-        <div class="youtube-overlay" id="youtubeOverlay" onclick="handleInitialSoundGesture(event)" ontouchend="handleInitialSoundGesture(event)"></div>
+        <div class="youtube-overlay" id="youtubeOverlay"></div>
         ` : `
         <video id="webinarVideo" playsinline>
           <source src="${config.videoUrl}" type="video/mp4">
@@ -1166,7 +1166,7 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
           </button>
           <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="100" oninput="setVolume(this.value)">
         </div>
-        <button type="button" class="unmute-notice" id="unmuteNotice" onclick="handleInitialSoundGesture(event)" ontouchend="handleInitialSoundGesture(event)">
+        <button type="button" class="unmute-notice" id="unmuteNotice">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M11 5L6 9H2v6h4l5 4V5z"/>
             <line x1="23" y1="9" x2="17" y2="15"/>
@@ -1601,35 +1601,27 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       }
     }
 
-    let initialSoundGestureLocked = false;
-
-    function handleInitialSoundGesture(event) {
+    function bindInitialSoundGesture() {
       if (!CONFIG.isYouTube) return;
 
-      if (event) {
-        event.preventDefault();
-        event.stopPropagation();
-      }
-
+      const overlay = document.getElementById('youtubeOverlay');
       const unmuteNotice = document.getElementById('unmuteNotice');
-      if (!unmuteNotice) return;
+      if (!overlay || !unmuteNotice) return;
 
-      if (window.getComputedStyle(unmuteNotice).display !== 'none') {
-        if (initialSoundGestureLocked) return false;
-        initialSoundGestureLocked = true;
+      const triggerInitialUnmute = function() {
+        if (window.getComputedStyle(unmuteNotice).display === 'none') return;
         initialUnmute();
-        setTimeout(function() {
-          initialSoundGestureLocked = false;
-        }, 500);
-      }
+      };
 
-      return false;
+      overlay.addEventListener('click', triggerInitialUnmute);
+      unmuteNotice.addEventListener('click', triggerInitialUnmute);
     }
 
     function startWebinar() {
       document.getElementById('countdownOverlay').classList.add('hidden');
       document.getElementById('webinarRoom').style.display = 'flex';
       configureYouTubeInteractionMode();
+      bindInitialSoundGesture();
       
       const loadingOverlay = document.getElementById('loadingOverlay');
       
