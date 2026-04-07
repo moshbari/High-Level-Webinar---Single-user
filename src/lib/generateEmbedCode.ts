@@ -635,8 +635,6 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       left: 50%;
       transform: translate(-50%, -50%);
       background: rgba(0,0,0,0.8);
-      border: none;
-      color: white;
       padding: 1rem 2rem;
       border-radius: 12px;
       display: flex;
@@ -648,12 +646,6 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       font-size: 1rem;
       text-align: center;
       z-index: 99;
-      pointer-events: auto;
-      touch-action: manipulation;
-      -webkit-appearance: none;
-      appearance: none;
-      -webkit-tap-highlight-color: transparent;
-      user-select: none;
     }
     
     .unmute-notice svg {
@@ -1166,14 +1158,14 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
           </button>
           <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="100" oninput="setVolume(this.value)">
         </div>
-        <button type="button" class="unmute-notice" id="unmuteNotice">
+        <div class="unmute-notice" id="unmuteNotice" onclick="initialUnmute()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M11 5L6 9H2v6h4l5 4V5z"/>
             <line x1="23" y1="9" x2="17" y2="15"/>
             <line x1="17" y1="9" x2="23" y2="15"/>
           </svg>
           <span>Click to unmute</span>
-        </button>
+        </div>
         <div class="loading-overlay" id="loadingOverlay">
           <div class="loading-spinner"></div>
           <span class="loading-text">Joining live session...</span>
@@ -1564,64 +1556,10 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
     let ytPlayerReady = false;
     let ytMuted = true;
     let pendingUnmute = false;
-    const useNativeYouTubeControls = false;
-    const isAppleMobileYouTube = CONFIG.isYouTube && (() => {
-      const ua = navigator.userAgent || '';
-      const isTouchMac = navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
-      return /iPhone|iPad|iPod/i.test(ua) || isTouchMac;
-    })();
-
-    function configureYouTubeInteractionMode() {
-      if (!CONFIG.isYouTube) return;
-
-      const overlay = document.getElementById('youtubeOverlay');
-      const unmuteNotice = document.getElementById('unmuteNotice');
-      const soundControls = document.getElementById('soundControls');
-
-      if (useNativeYouTubeControls) {
-        if (overlay) {
-          overlay.style.pointerEvents = 'none';
-          overlay.style.display = 'none';
-        }
-
-        if (unmuteNotice) {
-          unmuteNotice.style.display = 'none';
-        }
-
-        if (soundControls) {
-          soundControls.style.display = 'none';
-        }
-
-        return;
-      }
-
-      if (overlay) {
-        overlay.style.pointerEvents = 'auto';
-        overlay.style.display = 'block';
-      }
-    }
-
-    function bindInitialSoundGesture() {
-      if (!CONFIG.isYouTube) return;
-
-      const overlay = document.getElementById('youtubeOverlay');
-      const unmuteNotice = document.getElementById('unmuteNotice');
-      if (!overlay || !unmuteNotice) return;
-
-      const triggerInitialUnmute = function() {
-        if (window.getComputedStyle(unmuteNotice).display === 'none') return;
-        initialUnmute();
-      };
-
-      overlay.addEventListener('click', triggerInitialUnmute);
-      unmuteNotice.addEventListener('click', triggerInitialUnmute);
-    }
 
     function startWebinar() {
       document.getElementById('countdownOverlay').classList.add('hidden');
       document.getElementById('webinarRoom').style.display = 'flex';
-      configureYouTubeInteractionMode();
-      bindInitialSoundGesture();
       
       const loadingOverlay = document.getElementById('loadingOverlay');
       
@@ -1712,9 +1650,9 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
           playerVars: {
             autoplay: 1,
             mute: 1,
-            controls: useNativeYouTubeControls ? 1 : 0,
-            disablekb: useNativeYouTubeControls ? 0 : 1,
-            fs: useNativeYouTubeControls ? 1 : 0,
+            controls: 0,
+            disablekb: 1,
+            fs: 0,
             iv_load_policy: 3,
             modestbranding: 1,
             rel: 0,
@@ -1726,20 +1664,18 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
           events: {
             onReady: function(event) {
               ytPlayerReady = true;
-              ytMuted = true;
               event.target.mute();
               event.target.seekTo(startSeconds, true);
               event.target.playVideo();
-
               hideLoadingOverlay();
 
               if (pendingUnmute) {
                 pendingUnmute = false;
-                recreateYouTubePlayerUnmuted();
-                return;
+                event.target.unMute();
+                event.target.setVolume(100);
+                ytMuted = false;
+                updateVolumeIcon();
               }
-
-              updateVolumeIcon();
             },
             onStateChange: function(event) {
               if (event.data === YT.PlayerState.PLAYING || event.data === YT.PlayerState.BUFFERING) {
@@ -1891,12 +1827,7 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
 
     function initialUnmute() {
       if (CONFIG.isYouTube) {
-        if (ytPlayerReady && ytPlayer) {
-          recreateYouTubePlayerUnmuted();
-        } else {
-          pendingUnmute = true;
-          return;
-        }
+        recreateYouTubePlayerUnmuted();
       } else {
         const video = document.getElementById('webinarVideo');
         video.muted = false;
@@ -1936,9 +1867,9 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
         playerVars: {
           autoplay: 1,
           mute: 0,
-          controls: useNativeYouTubeControls ? 1 : 0,
-          disablekb: useNativeYouTubeControls ? 0 : 1,
-          fs: useNativeYouTubeControls ? 1 : 0,
+          controls: 0,
+          disablekb: 1,
+          fs: 0,
           iv_load_policy: 3,
           modestbranding: 1,
           rel: 0,
