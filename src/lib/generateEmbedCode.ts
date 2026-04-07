@@ -1137,7 +1137,7 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       <div class="video-wrapper">
         ${isYouTube ? `
         <div id="ytPlayerContainer"></div>
-        <div class="youtube-overlay" id="youtubeOverlay"></div>
+        <div class="youtube-overlay" id="youtubeOverlay" onclick="handleYouTubeOverlayTap(event)"></div>
         ` : `
         <video id="webinarVideo" playsinline>
           <source src="${config.videoUrl}" type="video/mp4">
@@ -1556,7 +1556,12 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
     let ytPlayerReady = false;
     let ytMuted = true;
     let pendingUnmute = false;
-     const useNativeYouTubeControls = false;
+    const useNativeYouTubeControls = false;
+    const isAppleMobileYouTube = CONFIG.isYouTube && (() => {
+      const ua = navigator.userAgent || '';
+      const isTouchMac = navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
+      return /iPhone|iPad|iPod/i.test(ua) || isTouchMac;
+    })();
 
     function configureYouTubeInteractionMode() {
       if (!CONFIG.isYouTube) return;
@@ -1585,6 +1590,18 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       if (overlay) {
         overlay.style.pointerEvents = 'auto';
         overlay.style.display = 'block';
+      }
+    }
+
+    function handleYouTubeOverlayTap(event) {
+      if (!CONFIG.isYouTube) return;
+
+      const unmuteNotice = document.getElementById('unmuteNotice');
+      if (!unmuteNotice) return;
+
+      if (window.getComputedStyle(unmuteNotice).display !== 'none') {
+        event.preventDefault();
+        initialUnmute();
       }
     }
 
@@ -1680,7 +1697,7 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
         ytPlayer = new YT.Player('ytPlayerContainer', {
           videoId: CONFIG.youtubeId,
           playerVars: {
-            autoplay: 1,
+            autoplay: isAppleMobileYouTube ? 0 : 1,
             mute: 1,
             controls: useNativeYouTubeControls ? 1 : 0,
             disablekb: useNativeYouTubeControls ? 0 : 1,
@@ -1696,9 +1713,14 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
           events: {
             onReady: function(event) {
               ytPlayerReady = true;
+              ytMuted = true;
               event.target.mute();
               event.target.seekTo(startSeconds, true);
-              event.target.playVideo();
+
+              if (!isAppleMobileYouTube) {
+                event.target.playVideo();
+              }
+
               hideLoadingOverlay();
 
               if (pendingUnmute) {
@@ -1706,8 +1728,12 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
                 event.target.unMute();
                 event.target.setVolume(100);
                 ytMuted = false;
+                event.target.playVideo();
                 updateVolumeIcon();
+                return;
               }
+
+              updateVolumeIcon();
             },
             onStateChange: function(event) {
               if (event.data === YT.PlayerState.PLAYING || event.data === YT.PlayerState.BUFFERING) {
@@ -1859,7 +1885,23 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
 
     function initialUnmute() {
       if (CONFIG.isYouTube) {
-        recreateYouTubePlayerUnmuted();
+        if (isAppleMobileYouTube) {
+          if (ytPlayerReady && ytPlayer) {
+            const { elapsed } = getWebinarState();
+            const startSeconds = Math.floor(elapsed || 0);
+
+            ytPlayer.seekTo(startSeconds, true);
+            ytPlayer.unMute();
+            ytPlayer.setVolume(100);
+            ytPlayer.playVideo();
+            ytMuted = false;
+          } else {
+            pendingUnmute = true;
+            return;
+          }
+        } else {
+          recreateYouTubePlayerUnmuted();
+        }
       } else {
         const video = document.getElementById('webinarVideo');
         video.muted = false;
