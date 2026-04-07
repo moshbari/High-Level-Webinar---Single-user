@@ -1831,12 +1831,27 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       document.getElementById('viewerCount').textContent = count;
     }
 
+    function isMobileDevice() {
+      return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+    }
+
     function initialUnmute() {
       if (CONFIG.isYouTube) {
-        recreateYouTubePlayerUnmuted();
+        if (isMobileDevice()) {
+          // On mobile, don't recreate — use direct API calls within this user gesture
+          if (ytPlayerReady && ytPlayer) {
+            ytPlayer.unMute();
+            ytPlayer.setVolume(100);
+            ytPlayer.playVideo();
+            ytMuted = false;
+          }
+        } else {
+          recreateYouTubePlayerUnmuted();
+        }
       } else {
         const video = document.getElementById('webinarVideo');
         video.muted = false;
+        video.play().catch(function(){});
       }
       document.getElementById('unmuteNotice').style.display = 'none';
       document.getElementById('soundControls').style.display = 'flex';
