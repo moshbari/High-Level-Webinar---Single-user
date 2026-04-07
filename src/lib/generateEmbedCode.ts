@@ -1743,11 +1743,7 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
 
               if (pendingUnmute) {
                 pendingUnmute = false;
-                event.target.unMute();
-                event.target.setVolume(100);
-                ytMuted = false;
-                event.target.playVideo();
-                updateVolumeIcon();
+                recreateYouTubePlayerUnmuted();
                 return;
               }
 
@@ -1903,18 +1899,11 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
 
     function initialUnmute() {
       if (CONFIG.isYouTube) {
-        if (isAppleMobileYouTube) {
-          if (ytPlayerReady && ytPlayer) {
-            ytPlayer.playVideo();
-            ytPlayer.unMute();
-            ytPlayer.setVolume(100);
-            ytMuted = false;
-          } else {
-            pendingUnmute = true;
-            return;
-          }
-        } else {
+        if (ytPlayerReady && ytPlayer) {
           recreateYouTubePlayerUnmuted();
+        } else {
+          pendingUnmute = true;
+          return;
         }
       } else {
         const video = document.getElementById('webinarVideo');
