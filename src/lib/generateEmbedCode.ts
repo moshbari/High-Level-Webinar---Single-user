@@ -2118,6 +2118,21 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
     const videoEl = document.getElementById('webinarVideo') || document.getElementById('youtubeOverlay');
     if (videoEl) videoEl.addEventListener('contextmenu', e => e.preventDefault());
 
+    // Mobile: tap overlay to start YouTube playback if not playing
+    if (CONFIG.isYouTube) {
+      const ytOverlay = document.getElementById('youtubeOverlay');
+      if (ytOverlay) {
+        ytOverlay.addEventListener('click', function() {
+          if (ytPlayerReady && ytPlayer) {
+            const pState = ytPlayer.getPlayerState();
+            if (pState !== YT.PlayerState.PLAYING && pState !== YT.PlayerState.BUFFERING) {
+              ytPlayer.playVideo();
+            }
+          }
+        });
+      }
+    }
+
     ${ctaScript}
 
     // ============ TRACKING SYSTEM ============
