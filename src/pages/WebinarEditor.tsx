@@ -12,6 +12,28 @@ import { motion } from 'framer-motion';
 import { generateEmbedCode } from '@/lib/generateEmbedCode';
 import { ROUTES } from '@/lib/routes';
 
+const sendSampleWebhookData = async (webhookUrl: string, webinarName: string) => {
+  if (!webhookUrl) return;
+  try {
+    const payload = {
+      name: 'Test User',
+      firstName: 'Test',
+      lastName: 'User',
+      email: 'test@example.com',
+      webinar_name: webinarName,
+      registered_at: new Date().toISOString(),
+      source: 'sample_test',
+    };
+    await fetch(webhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+  } catch (err) {
+    console.warn('Sample webhook send failed:', err);
+  }
+};
+
 export default function WebinarEditor() {
   const navigate = useNavigate();
   const { id } = useParams();
