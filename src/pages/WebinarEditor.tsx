@@ -21,9 +21,10 @@ export const extractProductName = (webinarName: string): string => {
   return webinarName.trim();
 };
 
-export const sendSampleWebhookData = async (webhookUrl: string, webinarName: string) => {
+export const sendSampleWebhookData = async (webhookUrl: string, webinarName: string, webinarId?: string) => {
   if (!webhookUrl) return;
   const productName = extractProductName(webinarName);
+  const baseUrl = window.location.origin;
   try {
     const payload = {
       name: 'Test User',
@@ -33,6 +34,8 @@ export const sendSampleWebhookData = async (webhookUrl: string, webinarName: str
       webinar_name: webinarName,
       registered_at: new Date().toISOString(),
       source: productName,
+      watch_link: webinarId ? `${baseUrl}/watch/${webinarId}` : '',
+      replay_link: webinarId ? `${baseUrl}/replay/${webinarId}` : '',
     };
     await fetch(webhookUrl, {
       method: 'POST',
@@ -90,7 +93,7 @@ export default function WebinarEditor() {
           
           // Send sample data to webhook
           if (activeWebhookUrl) {
-            sendSampleWebhookData(activeWebhookUrl, config.webinarName);
+            sendSampleWebhookData(activeWebhookUrl, config.webinarName, id);
           }
           
           toast({
@@ -112,7 +115,7 @@ export default function WebinarEditor() {
           
           // Send sample data to webhook
           if (activeWebhookUrl) {
-            sendSampleWebhookData(activeWebhookUrl, config.webinarName);
+            sendSampleWebhookData(activeWebhookUrl, config.webinarName, newWebinar.id);
           }
           
           toast({

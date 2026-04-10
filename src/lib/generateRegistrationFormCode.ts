@@ -218,7 +218,8 @@ export const generateRegistrationFormCode = (config: WebinarConfig): string => {
       justInTimeMinutes: ${config.justInTimeMinutes},
       ghlWebhookUrl: '${config.regFormEmailPlatform === 'ghl' ? config.regFormGhlWebhookUrl : ''}',
       systemeWebhookUrl: '${config.regFormEmailPlatform === 'systeme' ? config.regFormSystemeWebhookUrl : ''}',
-      thankYouUrl: '${config.regFormThankYouUrl}'
+      thankYouUrl: '${config.regFormThankYouUrl}',
+      baseUrl: '${typeof window !== "undefined" ? window.location.origin : "https://live-spark-booster.lovable.app"}'
     };
     
     function getSessionDisplay() {
@@ -287,7 +288,9 @@ export const generateRegistrationFormCode = (config: WebinarConfig): string => {
         webinar_id: CONFIG.webinarId,
         webinar_name: CONFIG.webinarName,
         registered_at: new Date().toISOString(),
-        source: (function() { var p = CONFIG.webinarName.split(' - '); return p.length >= 2 ? p[1].trim() : CONFIG.webinarName.trim(); })()
+        source: (function() { var p = CONFIG.webinarName.split(' - '); return p.length >= 2 ? p[1].trim() : CONFIG.webinarName.trim(); })(),
+        watch_link: CONFIG.baseUrl + '/watch/' + CONFIG.webinarId,
+        replay_link: CONFIG.baseUrl + '/replay/' + CONFIG.webinarId
       };
       
       try {

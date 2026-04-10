@@ -150,6 +150,7 @@ export default function RegisterPage() {
       const firstName = nameParts[0] || '';
       const lastName = nameParts.slice(1).join(' ') || '';
 
+      const baseUrl = window.location.origin;
       const payload = {
         name: name.trim(),
         firstName,
@@ -158,7 +159,9 @@ export default function RegisterPage() {
         webinar_id: config.id,
         webinar_name: config.webinarName,
         registered_at: new Date().toISOString(),
-        source: extractProductName(config.webinarName)
+        source: extractProductName(config.webinarName),
+        watch_link: `${baseUrl}/watch/${config.id}`,
+        replay_link: `${baseUrl}/replay/${config.id}`,
       };
 
       const response = await fetch(webhookUrl, {
