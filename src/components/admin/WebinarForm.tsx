@@ -72,7 +72,7 @@ export function WebinarForm({ config, onChange, webinarId }: WebinarFormProps) {
 
   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
   const ipnWebhookUrl = config.ipnWebhookSlug
-    ? `${supabaseUrl}/functions/v1/ipn-register?slug=${config.ipnWebhookSlug}`
+    ? `${supabaseUrl}/functions/v1/ipn-register?slug=${config.ipnWebhookSlug}${config.ipnSecretKey ? `&key=${config.ipnSecretKey}` : ''}`
     : '';
 
   const copyIpnUrl = () => {
