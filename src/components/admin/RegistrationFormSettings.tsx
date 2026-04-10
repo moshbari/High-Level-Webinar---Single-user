@@ -6,10 +6,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { ClipboardList, ChevronDown, Settings2, Link, Copy, Check } from 'lucide-react';
+import { ClipboardList, ChevronDown, Settings2, Link, Copy, Check, Send, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { sendSampleWebhookData } from '@/pages/WebinarEditor';
 
 interface RegistrationFormSettingsProps {
   config: Omit<WebinarConfig, 'id' | 'createdAt' | 'updatedAt'>;
@@ -20,6 +21,7 @@ interface RegistrationFormSettingsProps {
 export function RegistrationFormSettings({ config, onChange, webinarId }: RegistrationFormSettingsProps) {
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [sendingTest, setSendingTest] = useState(false);
   const { toast } = useToast();
   
   const updateField = <K extends keyof typeof config>(field: K, value: typeof config[K]) => {
@@ -196,28 +198,62 @@ export function RegistrationFormSettings({ config, onChange, webinarId }: Regist
               {/* GHL Webhook - shown when GHL selected */}
               <div className={`space-y-2 transition-opacity ${config.regFormEmailPlatform !== 'ghl' ? 'opacity-40 pointer-events-none' : ''}`}>
                 <Label htmlFor="regFormGhlWebhookUrl">GHL Webhook URL</Label>
-                <Input
-                  id="regFormGhlWebhookUrl"
-                  type="url"
-                  value={config.regFormGhlWebhookUrl}
-                  onChange={(e) => updateField('regFormGhlWebhookUrl', e.target.value)}
-                  placeholder="https://services.leadconnectorhq.com/hooks/..."
-                  className="input-field"
-                />
+                <div className="flex gap-2">
+                  <Input
+                    id="regFormGhlWebhookUrl"
+                    type="url"
+                    value={config.regFormGhlWebhookUrl}
+                    onChange={(e) => updateField('regFormGhlWebhookUrl', e.target.value)}
+                    placeholder="https://services.leadconnectorhq.com/hooks/..."
+                    className="input-field flex-1"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled={!config.regFormGhlWebhookUrl || sendingTest}
+                    onClick={async () => {
+                      setSendingTest(true);
+                      const ok = await sendSampleWebhookData(config.regFormGhlWebhookUrl, config.webinarName);
+                      setSendingTest(false);
+                      toast({ title: ok ? 'Test Sent!' : 'Send Failed', description: ok ? 'Sample data sent to GHL webhook' : 'Could not reach webhook URL', variant: ok ? 'default' : 'destructive' });
+                    }}
+                    className="shrink-0"
+                  >
+                    {sendingTest ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                  </Button>
+                </div>
                 <p className="text-xs text-muted-foreground">GoHighLevel webhook to receive registrations</p>
               </div>
 
               {/* Systeme.io Webhook - shown when Systeme selected */}
               <div className={`space-y-2 transition-opacity ${config.regFormEmailPlatform !== 'systeme' ? 'opacity-40 pointer-events-none' : ''}`}>
                 <Label htmlFor="regFormSystemeWebhookUrl">Systeme.io Webhook URL</Label>
-                <Input
-                  id="regFormSystemeWebhookUrl"
-                  type="url"
-                  value={config.regFormSystemeWebhookUrl}
-                  onChange={(e) => updateField('regFormSystemeWebhookUrl', e.target.value)}
-                  placeholder="https://systeme.io/webhook/..."
-                  className="input-field"
-                />
+                <div className="flex gap-2">
+                  <Input
+                    id="regFormSystemeWebhookUrl"
+                    type="url"
+                    value={config.regFormSystemeWebhookUrl}
+                    onChange={(e) => updateField('regFormSystemeWebhookUrl', e.target.value)}
+                    placeholder="https://systeme.io/webhook/..."
+                    className="input-field flex-1"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled={!config.regFormSystemeWebhookUrl || sendingTest}
+                    onClick={async () => {
+                      setSendingTest(true);
+                      const ok = await sendSampleWebhookData(config.regFormSystemeWebhookUrl, config.webinarName);
+                      setSendingTest(false);
+                      toast({ title: ok ? 'Test Sent!' : 'Send Failed', description: ok ? 'Sample data sent to Systeme.io webhook' : 'Could not reach webhook URL', variant: ok ? 'default' : 'destructive' });
+                    }}
+                    className="shrink-0"
+                  >
+                    {sendingTest ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                  </Button>
+                </div>
                 <p className="text-xs text-muted-foreground">Systeme.io webhook to receive registrations</p>
               </div>
               

@@ -5,6 +5,7 @@ import { rowToConfig } from '@/lib/webinarStorage';
 import { WebinarConfig, TIMEZONES } from '@/types/webinar';
 import { Loader2, AlertCircle, CalendarOff } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { extractProductName } from '@/pages/WebinarEditor';
 
 const getBorderRadius = (radius: string) => {
   switch (radius) {
@@ -157,7 +158,7 @@ export default function RegisterPage() {
         webinar_id: config.id,
         webinar_name: config.webinarName,
         registered_at: new Date().toISOString(),
-        source: 'registration_page'
+        source: extractProductName(config.webinarName)
       };
 
       const response = await fetch(webhookUrl, {
