@@ -70,9 +70,8 @@ export function WebinarForm({ config, onChange, webinarId }: WebinarFormProps) {
     setIpnSlugStatus(available ? 'available' : 'taken');
   }, [config.ipnWebhookSlug, webinarId]);
 
-  const supabaseProjectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
   const ipnWebhookUrl = config.ipnWebhookSlug
-    ? `https://${supabaseProjectId}.supabase.co/functions/v1/ipn-register?slug=${config.ipnWebhookSlug}`
+    ? `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ipn-register?slug=${config.ipnWebhookSlug}`
     : '';
 
   const copyIpnUrl = () => {
