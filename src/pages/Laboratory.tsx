@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useWebinars, useDeleteWebinar, useSaveWebinar } from '@/hooks/useWebinars';
+import { WebinarConfig } from '@/types/webinar';
 import { useLiveViewerCounts } from '@/hooks/useLiveViewerCounts';
 import { useWebinarNotesIndicators } from '@/hooks/useWebinarNotes';
 import { getWebinar } from '@/lib/webinarStorage';
