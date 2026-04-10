@@ -563,6 +563,7 @@ export type Database = {
           error_message: string
           header_title: string
           id: string
+          ipn_secret_key: string | null
           ipn_webhook_slug: string | null
           just_in_time_enabled: boolean
           just_in_time_minutes: number
@@ -634,6 +635,7 @@ export type Database = {
           error_message?: string
           header_title?: string
           id?: string
+          ipn_secret_key?: string | null
           ipn_webhook_slug?: string | null
           just_in_time_enabled?: boolean
           just_in_time_minutes?: number
@@ -705,6 +707,7 @@ export type Database = {
           error_message?: string
           header_title?: string
           id?: string
+          ipn_secret_key?: string | null
           ipn_webhook_slug?: string | null
           just_in_time_enabled?: boolean
           just_in_time_minutes?: number
