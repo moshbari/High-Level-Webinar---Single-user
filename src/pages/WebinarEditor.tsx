@@ -12,8 +12,18 @@ import { motion } from 'framer-motion';
 import { generateEmbedCode } from '@/lib/generateEmbedCode';
 import { ROUTES } from '@/lib/routes';
 
-const sendSampleWebhookData = async (webhookUrl: string, webinarName: string) => {
+export const extractProductName = (webinarName: string): string => {
+  // Structure: Vendor - [Product Name] - 7PM-UOM Webby - on DDth Mon YYYY
+  const parts = webinarName.split(' - ');
+  if (parts.length >= 2) {
+    return parts[1].trim();
+  }
+  return webinarName.trim();
+};
+
+export const sendSampleWebhookData = async (webhookUrl: string, webinarName: string) => {
   if (!webhookUrl) return;
+  const productName = extractProductName(webinarName);
   try {
     const payload = {
       name: 'Test User',
@@ -22,15 +32,17 @@ const sendSampleWebhookData = async (webhookUrl: string, webinarName: string) =>
       email: 'test@example.com',
       webinar_name: webinarName,
       registered_at: new Date().toISOString(),
-      source: 'sample_test',
+      source: productName,
     };
     await fetch(webhookUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
+    return true;
   } catch (err) {
     console.warn('Sample webhook send failed:', err);
+    return false;
   }
 };
 
