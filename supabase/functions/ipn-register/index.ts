@@ -231,6 +231,28 @@ Deno.serve(async (req) => {
       }
     }
 
+    // Forward raw IPN payload if enabled
+    if (webinar.ipn_forward_enabled && webinar.ipn_forward_url) {
+      try {
+        await fetch(webinar.ipn_forward_url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ...body,
+            _ipn_meta: {
+              source: parsed.source,
+              webinar_id: webinar.id,
+              webinar_name: webinar.webinar_name,
+              lead_id: leadId,
+              is_new: !existingLead,
+              processed_at: new Date().toISOString(),
+            },
+          }),
+        });
+      } catch (e) {
+        console.error("IPN forward failed:", e);
+      }
+
     return new Response(
       JSON.stringify({
         success: true,
