@@ -91,8 +91,9 @@ export interface WebinarConfig {
   // Custom URL Slug
   slug: string;
   
-  // IPN Webhook Slug
+  // IPN Webhook
   ipnWebhookSlug: string;
+  ipnSecretKey: string;
 
   // Metadata
   createdAt: string;
