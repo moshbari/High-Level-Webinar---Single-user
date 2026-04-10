@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Separator } from '@/components/ui/separator';
 import { 
   Video, 
   Clock, 
@@ -1020,6 +1021,38 @@ export function WebinarForm({ config, onChange, webinarId }: WebinarFormProps) {
               </p>
             </div>
           )}
+
+          <Separator />
+
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <Label htmlFor="ipnForwardEnabled" className="text-sm font-medium">IPN Forwarding</Label>
+                <p className="text-xs text-muted-foreground">Forward the full raw IPN payload to another webhook</p>
+              </div>
+              <Switch
+                id="ipnForwardEnabled"
+                checked={config.ipnForwardEnabled}
+                onCheckedChange={(checked) => updateField('ipnForwardEnabled', checked)}
+              />
+            </div>
+            {config.ipnForwardEnabled && (
+              <div className="space-y-2">
+                <Label htmlFor="ipnForwardUrl">Forwarding URL</Label>
+                <Input
+                  id="ipnForwardUrl"
+                  type="url"
+                  value={config.ipnForwardUrl}
+                  onChange={(e) => updateField('ipnForwardUrl', e.target.value)}
+                  placeholder="https://your-webhook.com/ipn"
+                  className="input-field"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Full IPN data + metadata (source, webinar info, lead ID) will be forwarded here
+                </p>
+              </div>
+            )}
+          </div>
 
           <div className="rounded-lg border border-border/50 p-3 bg-muted/30">
             <p className="text-xs font-medium mb-1">Supported Sources:</p>
