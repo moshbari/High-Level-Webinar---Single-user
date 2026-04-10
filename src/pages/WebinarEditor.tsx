@@ -98,7 +98,7 @@ export default function WebinarEditor() {
           
           // Send sample data to webhook
           if (activeWebhookUrl) {
-            sendSampleWebhookData(activeWebhookUrl, config.webinarName, id);
+            sendSampleWebhookData(activeWebhookUrl, config.webinarName, id, config.productName, config.vendorName, config.slug);
           }
           
           toast({
@@ -120,7 +120,7 @@ export default function WebinarEditor() {
           
           // Send sample data to webhook
           if (activeWebhookUrl) {
-            sendSampleWebhookData(activeWebhookUrl, config.webinarName, newWebinar.id);
+            sendSampleWebhookData(activeWebhookUrl, config.webinarName, newWebinar.id, config.productName, config.vendorName, config.slug);
           }
           
           toast({
