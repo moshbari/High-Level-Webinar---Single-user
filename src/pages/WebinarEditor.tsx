@@ -64,20 +64,30 @@ export default function WebinarEditor() {
     }
 
     try {
+      // Determine active webhook URL for sample data
+      const activeWebhookUrl = config.regFormEmailPlatform === 'systeme'
+        ? config.regFormSystemeWebhookUrl
+        : config.regFormGhlWebhookUrl;
+
       if (isEditing) {
         const result = await updateWebinarMutation.mutateAsync({ id, config });
         if (result) {
-          // Generate and copy code to clipboard
           const fullConfig = { ...config, id, createdAt: existingWebinar?.createdAt || '', updatedAt: new Date().toISOString() } as WebinarConfig;
           const code = generateEmbedCode(fullConfig);
           await navigator.clipboard.writeText(code);
           
+          // Send sample data to webhook
+          if (activeWebhookUrl) {
+            sendSampleWebhookData(activeWebhookUrl, config.webinarName);
+          }
+          
           toast({
             title: 'Saved & Copied!',
-            description: 'Changes saved and code copied to clipboard',
+            description: activeWebhookUrl 
+              ? 'Changes saved, code copied, and sample data sent to webhook'
+              : 'Changes saved and code copied to clipboard',
           });
           
-          // Navigate to code page
           navigate(`/webinar/${id}/code`);
         } else {
           throw new Error('Failed to update');
@@ -85,9 +95,13 @@ export default function WebinarEditor() {
       } else {
         const newWebinar = await saveWebinarMutation.mutateAsync(config);
         if (newWebinar) {
-          // Generate and copy code to clipboard
           const code = generateEmbedCode(newWebinar);
           await navigator.clipboard.writeText(code);
+          
+          // Send sample data to webhook
+          if (activeWebhookUrl) {
+            sendSampleWebhookData(activeWebhookUrl, config.webinarName);
+          }
           
           toast({
             title: 'Created & Copied!',
