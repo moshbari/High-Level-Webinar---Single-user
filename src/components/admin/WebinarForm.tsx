@@ -42,6 +42,7 @@ interface WebinarFormProps {
 
 export function WebinarForm({ config, onChange, webinarId }: WebinarFormProps) {
   const [slugStatus, setSlugStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle');
+  const [ipnSlugStatus, setIpnSlugStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle');
   
   const updateField = <K extends keyof typeof config>(field: K, value: typeof config[K]) => {
     onChange({ ...config, [field]: value });
@@ -54,6 +55,19 @@ export function WebinarForm({ config, onChange, webinarId }: WebinarFormProps) {
     const available = await checkSlugAvailability(slug, webinarId);
     setSlugStatus(available ? 'available' : 'taken');
   }, [config.slug, webinarId]);
+
+  const handleIpnSlugCheck = useCallback(async () => {
+    const slug = config.ipnWebhookSlug?.trim();
+    if (!slug) return;
+    setIpnSlugStatus('checking');
+    const { data } = await supabase
+      .from('webinars')
+      .select('id')
+      .eq('ipn_webhook_slug' as any, slug)
+      .maybeSingle();
+    const available = !data || (webinarId ? data.id === webinarId : false);
+    setIpnSlugStatus(available ? 'available' : 'taken');
+  }, [config.ipnWebhookSlug, webinarId]);
 
   return (
     <div className="space-y-6">
