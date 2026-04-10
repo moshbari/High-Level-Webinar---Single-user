@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useWebinars, useDeleteWebinar, useSaveWebinar } from '@/hooks/useWebinars';
+import { WebinarConfig } from '@/types/webinar';
 import { useLiveViewerCounts } from '@/hooks/useLiveViewerCounts';
 import { useWebinarNotesIndicators } from '@/hooks/useWebinarNotes';
 import { getWebinar } from '@/lib/webinarStorage';
@@ -148,25 +149,25 @@ export default function Laboratory() {
     toast({ title: 'Copied!', description: 'Embed code copied to clipboard' });
   };
 
-  const getWebinarUrlId = (webinar: { id: string; slug?: string | null }) => webinar.slug || webinar.id;
+  const getWebinarUrlId = (webinar: WebinarConfig) => webinar.slug || webinar.id;
 
-  const handleCopyWatchUrl = async (webinar: { id: string; slug?: string | null }) => {
+  const handleCopyWatchUrl = async (webinar: WebinarConfig) => {
     const url = `${window.location.origin}/watch/${getWebinarUrlId(webinar)}`;
     await navigator.clipboard.writeText(url);
     toast({ title: 'Copied!', description: 'Watch page URL copied to clipboard' });
   };
 
-  const handleCopyReplayUrl = async (webinar: { id: string; slug?: string | null }) => {
+  const handleCopyReplayUrl = async (webinar: WebinarConfig) => {
     const url = `${window.location.origin}/replay/${getWebinarUrlId(webinar)}`;
     await navigator.clipboard.writeText(url);
     toast({ title: 'Copied!', description: 'Replay page URL copied to clipboard' });
   };
 
-  const handleOpenWatch = (webinar: { id: string; slug?: string | null }) => {
+  const handleOpenWatch = (webinar: WebinarConfig) => {
     window.open(`/watch/${getWebinarUrlId(webinar)}`, '_blank');
   };
 
-  const handleOpenReplay = (webinar: { id: string; slug?: string | null }) => {
+  const handleOpenReplay = (webinar: WebinarConfig) => {
     window.open(`/replay/${getWebinarUrlId(webinar)}`, '_blank');
   };
 
