@@ -131,7 +131,11 @@ export default function RegisterPage() {
     
     if (!validateForm() || !config) return;
 
-    if (!config.regFormGhlWebhookUrl) {
+    const webhookUrl = config.regFormEmailPlatform === 'systeme' 
+      ? config.regFormSystemeWebhookUrl 
+      : config.regFormGhlWebhookUrl;
+
+    if (!webhookUrl) {
       setFormError('Registration is not configured. Please contact the host.');
       return;
     }
@@ -156,7 +160,7 @@ export default function RegisterPage() {
         source: 'registration_page'
       };
 
-      const response = await fetch(config.regFormGhlWebhookUrl, {
+      const response = await fetch(webhookUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
