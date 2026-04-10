@@ -5,6 +5,7 @@ import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { ClipboardList, ChevronDown, Settings2, Link, Copy, Check } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -173,7 +174,27 @@ export function RegistrationFormSettings({ config, onChange, webinarId }: Regist
                 </div>
               </div>
               
-              <div className="space-y-2">
+              {/* Email Platform Selection */}
+              <div className="space-y-3">
+                <Label className="text-sm font-medium">Email Management Platform</Label>
+                <RadioGroup
+                  value={config.regFormEmailPlatform}
+                  onValueChange={(v) => updateField('regFormEmailPlatform', v as 'ghl' | 'systeme')}
+                  className="flex gap-4"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="ghl" id="platform-ghl" />
+                    <Label htmlFor="platform-ghl" className="cursor-pointer font-normal">GoHighLevel</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="systeme" id="platform-systeme" />
+                    <Label htmlFor="platform-systeme" className="cursor-pointer font-normal">Systeme.io</Label>
+                  </div>
+                </RadioGroup>
+              </div>
+
+              {/* GHL Webhook - shown when GHL selected */}
+              <div className={`space-y-2 transition-opacity ${config.regFormEmailPlatform !== 'ghl' ? 'opacity-40 pointer-events-none' : ''}`}>
                 <Label htmlFor="regFormGhlWebhookUrl">GHL Webhook URL</Label>
                 <Input
                   id="regFormGhlWebhookUrl"
@@ -184,6 +205,20 @@ export function RegistrationFormSettings({ config, onChange, webinarId }: Regist
                   className="input-field"
                 />
                 <p className="text-xs text-muted-foreground">GoHighLevel webhook to receive registrations</p>
+              </div>
+
+              {/* Systeme.io Webhook - shown when Systeme selected */}
+              <div className={`space-y-2 transition-opacity ${config.regFormEmailPlatform !== 'systeme' ? 'opacity-40 pointer-events-none' : ''}`}>
+                <Label htmlFor="regFormSystemeWebhookUrl">Systeme.io Webhook URL</Label>
+                <Input
+                  id="regFormSystemeWebhookUrl"
+                  type="url"
+                  value={config.regFormSystemeWebhookUrl}
+                  onChange={(e) => updateField('regFormSystemeWebhookUrl', e.target.value)}
+                  placeholder="https://systeme.io/webhook/..."
+                  className="input-field"
+                />
+                <p className="text-xs text-muted-foreground">Systeme.io webhook to receive registrations</p>
               </div>
               
               <div className="space-y-2">

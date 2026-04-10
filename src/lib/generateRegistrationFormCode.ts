@@ -216,7 +216,8 @@ export const generateRegistrationFormCode = (config: WebinarConfig): string => {
       timezone: '${config.timezone}',
       justInTimeEnabled: ${config.justInTimeEnabled},
       justInTimeMinutes: ${config.justInTimeMinutes},
-      ghlWebhookUrl: '${config.regFormGhlWebhookUrl}',
+      ghlWebhookUrl: '${config.regFormEmailPlatform === 'ghl' ? config.regFormGhlWebhookUrl : ''}',
+      systemeWebhookUrl: '${config.regFormEmailPlatform === 'systeme' ? config.regFormSystemeWebhookUrl : ''}',
       thankYouUrl: '${config.regFormThankYouUrl}'
     };
     
@@ -290,9 +291,10 @@ export const generateRegistrationFormCode = (config: WebinarConfig): string => {
       };
       
       try {
-        // Send to GHL webhook
-        if (CONFIG.ghlWebhookUrl) {
-          await fetch(CONFIG.ghlWebhookUrl, {
+        // Send to webhook (GHL or Systeme.io)
+        const webhookUrl = CONFIG.ghlWebhookUrl || CONFIG.systemeWebhookUrl;
+        if (webhookUrl) {
+          await fetch(webhookUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),
