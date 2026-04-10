@@ -1,4 +1,5 @@
 import { WebinarConfig, TIMEZONES } from '@/types/webinar';
+import { checkSlugAvailability } from '@/lib/webinarStorage';
 import { VideoMode, VideoSequenceItem } from '@/types/clip';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -25,6 +26,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { RegistrationFormSettings } from './RegistrationFormSettings';
 import { RegistrationFormPreview } from './RegistrationFormPreview';
 import { VideoSequenceBuilder } from './VideoSequenceBuilder';
+import { useState, useCallback } from 'react';
+import { Button } from '@/components/ui/button';
+import { CheckCircle, XCircle, Loader2 as SlugLoader } from 'lucide-react';
 
 interface WebinarFormProps {
   config: Omit<WebinarConfig, 'id' | 'createdAt' | 'updatedAt'>;
