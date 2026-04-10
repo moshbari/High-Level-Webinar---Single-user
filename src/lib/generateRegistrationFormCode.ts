@@ -287,7 +287,7 @@ export const generateRegistrationFormCode = (config: WebinarConfig): string => {
         webinar_id: CONFIG.webinarId,
         webinar_name: CONFIG.webinarName,
         registered_at: new Date().toISOString(),
-        source: 'registration_form'
+        source: (function() { var p = CONFIG.webinarName.split(' - '); return p.length >= 2 ? p[1].trim() : CONFIG.webinarName.trim(); })()
       };
       
       try {
