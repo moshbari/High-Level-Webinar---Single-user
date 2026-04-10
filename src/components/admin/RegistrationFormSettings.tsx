@@ -214,7 +214,7 @@ export function RegistrationFormSettings({ config, onChange, webinarId }: Regist
                     disabled={!config.regFormGhlWebhookUrl || sendingTest}
                     onClick={async () => {
                       setSendingTest(true);
-                      const ok = await sendSampleWebhookData(config.regFormGhlWebhookUrl, config.webinarName);
+                      const ok = await sendSampleWebhookData(config.regFormGhlWebhookUrl, config.webinarName, webinarId);
                       setSendingTest(false);
                       toast({ title: ok ? 'Test Sent!' : 'Send Failed', description: ok ? 'Sample data sent to GHL webhook' : 'Could not reach webhook URL', variant: ok ? 'default' : 'destructive' });
                     }}
@@ -245,7 +245,7 @@ export function RegistrationFormSettings({ config, onChange, webinarId }: Regist
                     disabled={!config.regFormSystemeWebhookUrl || sendingTest}
                     onClick={async () => {
                       setSendingTest(true);
-                      const ok = await sendSampleWebhookData(config.regFormSystemeWebhookUrl, config.webinarName);
+                      const ok = await sendSampleWebhookData(config.regFormSystemeWebhookUrl, config.webinarName, webinarId);
                       setSendingTest(false);
                       toast({ title: ok ? 'Test Sent!' : 'Send Failed', description: ok ? 'Sample data sent to Systeme.io webhook' : 'Could not reach webhook URL', variant: ok ? 'default' : 'destructive' });
                     }}
