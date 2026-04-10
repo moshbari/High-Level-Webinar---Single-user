@@ -1,74 +1,89 @@
 
 
-## Fix: Allow Public Viewers to Access Self-Hosted Webinar Pages
+## Auto-Registration via IPN Webhook
 
-### Problem Identified
+This feature replaces the n8n workflow entirely. Third-party platforms (WarriorPlus, JVZoo, LaunchPad, and custom sources) will POST IPN data directly to your app, which will auto-detect the source, extract customer details, register the lead, forward to GHL/Systeme webhooks, and notify via Telegram on errors.
 
-The `/watch/:id` and `/replay/:id` routes are correctly configured as public (no `ProtectedRoute` wrapper), but the **database-level RLS policy** on the `webinars` table blocks unauthenticated users from reading webinar data.
+---
 
-Current RLS SELECT policy:
-```sql
--- Only owners and admins can view webinars
-USING ((auth.uid() = user_id) OR has_role(auth.uid(), 'admin'))
+### How It Works
+
+```text
+WarriorPlus / JVZoo / LaunchPad / Custom
+            │
+            ▼
+  POST /functions/v1/ipn-register/{slug}
+            │
+            ▼
+   Edge Function: ipn-register
+     1. Look up webinar by ipn_webhook_slug
+     2. Detect source (WP/JVZoo/LaunchPad/custom)
+     3. Extract name + email
+     4. Save lead to DB (dedup by email+webinar)
+     5. Forward to GHL/Systeme webhook
+     6. On ANY error → Telegram notify
+            │
+            ▼
+   Return 200 OK
 ```
 
-This means when an anonymous viewer visits `/watch/abc123`, the Supabase query returns no data because RLS denies access.
-
 ---
 
-### Solution
+### Database Changes
 
-Add a new RLS policy that allows **public read access** to webinars. This is safe because:
-1. The embed code and replay pages need to fetch webinar settings to display
-2. No sensitive data is exposed (just video URLs, styling, and settings)
-3. INSERT/UPDATE/DELETE remain protected (owners only)
+1. **Add `ipn_webhook_slug` column** to `webinars` table (unique, nullable, like `slug`).
 
----
+### New Edge Function: `ipn-register`
 
-### Implementation Steps
+- Accepts POST at `/functions/v1/ipn-register/{slug}` (slug passed as query param or path)
+- Parses both JSON and `application/x-www-form-urlencoded` bodies (JVZoo sends form-encoded)
+- **Source detection logic** (from the n8n workflow):
+  - `body.customer_email` exists → **LaunchPad** (email from `customer_email`)
+  - `body.ccustemail` exists → **JVZoo** (email from `ccustemail`, name from `ccustname`)
+  - `body.WP_BUYER_EMAIL` exists → **WarriorPlus** (email from `WP_BUYER_EMAIL`, name from `WP_BUYER_NAME` or `WP_BUYER_FIRST_NAME`+`WP_BUYER_LAST_NAME`)
+  - `body.buyer_email` or `body.email` → **Custom/fallback**
+- If email not found → Telegram notification to chat IDs `6622726782` and `7709210336`
+- Saves lead via existing `leads` table (dedup check)
+- Forwards registration data to configured GHL/Systeme webhook (with `watch_link`, `replay_link`, `product_name`, `vendor_name`, `source: 'HighLevelWebinar'`)
 
-#### Step 1: Add Public SELECT Policy
+### New Secret: `TELEGRAM_BOT_TOKEN`
 
-Create a database migration to add a permissive policy for anonymous SELECT:
+- Will prompt you to provide your Telegram bot token for error notifications.
 
-```sql
--- Allow anyone (including anonymous) to read webinar data
--- This enables the public /watch and /replay pages to function
-CREATE POLICY "Anyone can view webinars for public pages"
-ON public.webinars
-FOR SELECT
-TO anon, authenticated
-USING (true);
+### UI Changes in Webinar Editor
+
+- **New section in WebinarForm**: "IPN Webhook Integration" card
+  - Editable `ipn_webhook_slug` field with availability check (same pattern as URL slug)
+  - Read-only display of the full webhook URL: `https://xidtgjtbhskltygixljs.supabase.co/functions/v1/ipn-register?slug={ipn_webhook_slug}`
+  - Copy button for the URL
+  - Supported sources listed as info text
+
+### Config Updates
+
+- Add `ipnWebhookSlug` to `WebinarConfig` type
+- Add mapping in `webinarStorage.ts`
+
+### Telegram Notification Format
+
+On error (no email found, DB error, etc.):
+```
+⚠️ IPN Registration Error
+Webinar: {webinar_name}
+Source: {detected_source}
+Error: {error_details}
+Raw payload attached
 ```
 
-This policy will work alongside the existing policy. Since both are permissive, either one granting access is sufficient.
-
-#### Step 2: Verify No Code Changes Needed
-
-The frontend code in `WatchWebinar.tsx` and `ReplayWebinar.tsx` already:
-- Uses `maybeSingle()` for safe single-row queries
-- Handles errors gracefully
-- Shows appropriate error states
-
-No changes needed - just the RLS policy fix.
-
 ---
 
-### Technical Details
+### Files to Create/Edit
 
-| Aspect | Current Behavior | After Fix |
-|--------|------------------|-----------|
-| `/watch/:id` anonymous access | Blocked by RLS | Allowed |
-| `/replay/:id` anonymous access | Blocked by RLS | Allowed |
-| Webinar owner access | Allowed | Allowed |
-| Admin access | Allowed | Allowed |
-| Create/Update/Delete | Owner only | Owner only (unchanged) |
-
----
-
-### Security Considerations
-
-- **Safe to expose**: Webinar config data (video URLs, colors, CTA text) is intentionally public-facing content
-- **Still protected**: INSERT, UPDATE, DELETE operations remain restricted to owners/admins
-- **No PII exposed**: The webinars table contains settings, not user data
+| File | Action |
+|------|--------|
+| `supabase/functions/ipn-register/index.ts` | Create - main edge function |
+| `supabase/config.toml` | Add `[functions.ipn-register]` with `verify_jwt = false` |
+| `src/types/webinar.ts` | Add `ipnWebhookSlug` field |
+| `src/lib/webinarStorage.ts` | Add mapping for new field |
+| `src/components/admin/WebinarForm.tsx` | Add IPN Webhook section with slug + URL display |
+| Migration SQL | Add `ipn_webhook_slug` column with unique index |
 
