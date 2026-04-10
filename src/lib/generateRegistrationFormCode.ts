@@ -218,7 +218,8 @@ export const generateRegistrationFormCode = (config: WebinarConfig): string => {
       justInTimeMinutes: ${config.justInTimeMinutes},
       ghlWebhookUrl: '${config.regFormEmailPlatform === 'ghl' ? config.regFormGhlWebhookUrl : ''}',
       systemeWebhookUrl: '${config.regFormEmailPlatform === 'systeme' ? config.regFormSystemeWebhookUrl : ''}',
-      thankYouUrl: '${config.regFormThankYouUrl}'
+      thankYouUrl: '${config.regFormThankYouUrl}',
+      baseUrl: '${typeof window !== "undefined" ? window.location.origin : "https://live-spark-booster.lovable.app"}'
     };
     
     function getSessionDisplay() {
