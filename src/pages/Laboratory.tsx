@@ -148,24 +148,26 @@ export default function Laboratory() {
     toast({ title: 'Copied!', description: 'Embed code copied to clipboard' });
   };
 
-  const handleCopyWatchUrl = async (id: string) => {
-    const url = `${window.location.origin}/watch/${id}`;
+  const getWebinarUrlId = (webinar: { id: string; slug?: string | null }) => webinar.slug || webinar.id;
+
+  const handleCopyWatchUrl = async (webinar: { id: string; slug?: string | null }) => {
+    const url = `${window.location.origin}/watch/${getWebinarUrlId(webinar)}`;
     await navigator.clipboard.writeText(url);
     toast({ title: 'Copied!', description: 'Watch page URL copied to clipboard' });
   };
 
-  const handleCopyReplayUrl = async (id: string) => {
-    const url = `${window.location.origin}/replay/${id}`;
+  const handleCopyReplayUrl = async (webinar: { id: string; slug?: string | null }) => {
+    const url = `${window.location.origin}/replay/${getWebinarUrlId(webinar)}`;
     await navigator.clipboard.writeText(url);
     toast({ title: 'Copied!', description: 'Replay page URL copied to clipboard' });
   };
 
-  const handleOpenWatch = (id: string) => {
-    window.open(`/watch/${id}`, '_blank');
+  const handleOpenWatch = (webinar: { id: string; slug?: string | null }) => {
+    window.open(`/watch/${getWebinarUrlId(webinar)}`, '_blank');
   };
 
-  const handleOpenReplay = (id: string) => {
-    window.open(`/replay/${id}`, '_blank');
+  const handleOpenReplay = (webinar: { id: string; slug?: string | null }) => {
+    window.open(`/replay/${getWebinarUrlId(webinar)}`, '_blank');
   };
 
   return (
