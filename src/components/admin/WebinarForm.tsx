@@ -70,9 +70,9 @@ export function WebinarForm({ config, onChange, webinarId }: WebinarFormProps) {
     setIpnSlugStatus(available ? 'available' : 'taken');
   }, [config.ipnWebhookSlug, webinarId]);
 
-  const productionBase = 'https://live-spark-booster.lovable.app';
+  const supabaseProjectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
   const ipnWebhookUrl = config.ipnWebhookSlug
-    ? `${productionBase}/api/ipn-register?slug=${config.ipnWebhookSlug}`
+    ? `https://${supabaseProjectId}.supabase.co/functions/v1/ipn-register?slug=${config.ipnWebhookSlug}`
     : '';
 
   const copyIpnUrl = () => {
