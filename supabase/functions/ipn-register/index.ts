@@ -252,6 +252,7 @@ Deno.serve(async (req) => {
       } catch (e) {
         console.error("IPN forward failed:", e);
       }
+    }
 
     return new Response(
       JSON.stringify({
