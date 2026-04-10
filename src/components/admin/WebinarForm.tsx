@@ -1003,6 +1003,34 @@ export function WebinarForm({ config, onChange, webinarId }: WebinarFormProps) {
             </p>
           </div>
 
+          <div className="space-y-2">
+            <Label htmlFor="ipnSecretKey">Secret Key (optional but recommended)</Label>
+            <div className="flex gap-2">
+              <Input
+                id="ipnSecretKey"
+                value={config.ipnSecretKey}
+                onChange={(e) => updateField('ipnSecretKey', e.target.value.trim())}
+                placeholder="e.g. my-secret-key-123"
+                className="input-field flex-1"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const key = crypto.randomUUID().replace(/-/g, '').slice(0, 24);
+                  updateField('ipnSecretKey', key);
+                }}
+                className="shrink-0 text-xs"
+              >
+                Generate
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              When set, requests must include <code>?key=...</code> to be accepted. Prevents unauthorized submissions.
+            </p>
+          </div>
+
           {config.ipnWebhookSlug && (
             <div className="space-y-2">
               <Label>Webhook URL</Label>
