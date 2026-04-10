@@ -27,11 +27,22 @@ export default function ReplayWebinar() {
       }
 
       try {
-        const { data, error: fetchError } = await supabase
-          .from('webinars')
-          .select('*')
-          .eq('id', webinarId)
-          .maybeSingle();
+        const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(webinarId);
+        
+        let data = null;
+        let fetchError = null;
+        
+        if (isUUID) {
+          const result = await supabase.from('webinars').select('*').eq('id', webinarId).maybeSingle();
+          data = result.data;
+          fetchError = result.error;
+        }
+        
+        if (!data && !fetchError) {
+          const result = await supabase.from('webinars').select('*').eq('slug', webinarId).maybeSingle();
+          data = result.data;
+          fetchError = result.error;
+        }
 
         if (fetchError) {
           console.error('Error fetching webinar:', fetchError);
