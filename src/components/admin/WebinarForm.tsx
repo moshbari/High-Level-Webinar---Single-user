@@ -21,6 +21,8 @@ import {
   Film,
   Layers,
   Timer,
+  Webhook,
+  Copy,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { RegistrationFormSettings } from './RegistrationFormSettings';
@@ -29,6 +31,8 @@ import { VideoSequenceBuilder } from './VideoSequenceBuilder';
 import { useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, XCircle, Loader2 as SlugLoader } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface WebinarFormProps {
   config: Omit<WebinarConfig, 'id' | 'createdAt' | 'updatedAt'>;
