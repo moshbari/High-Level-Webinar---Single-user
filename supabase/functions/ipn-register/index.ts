@@ -121,6 +121,17 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Verify secret key if configured
+    const providedKey = url.searchParams.get("key");
+    if (webinar.ipn_secret_key) {
+      if (!providedKey || providedKey !== webinar.ipn_secret_key) {
+        return new Response(JSON.stringify({ error: "Unauthorized" }), {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
+
     // Parse body (support JSON and form-encoded)
     let body: Record<string, any> = {};
     const contentType = req.headers.get("content-type") || "";

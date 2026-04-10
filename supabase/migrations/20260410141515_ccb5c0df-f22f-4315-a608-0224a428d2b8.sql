@@ -1,0 +1,1 @@
+ALTER TABLE public.webinars ADD COLUMN IF NOT EXISTS ipn_secret_key text;

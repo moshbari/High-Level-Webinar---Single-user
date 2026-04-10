@@ -72,7 +72,7 @@ export function WebinarForm({ config, onChange, webinarId }: WebinarFormProps) {
 
   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
   const ipnWebhookUrl = config.ipnWebhookSlug
-    ? `${supabaseUrl}/functions/v1/ipn-register?slug=${config.ipnWebhookSlug}`
+    ? `${supabaseUrl}/functions/v1/ipn-register?slug=${config.ipnWebhookSlug}${config.ipnSecretKey ? `&key=${config.ipnSecretKey}` : ''}`
     : '';
 
   const copyIpnUrl = () => {
@@ -1000,6 +1000,34 @@ export function WebinarForm({ config, onChange, webinarId }: WebinarFormProps) {
               {ipnSlugStatus === 'available' && 'This slug is available!'}
               {ipnSlugStatus === 'taken' && 'This slug is already taken. Try another.'}
               {ipnSlugStatus === 'idle' && 'Set a unique slug for the IPN webhook URL'}
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="ipnSecretKey">Secret Key (optional but recommended)</Label>
+            <div className="flex gap-2">
+              <Input
+                id="ipnSecretKey"
+                value={config.ipnSecretKey}
+                onChange={(e) => updateField('ipnSecretKey', e.target.value.trim())}
+                placeholder="e.g. my-secret-key-123"
+                className="input-field flex-1"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const key = crypto.randomUUID().replace(/-/g, '').slice(0, 24);
+                  updateField('ipnSecretKey', key);
+                }}
+                className="shrink-0 text-xs"
+              >
+                Generate
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              When set, requests must include <code>?key=...</code> to be accepted. Prevents unauthorized submissions.
             </p>
           </div>
 
