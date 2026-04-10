@@ -1091,6 +1091,30 @@ export function WebinarForm({ config, onChange, webinarId }: WebinarFormProps) {
               <li>• <strong>Custom</strong> — email/buyer_email fallback</li>
             </ul>
           </div>
+
+          <Separator />
+
+          <div className="space-y-2">
+            <Label>Test Telegram Notifications</Label>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleTestTelegram}
+              disabled={isSendingTelegramTest}
+              className="w-full"
+            >
+              {isSendingTelegramTest ? (
+                <SlugLoader className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <Send className="w-4 h-4 mr-2" />
+              )}
+              {isSendingTelegramTest ? 'Sending...' : 'Send Test Telegram Message'}
+            </Button>
+            <p className="text-xs text-muted-foreground">
+              Sends a test message to verify Telegram alerts are working
+            </p>
+          </div>
         </CardContent>
       </Card>
 
