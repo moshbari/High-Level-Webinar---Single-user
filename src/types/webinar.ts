@@ -225,6 +225,7 @@ export const DEFAULT_WEBINAR_CONFIG: Omit<WebinarConfig, 'id' | 'createdAt' | 'u
   vendorName: '',
   // Custom URL Slug
   slug: '',
-  // IPN Webhook Slug
+  // IPN Webhook
   ipnWebhookSlug: '',
+  ipnSecretKey: '',
 };
