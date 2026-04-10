@@ -71,7 +71,7 @@ export function WebinarForm({ config, onChange, webinarId }: WebinarFormProps) {
   }, [config.ipnWebhookSlug, webinarId]);
 
   const ipnWebhookUrl = config.ipnWebhookSlug
-    ? `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ipn-register?slug=${config.ipnWebhookSlug}`
+    ? `https://live-spark-booster.lovable.app/functions/v1/ipn-register?slug=${config.ipnWebhookSlug}`
     : '';
 
   const copyIpnUrl = () => {
