@@ -211,6 +211,9 @@ export const generateRegistrationFormCode = (config: WebinarConfig): string => {
     const CONFIG = {
       webinarId: '${config.id}',
       webinarName: '${config.webinarName.replace(/'/g, "\\'")}',
+      productName: '${(config.productName || '').replace(/'/g, "\\'")}',
+      vendorName: '${(config.vendorName || '').replace(/'/g, "\\'")}',
+      urlId: '${config.slug || config.id}',
       startHour: ${config.startHour},
       startMinute: ${config.startMinute},
       timezone: '${config.timezone}',
@@ -288,9 +291,11 @@ export const generateRegistrationFormCode = (config: WebinarConfig): string => {
         webinar_id: CONFIG.webinarId,
         webinar_name: CONFIG.webinarName,
         registered_at: new Date().toISOString(),
-        source: (function() { var p = CONFIG.webinarName.split(' - '); return p.length >= 2 ? p[1].trim() : CONFIG.webinarName.trim(); })(),
-        watch_link: CONFIG.baseUrl + '/watch/' + CONFIG.webinarId,
-        replay_link: CONFIG.baseUrl + '/replay/' + CONFIG.webinarId
+        source: 'HighLevelWebinar',
+        product_name: CONFIG.productName,
+        vendor_name: CONFIG.vendorName,
+        watch_link: CONFIG.baseUrl + '/watch/' + CONFIG.urlId,
+        replay_link: CONFIG.baseUrl + '/replay/' + CONFIG.urlId
       };
       
       try {

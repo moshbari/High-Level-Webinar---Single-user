@@ -84,6 +84,13 @@ export interface WebinarConfig {
   justInTimeEnabled: boolean;
   justInTimeMinutes: number;
   
+  // Product & Vendor
+  productName: string;
+  vendorName: string;
+  
+  // Custom URL Slug
+  slug: string;
+  
   // Metadata
   createdAt: string;
   updatedAt: string;
@@ -209,4 +216,9 @@ export const DEFAULT_WEBINAR_CONFIG: Omit<WebinarConfig, 'id' | 'createdAt' | 'u
   // Just-in-Time Sessions
   justInTimeEnabled: false,
   justInTimeMinutes: 15,
+  // Product & Vendor
+  productName: '',
+  vendorName: '',
+  // Custom URL Slug
+  slug: '',
 };

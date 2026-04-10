@@ -5,7 +5,6 @@ import { rowToConfig } from '@/lib/webinarStorage';
 import { WebinarConfig, TIMEZONES } from '@/types/webinar';
 import { Loader2, AlertCircle, CalendarOff } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { extractProductName } from '@/pages/WebinarEditor';
 
 const getBorderRadius = (radius: string) => {
   switch (radius) {
@@ -39,11 +38,23 @@ export default function RegisterPage() {
       }
 
       try {
-        const { data, error: fetchError } = await supabase
-          .from('webinars')
-          .select('*')
-          .eq('id', webinarId)
-          .maybeSingle();
+        // Try by UUID first, then by slug
+        const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(webinarId);
+        
+        let data = null;
+        let fetchError = null;
+        
+        if (isUUID) {
+          const result = await supabase.from('webinars').select('*').eq('id', webinarId).maybeSingle();
+          data = result.data;
+          fetchError = result.error;
+        }
+        
+        if (!data && !fetchError) {
+          const result = await supabase.from('webinars').select('*').eq('slug', webinarId).maybeSingle();
+          data = result.data;
+          fetchError = result.error;
+        }
 
         if (fetchError) {
           console.error('Error fetching webinar:', fetchError);
@@ -151,6 +162,7 @@ export default function RegisterPage() {
       const lastName = nameParts.slice(1).join(' ') || '';
 
       const baseUrl = window.location.origin;
+      const urlId = config.slug || config.id;
       const payload = {
         name: name.trim(),
         firstName,
@@ -159,9 +171,11 @@ export default function RegisterPage() {
         webinar_id: config.id,
         webinar_name: config.webinarName,
         registered_at: new Date().toISOString(),
-        source: extractProductName(config.webinarName),
-        watch_link: `${baseUrl}/watch/${config.id}`,
-        replay_link: `${baseUrl}/replay/${config.id}`,
+        source: 'HighLevelWebinar',
+        product_name: config.productName || '',
+        vendor_name: config.vendorName || '',
+        watch_link: `${baseUrl}/watch/${urlId}`,
+        replay_link: `${baseUrl}/replay/${urlId}`,
       };
 
       const response = await fetch(webhookUrl, {

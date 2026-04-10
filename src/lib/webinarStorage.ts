@@ -73,6 +73,11 @@ export const rowToConfig = (row: any): WebinarConfig => ({
   // Just-in-Time Sessions
   justInTimeEnabled: row.just_in_time_enabled ?? false,
   justInTimeMinutes: row.just_in_time_minutes ?? 15,
+  // Product & Vendor
+  productName: row.product_name ?? '',
+  vendorName: row.vendor_name ?? '',
+  // Custom URL Slug
+  slug: row.slug ?? '',
   createdAt: row.created_at,
   updatedAt: row.updated_at,
 });
@@ -141,6 +146,11 @@ const configToRow = (config: Omit<WebinarConfig, 'id' | 'createdAt' | 'updatedAt
   // Just-in-Time Sessions
   just_in_time_enabled: config.justInTimeEnabled,
   just_in_time_minutes: config.justInTimeMinutes,
+  // Product & Vendor
+  product_name: config.productName,
+  vendor_name: config.vendorName,
+  // Custom URL Slug
+  slug: config.slug || null,
 });
 
 export const getWebinars = async (): Promise<WebinarConfig[]> => {
@@ -158,18 +168,45 @@ export const getWebinars = async (): Promise<WebinarConfig[]> => {
 };
 
 export const getWebinar = async (id: string): Promise<WebinarConfig | null> => {
-  const { data, error } = await supabase
+  // Try by UUID first
+  const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+  
+  if (isUUID) {
+    const { data, error } = await supabase
+      .from('webinars')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle();
+    
+    if (!error && data) return rowToConfig(data);
+  }
+  
+  // Try by slug
+  const { data: slugData, error: slugError } = await supabase
     .from('webinars')
     .select('*')
-    .eq('id', id)
+    .eq('slug', id)
     .maybeSingle();
   
-  if (error) {
-    console.error('Error fetching webinar:', error);
+  if (slugError) {
+    console.error('Error fetching webinar:', slugError);
     return null;
   }
   
-  return data ? rowToConfig(data) : null;
+  return slugData ? rowToConfig(slugData) : null;
+};
+
+export const checkSlugAvailability = async (slug: string, excludeId?: string): Promise<boolean> => {
+  const { data, error } = await supabase
+    .from('webinars')
+    .select('id')
+    .eq('slug', slug)
+    .maybeSingle();
+  
+  if (error) return false;
+  if (!data) return true;
+  // If it's the same webinar, slug is available
+  return excludeId ? data.id === excludeId : false;
 };
 
 export const saveWebinar = async (config: Omit<WebinarConfig, 'id' | 'createdAt' | 'updatedAt'>): Promise<WebinarConfig | null> => {
@@ -259,6 +296,11 @@ export const updateWebinar = async (id: string, config: Partial<WebinarConfig>):
   // Just-in-Time Sessions
   if (rest.justInTimeEnabled !== undefined) updateData.just_in_time_enabled = rest.justInTimeEnabled;
   if (rest.justInTimeMinutes !== undefined) updateData.just_in_time_minutes = rest.justInTimeMinutes;
+  // Product & Vendor
+  if (rest.productName !== undefined) updateData.product_name = rest.productName;
+  if (rest.vendorName !== undefined) updateData.vendor_name = rest.vendorName;
+  // Custom URL Slug
+  if (rest.slug !== undefined) updateData.slug = rest.slug || null;
 
   const { data, error } = await supabase
     .from('webinars')

@@ -13,7 +13,6 @@ import { generateEmbedCode } from '@/lib/generateEmbedCode';
 import { ROUTES } from '@/lib/routes';
 
 export const extractProductName = (webinarName: string): string => {
-  // Structure: Vendor - [Product Name] - 7PM-UOM Webby - on DDth Mon YYYY
   const parts = webinarName.split(' - ');
   if (parts.length >= 2) {
     return parts[1].trim();
@@ -21,10 +20,14 @@ export const extractProductName = (webinarName: string): string => {
   return webinarName.trim();
 };
 
-export const sendSampleWebhookData = async (webhookUrl: string, webinarName: string, webinarId?: string) => {
+const getWebinarSlugOrId = (config: Omit<WebinarConfig, 'id' | 'createdAt' | 'updatedAt'> & { id?: string }, id?: string): string => {
+  return (config as any).slug || id || '';
+};
+
+export const sendSampleWebhookData = async (webhookUrl: string, webinarName: string, webinarId?: string, productName?: string, vendorName?: string, slug?: string) => {
   if (!webhookUrl) return;
-  const productName = extractProductName(webinarName);
   const baseUrl = window.location.origin;
+  const urlId = slug || webinarId || '';
   try {
     const payload = {
       name: 'Test User',
@@ -33,9 +36,11 @@ export const sendSampleWebhookData = async (webhookUrl: string, webinarName: str
       email: 'test@example.com',
       webinar_name: webinarName,
       registered_at: new Date().toISOString(),
-      source: productName,
-      watch_link: webinarId ? `${baseUrl}/watch/${webinarId}` : '',
-      replay_link: webinarId ? `${baseUrl}/replay/${webinarId}` : '',
+      source: 'HighLevelWebinar',
+      product_name: productName || '',
+      vendor_name: vendorName || '',
+      watch_link: urlId ? `${baseUrl}/watch/${urlId}` : '',
+      replay_link: urlId ? `${baseUrl}/replay/${urlId}` : '',
     };
     await fetch(webhookUrl, {
       method: 'POST',
@@ -93,7 +98,7 @@ export default function WebinarEditor() {
           
           // Send sample data to webhook
           if (activeWebhookUrl) {
-            sendSampleWebhookData(activeWebhookUrl, config.webinarName, id);
+            sendSampleWebhookData(activeWebhookUrl, config.webinarName, id, config.productName, config.vendorName, config.slug);
           }
           
           toast({
@@ -115,7 +120,7 @@ export default function WebinarEditor() {
           
           // Send sample data to webhook
           if (activeWebhookUrl) {
-            sendSampleWebhookData(activeWebhookUrl, config.webinarName, newWebinar.id);
+            sendSampleWebhookData(activeWebhookUrl, config.webinarName, newWebinar.id, config.productName, config.vendorName, config.slug);
           }
           
           toast({
