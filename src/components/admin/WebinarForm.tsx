@@ -60,14 +60,26 @@ export function WebinarForm({ config, onChange, webinarId }: WebinarFormProps) {
     const slug = config.ipnWebhookSlug?.trim();
     if (!slug) return;
     setIpnSlugStatus('checking');
-    const { data } = await supabase
+    // Use type assertion to avoid deep type instantiation
+    const { data } = await (supabase as any)
       .from('webinars')
       .select('id')
-      .eq('ipn_webhook_slug' as any, slug)
+      .eq('ipn_webhook_slug', slug)
       .maybeSingle();
     const available = !data || (webinarId ? data.id === webinarId : false);
     setIpnSlugStatus(available ? 'available' : 'taken');
   }, [config.ipnWebhookSlug, webinarId]);
+
+  const ipnWebhookUrl = config.ipnWebhookSlug
+    ? `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ipn-register?slug=${config.ipnWebhookSlug}`
+    : '';
+
+  const copyIpnUrl = () => {
+    if (ipnWebhookUrl) {
+      navigator.clipboard.writeText(ipnWebhookUrl);
+      toast({ title: 'Copied!', description: 'IPN webhook URL copied to clipboard' });
+    }
+  };
 
   return (
     <div className="space-y-6">
