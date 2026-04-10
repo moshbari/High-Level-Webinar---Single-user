@@ -91,6 +91,9 @@ export interface WebinarConfig {
   // Custom URL Slug
   slug: string;
   
+  // IPN Webhook Slug
+  ipnWebhookSlug: string;
+
   // Metadata
   createdAt: string;
   updatedAt: string;
@@ -221,4 +224,6 @@ export const DEFAULT_WEBINAR_CONFIG: Omit<WebinarConfig, 'id' | 'createdAt' | 'u
   vendorName: '',
   // Custom URL Slug
   slug: '',
+  // IPN Webhook Slug
+  ipnWebhookSlug: '',
 };
