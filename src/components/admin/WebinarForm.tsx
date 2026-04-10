@@ -37,9 +37,19 @@ interface WebinarFormProps {
 }
 
 export function WebinarForm({ config, onChange, webinarId }: WebinarFormProps) {
+  const [slugStatus, setSlugStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle');
+  
   const updateField = <K extends keyof typeof config>(field: K, value: typeof config[K]) => {
     onChange({ ...config, [field]: value });
   };
+
+  const handleSlugCheck = useCallback(async () => {
+    const slug = config.slug?.trim();
+    if (!slug) return;
+    setSlugStatus('checking');
+    const available = await checkSlugAvailability(slug, webinarId);
+    setSlugStatus(available ? 'available' : 'taken');
+  }, [config.slug, webinarId]);
 
   return (
     <div className="space-y-6">
