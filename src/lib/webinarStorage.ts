@@ -73,6 +73,11 @@ export const rowToConfig = (row: any): WebinarConfig => ({
   // Just-in-Time Sessions
   justInTimeEnabled: row.just_in_time_enabled ?? false,
   justInTimeMinutes: row.just_in_time_minutes ?? 15,
+  // Product & Vendor
+  productName: row.product_name ?? '',
+  vendorName: row.vendor_name ?? '',
+  // Custom URL Slug
+  slug: row.slug ?? '',
   createdAt: row.created_at,
   updatedAt: row.updated_at,
 });
@@ -141,6 +146,11 @@ const configToRow = (config: Omit<WebinarConfig, 'id' | 'createdAt' | 'updatedAt
   // Just-in-Time Sessions
   just_in_time_enabled: config.justInTimeEnabled,
   just_in_time_minutes: config.justInTimeMinutes,
+  // Product & Vendor
+  product_name: config.productName,
+  vendor_name: config.vendorName,
+  // Custom URL Slug
+  slug: config.slug || null,
 });
 
 export const getWebinars = async (): Promise<WebinarConfig[]> => {
