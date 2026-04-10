@@ -31,7 +31,7 @@ import { RegistrationFormPreview } from './RegistrationFormPreview';
 import { VideoSequenceBuilder } from './VideoSequenceBuilder';
 import { useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, XCircle, Loader2 as SlugLoader } from 'lucide-react';
+import { CheckCircle, XCircle, Loader2 as SlugLoader, Send } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -44,6 +44,34 @@ interface WebinarFormProps {
 export function WebinarForm({ config, onChange, webinarId }: WebinarFormProps) {
   const [slugStatus, setSlugStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle');
   const [ipnSlugStatus, setIpnSlugStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle');
+  const [isSendingTelegramTest, setIsSendingTelegramTest] = useState(false);
+
+  const handleTestTelegram = useCallback(async () => {
+    setIsSendingTelegramTest(true);
+    try {
+      const message = `🧪 <b>Test Notification</b>\n\nWebinar: ${config.webinarName || 'Unnamed'}\nSlug: ${config.ipnWebhookSlug || 'Not set'}\nTime: ${new Date().toISOString()}\n\n✅ Telegram integration is working!`;
+      
+      const { error } = await supabase.functions.invoke('test-telegram', {
+        body: { message },
+      });
+      
+      if (error) throw error;
+      
+      toast({
+        title: 'Test sent!',
+        description: 'Check your Telegram for the test message',
+      });
+    } catch (err) {
+      console.error('Telegram test failed:', err);
+      toast({
+        title: 'Test failed',
+        description: 'Could not send Telegram test message. Check configuration.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSendingTelegramTest(false);
+    }
+  }, [config.webinarName, config.ipnWebhookSlug]);
   
   const updateField = <K extends keyof typeof config>(field: K, value: typeof config[K]) => {
     onChange({ ...config, [field]: value });
