@@ -570,6 +570,7 @@ export type Database = {
           max_viewers: number
           min_viewers: number
           primary_color: string
+          product_name: string | null
           reg_form_background: string | null
           reg_form_border_radius: string | null
           reg_form_button_color: string | null
@@ -591,6 +592,7 @@ export type Database = {
           reg_form_theme: string | null
           require_email: boolean
           require_name: boolean
+          slug: string | null
           start_hour: number
           start_minute: number
           timezone: string
@@ -599,6 +601,7 @@ export type Database = {
           typing_delay_min: number
           updated_at: string
           user_id: string | null
+          vendor_name: string | null
           video_mode: string | null
           video_sequence: Json | null
           video_url: string
@@ -637,6 +640,7 @@ export type Database = {
           max_viewers?: number
           min_viewers?: number
           primary_color?: string
+          product_name?: string | null
           reg_form_background?: string | null
           reg_form_border_radius?: string | null
           reg_form_button_color?: string | null
@@ -658,6 +662,7 @@ export type Database = {
           reg_form_theme?: string | null
           require_email?: boolean
           require_name?: boolean
+          slug?: string | null
           start_hour?: number
           start_minute?: number
           timezone?: string
@@ -666,6 +671,7 @@ export type Database = {
           typing_delay_min?: number
           updated_at?: string
           user_id?: string | null
+          vendor_name?: string | null
           video_mode?: string | null
           video_sequence?: Json | null
           video_url?: string
@@ -704,6 +710,7 @@ export type Database = {
           max_viewers?: number
           min_viewers?: number
           primary_color?: string
+          product_name?: string | null
           reg_form_background?: string | null
           reg_form_border_radius?: string | null
           reg_form_button_color?: string | null
@@ -725,6 +732,7 @@ export type Database = {
           reg_form_theme?: string | null
           require_email?: boolean
           require_name?: boolean
+          slug?: string | null
           start_hour?: number
           start_minute?: number
           timezone?: string
@@ -733,6 +741,7 @@ export type Database = {
           typing_delay_min?: number
           updated_at?: string
           user_id?: string | null
+          vendor_name?: string | null
           video_mode?: string | null
           video_sequence?: Json | null
           video_url?: string
