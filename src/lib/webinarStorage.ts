@@ -59,7 +59,9 @@ export const rowToConfig = (row: any): WebinarConfig => ({
   regFormEmailPlaceholder: row.reg_form_email_placeholder ?? 'Enter your email',
   regFormButtonText: row.reg_form_button_text ?? 'Reserve My Seat →',
   regFormButtonColor: row.reg_form_button_color ?? '#e53935',
+  regFormEmailPlatform: row.reg_form_email_platform ?? 'ghl',
   regFormGhlWebhookUrl: row.reg_form_ghl_webhook_url ?? '',
+  regFormSystemeWebhookUrl: row.reg_form_systeme_webhook_url ?? '',
   regFormThankYouUrl: row.reg_form_thank_you_url ?? '',
   regFormShowDatetime: row.reg_form_show_datetime ?? true,
   regFormBackground: row.reg_form_background ?? '#0a0a0f',
@@ -125,7 +127,9 @@ const configToRow = (config: Omit<WebinarConfig, 'id' | 'createdAt' | 'updatedAt
   reg_form_email_placeholder: config.regFormEmailPlaceholder,
   reg_form_button_text: config.regFormButtonText,
   reg_form_button_color: config.regFormButtonColor,
+  reg_form_email_platform: config.regFormEmailPlatform,
   reg_form_ghl_webhook_url: config.regFormGhlWebhookUrl,
+  reg_form_systeme_webhook_url: config.regFormSystemeWebhookUrl,
   reg_form_thank_you_url: config.regFormThankYouUrl,
   reg_form_show_datetime: config.regFormShowDatetime,
   reg_form_background: config.regFormBackground,
@@ -241,7 +245,9 @@ export const updateWebinar = async (id: string, config: Partial<WebinarConfig>):
   if (rest.regFormEmailPlaceholder !== undefined) updateData.reg_form_email_placeholder = rest.regFormEmailPlaceholder;
   if (rest.regFormButtonText !== undefined) updateData.reg_form_button_text = rest.regFormButtonText;
   if (rest.regFormButtonColor !== undefined) updateData.reg_form_button_color = rest.regFormButtonColor;
+  if (rest.regFormEmailPlatform !== undefined) updateData.reg_form_email_platform = rest.regFormEmailPlatform;
   if (rest.regFormGhlWebhookUrl !== undefined) updateData.reg_form_ghl_webhook_url = rest.regFormGhlWebhookUrl;
+  if (rest.regFormSystemeWebhookUrl !== undefined) updateData.reg_form_systeme_webhook_url = rest.regFormSystemeWebhookUrl;
   if (rest.regFormThankYouUrl !== undefined) updateData.reg_form_thank_you_url = rest.regFormThankYouUrl;
   if (rest.regFormShowDatetime !== undefined) updateData.reg_form_show_datetime = rest.regFormShowDatetime;
   if (rest.regFormBackground !== undefined) updateData.reg_form_background = rest.regFormBackground;

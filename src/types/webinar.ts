@@ -68,7 +68,9 @@ export interface WebinarConfig {
   regFormEmailPlaceholder: string;
   regFormButtonText: string;
   regFormButtonColor: string;
+  regFormEmailPlatform: 'ghl' | 'systeme';
   regFormGhlWebhookUrl: string;
+  regFormSystemeWebhookUrl: string;
   regFormThankYouUrl: string;
   regFormShowDatetime: boolean;
   regFormBackground: string;
@@ -193,7 +195,9 @@ export const DEFAULT_WEBINAR_CONFIG: Omit<WebinarConfig, 'id' | 'createdAt' | 'u
   regFormEmailPlaceholder: 'Enter your email',
   regFormButtonText: 'Reserve My Seat →',
   regFormButtonColor: '#e53935',
+  regFormEmailPlatform: 'ghl',
   regFormGhlWebhookUrl: '',
+  regFormSystemeWebhookUrl: '',
   regFormThankYouUrl: '',
   regFormShowDatetime: true,
   regFormBackground: '#0a0a0f',
