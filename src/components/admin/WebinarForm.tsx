@@ -86,6 +86,66 @@ export function WebinarForm({ config, onChange, webinarId }: WebinarFormProps) {
               <p className="text-xs text-muted-foreground">Displayed in the webinar header</p>
             </div>
           </div>
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="productName">Product Name</Label>
+              <Input
+                id="productName"
+                value={config.productName}
+                onChange={(e) => updateField('productName', e.target.value)}
+                placeholder="e.g., SocialClaw AI"
+                className="input-field"
+              />
+              <p className="text-xs text-muted-foreground">Sent as product_name in webhooks</p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="vendorName">Vendor Name</Label>
+              <Input
+                id="vendorName"
+                value={config.vendorName}
+                onChange={(e) => updateField('vendorName', e.target.value)}
+                placeholder="e.g., Pranshu"
+                className="input-field"
+              />
+              <p className="text-xs text-muted-foreground">Sent as vendor_name in webhooks</p>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="slug">Custom URL Slug (optional)</Label>
+            <div className="flex gap-2">
+              <Input
+                id="slug"
+                value={config.slug}
+                onChange={(e) => {
+                  const val = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '');
+                  updateField('slug', val);
+                  setSlugStatus('idle');
+                }}
+                placeholder="e.g., socialclaw-webinar"
+                className="input-field flex-1"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={!config.slug?.trim() || slugStatus === 'checking'}
+                onClick={handleSlugCheck}
+                className="shrink-0"
+              >
+                {slugStatus === 'checking' ? <SlugLoader className="w-4 h-4 animate-spin" /> : 'Check'}
+              </Button>
+              {slugStatus === 'available' && <CheckCircle className="w-5 h-5 text-green-500 self-center" />}
+              {slugStatus === 'taken' && <XCircle className="w-5 h-5 text-red-500 self-center" />}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {slugStatus === 'available' && 'This slug is available!'}
+              {slugStatus === 'taken' && 'This slug is already taken. Try another.'}
+              {slugStatus === 'idle' && (config.slug
+                ? `URL: ${window.location.origin}/watch/${config.slug}`
+                : 'Leave empty to use default UUID-based URL'
+              )}
+            </p>
+          </div>
           <div className="space-y-2">
             <Label htmlFor="logoText">Logo Text</Label>
             <Input
