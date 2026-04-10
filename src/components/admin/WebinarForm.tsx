@@ -956,6 +956,83 @@ export function WebinarForm({ config, onChange, webinarId }: WebinarFormProps) {
         </CardContent>
       </Card>
 
+      {/* IPN Webhook Integration */}
+      <Card className="glass-card">
+        <CardHeader className="pb-4">
+          <CardTitle className="flex items-center gap-2 text-lg font-display">
+            <Webhook className="w-5 h-5 text-primary" />
+            IPN Webhook Integration
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-sm text-muted-foreground">
+            Receive auto-registrations from WarriorPlus, JVZoo, LaunchPad, or custom sources via IPN webhook.
+          </p>
+          <div className="space-y-2">
+            <Label htmlFor="ipnWebhookSlug">IPN Webhook Slug</Label>
+            <div className="flex gap-2">
+              <Input
+                id="ipnWebhookSlug"
+                value={config.ipnWebhookSlug}
+                onChange={(e) => {
+                  const val = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '');
+                  updateField('ipnWebhookSlug', val);
+                  setIpnSlugStatus('idle');
+                }}
+                placeholder="e.g., socialclaw-ipn"
+                className="input-field flex-1"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={!config.ipnWebhookSlug?.trim() || ipnSlugStatus === 'checking'}
+                onClick={handleIpnSlugCheck}
+                className="shrink-0"
+              >
+                {ipnSlugStatus === 'checking' ? <SlugLoader className="w-4 h-4 animate-spin" /> : 'Check'}
+              </Button>
+              {ipnSlugStatus === 'available' && <CheckCircle className="w-5 h-5 text-green-500 self-center" />}
+              {ipnSlugStatus === 'taken' && <XCircle className="w-5 h-5 text-red-500 self-center" />}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {ipnSlugStatus === 'available' && 'This slug is available!'}
+              {ipnSlugStatus === 'taken' && 'This slug is already taken. Try another.'}
+              {ipnSlugStatus === 'idle' && 'Set a unique slug for the IPN webhook URL'}
+            </p>
+          </div>
+
+          {config.ipnWebhookSlug && (
+            <div className="space-y-2">
+              <Label>Webhook URL</Label>
+              <div className="flex gap-2">
+                <Input
+                  value={ipnWebhookUrl}
+                  readOnly
+                  className="input-field flex-1 text-xs"
+                />
+                <Button type="button" variant="outline" size="sm" onClick={copyIpnUrl} className="shrink-0">
+                  <Copy className="w-4 h-4" />
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Use this URL in WarriorPlus, JVZoo, or LaunchPad IPN settings
+              </p>
+            </div>
+          )}
+
+          <div className="rounded-lg border border-border/50 p-3 bg-muted/30">
+            <p className="text-xs font-medium mb-1">Supported Sources:</p>
+            <ul className="text-xs text-muted-foreground space-y-0.5">
+              <li>• <strong>WarriorPlus</strong> — WP_BUYER_EMAIL, WP_BUYER_NAME</li>
+              <li>• <strong>JVZoo</strong> — ccustemail, ccustname</li>
+              <li>• <strong>LaunchPad</strong> — customer_email, customer_first_name</li>
+              <li>• <strong>Custom</strong> — email/buyer_email fallback</li>
+            </ul>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Registration Form */}
       <RegistrationFormSettings config={config} onChange={onChange} webinarId={webinarId} />
       
