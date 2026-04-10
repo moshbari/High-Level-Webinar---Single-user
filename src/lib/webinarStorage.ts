@@ -78,8 +78,10 @@ export const rowToConfig = (row: any): WebinarConfig => ({
   vendorName: row.vendor_name ?? '',
   // Custom URL Slug
   slug: row.slug ?? '',
-  // IPN Webhook Slug
+  // IPN Webhook
   ipnWebhookSlug: row.ipn_webhook_slug ?? '',
+  ipnForwardEnabled: row.ipn_forward_enabled ?? false,
+  ipnForwardUrl: row.ipn_forward_url ?? '',
   createdAt: row.created_at,
   updatedAt: row.updated_at,
 });
@@ -153,8 +155,10 @@ const configToRow = (config: Omit<WebinarConfig, 'id' | 'createdAt' | 'updatedAt
   vendor_name: config.vendorName,
   // Custom URL Slug
   slug: config.slug || null,
-  // IPN Webhook Slug
+  // IPN Webhook
   ipn_webhook_slug: config.ipnWebhookSlug || null,
+  ipn_forward_enabled: config.ipnForwardEnabled,
+  ipn_forward_url: config.ipnForwardUrl || '',
 });
 
 export const getWebinars = async (): Promise<WebinarConfig[]> => {
@@ -305,8 +309,10 @@ export const updateWebinar = async (id: string, config: Partial<WebinarConfig>):
   if (rest.vendorName !== undefined) updateData.vendor_name = rest.vendorName;
   // Custom URL Slug
   if (rest.slug !== undefined) updateData.slug = rest.slug || null;
-  // IPN Webhook Slug
+  // IPN Webhook
   if (rest.ipnWebhookSlug !== undefined) updateData.ipn_webhook_slug = rest.ipnWebhookSlug || null;
+  if (rest.ipnForwardEnabled !== undefined) updateData.ipn_forward_enabled = rest.ipnForwardEnabled;
+  if (rest.ipnForwardUrl !== undefined) updateData.ipn_forward_url = rest.ipnForwardUrl || '';
 
   const { data, error } = await supabase
     .from('webinars')
