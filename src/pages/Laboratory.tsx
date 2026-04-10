@@ -1,7 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useWebinars, useDeleteWebinar, useSaveWebinar } from '@/hooks/useWebinars';
-import { WebinarConfig } from '@/types/webinar';
 import { useLiveViewerCounts } from '@/hooks/useLiveViewerCounts';
 import { useWebinarNotesIndicators } from '@/hooks/useWebinarNotes';
 import { getWebinar } from '@/lib/webinarStorage';
@@ -149,26 +148,49 @@ export default function Laboratory() {
     toast({ title: 'Copied!', description: 'Embed code copied to clipboard' });
   };
 
-  const getWebinarUrlId = (webinar: WebinarConfig) => webinar.slug || webinar.id;
+  const resolveWebinarUrlId = async (id: string) => {
+    const latestWebinar = await getWebinar(id);
+    return latestWebinar?.slug || latestWebinar?.id || id;
+  };
 
-  const handleCopyWatchUrl = async (webinar: WebinarConfig) => {
-    const url = `${window.location.origin}/watch/${getWebinarUrlId(webinar)}`;
+  const handleCopyWatchUrl = async (id: string) => {
+    const urlId = await resolveWebinarUrlId(id);
+    const url = `${window.location.origin}/watch/${urlId}`;
     await navigator.clipboard.writeText(url);
     toast({ title: 'Copied!', description: 'Watch page URL copied to clipboard' });
   };
 
-  const handleCopyReplayUrl = async (webinar: WebinarConfig) => {
-    const url = `${window.location.origin}/replay/${getWebinarUrlId(webinar)}`;
+  const handleCopyReplayUrl = async (id: string) => {
+    const urlId = await resolveWebinarUrlId(id);
+    const url = `${window.location.origin}/replay/${urlId}`;
     await navigator.clipboard.writeText(url);
     toast({ title: 'Copied!', description: 'Replay page URL copied to clipboard' });
   };
 
-  const handleOpenWatch = (webinar: WebinarConfig) => {
-    window.open(`/watch/${getWebinarUrlId(webinar)}`, '_blank');
+  const handleOpenWatch = async (id: string) => {
+    const newWindow = window.open('', '_blank');
+    const urlId = await resolveWebinarUrlId(id);
+    const targetUrl = `${window.location.origin}/watch/${urlId}`;
+
+    if (newWindow) {
+      newWindow.location.href = targetUrl;
+      return;
+    }
+
+    window.open(targetUrl, '_blank');
   };
 
-  const handleOpenReplay = (webinar: WebinarConfig) => {
-    window.open(`/replay/${getWebinarUrlId(webinar)}`, '_blank');
+  const handleOpenReplay = async (id: string) => {
+    const newWindow = window.open('', '_blank');
+    const urlId = await resolveWebinarUrlId(id);
+    const targetUrl = `${window.location.origin}/replay/${urlId}`;
+
+    if (newWindow) {
+      newWindow.location.href = targetUrl;
+      return;
+    }
+
+    window.open(targetUrl, '_blank');
   };
 
   return (
@@ -316,11 +338,11 @@ export default function Laboratory() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="bg-popover">
-                          <DropdownMenuItem onClick={() => handleOpenWatch(webinar)}>
+                          <DropdownMenuItem onClick={() => handleOpenWatch(webinar.id)}>
                             <ExternalLink className="w-4 h-4 mr-2" />
                             Watch page
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleCopyWatchUrl(webinar)}>
+                          <DropdownMenuItem onClick={() => handleCopyWatchUrl(webinar.id)}>
                             <Link className="w-4 h-4 mr-2" />
                             Copy watch URL
                           </DropdownMenuItem>
@@ -334,11 +356,11 @@ export default function Laboratory() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="bg-popover">
-                          <DropdownMenuItem onClick={() => handleOpenReplay(webinar)}>
+                          <DropdownMenuItem onClick={() => handleOpenReplay(webinar.id)}>
                             <ExternalLink className="w-4 h-4 mr-2" />
                             Replay page
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleCopyReplayUrl(webinar)}>
+                          <DropdownMenuItem onClick={() => handleCopyReplayUrl(webinar.id)}>
                             <Link className="w-4 h-4 mr-2" />
                             Copy replay URL
                           </DropdownMenuItem>
@@ -501,11 +523,11 @@ export default function Laboratory() {
                                 </TooltipContent>
                               </Tooltip>
                               <DropdownMenuContent align="end" className="bg-popover">
-                                <DropdownMenuItem onClick={() => handleOpenWatch(webinar)}>
+                                <DropdownMenuItem onClick={() => handleOpenWatch(webinar.id)}>
                                   <ExternalLink className="w-4 h-4 mr-2" />
                                   Open in new tab
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => handleCopyWatchUrl(webinar)}>
+                                <DropdownMenuItem onClick={() => handleCopyWatchUrl(webinar.id)}>
                                   <Link className="w-4 h-4 mr-2" />
                                   Copy URL
                                 </DropdownMenuItem>
@@ -527,11 +549,11 @@ export default function Laboratory() {
                                 </TooltipContent>
                               </Tooltip>
                               <DropdownMenuContent align="end" className="bg-popover">
-                                <DropdownMenuItem onClick={() => handleOpenReplay(webinar)}>
+                                <DropdownMenuItem onClick={() => handleOpenReplay(webinar.id)}>
                                   <ExternalLink className="w-4 h-4 mr-2" />
                                   Open in new tab
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => handleCopyReplayUrl(webinar)}>
+                                <DropdownMenuItem onClick={() => handleCopyReplayUrl(webinar.id)}>
                                   <Link className="w-4 h-4 mr-2" />
                                   Copy URL
                                 </DropdownMenuItem>
