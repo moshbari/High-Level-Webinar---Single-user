@@ -105,7 +105,9 @@ export default function WebinarEditor() {
           
           toast({
             title: 'Created & Copied!',
-            description: 'Webinar created and code copied to clipboard',
+            description: activeWebhookUrl
+              ? 'Webinar created, code copied, and sample data sent to webhook'
+              : 'Webinar created and code copied to clipboard',
           });
           navigate(`/webinar/${newWebinar.id}/code`);
           return;
