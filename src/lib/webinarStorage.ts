@@ -78,9 +78,8 @@ export const rowToConfig = (row: any): WebinarConfig => ({
   vendorName: row.vendor_name ?? '',
   // Custom URL Slug
   slug: row.slug ?? '',
-  // IPN Webhook
+  // IPN Webhook Slug
   ipnWebhookSlug: row.ipn_webhook_slug ?? '',
-  ipnSecretKey: row.ipn_secret_key ?? '',
   createdAt: row.created_at,
   updatedAt: row.updated_at,
 });
@@ -154,9 +153,8 @@ const configToRow = (config: Omit<WebinarConfig, 'id' | 'createdAt' | 'updatedAt
   vendor_name: config.vendorName,
   // Custom URL Slug
   slug: config.slug || null,
-  // IPN Webhook
+  // IPN Webhook Slug
   ipn_webhook_slug: config.ipnWebhookSlug || null,
-  ipn_secret_key: config.ipnSecretKey || null,
 });
 
 export const getWebinars = async (): Promise<WebinarConfig[]> => {
@@ -307,9 +305,8 @@ export const updateWebinar = async (id: string, config: Partial<WebinarConfig>):
   if (rest.vendorName !== undefined) updateData.vendor_name = rest.vendorName;
   // Custom URL Slug
   if (rest.slug !== undefined) updateData.slug = rest.slug || null;
-  // IPN Webhook
+  // IPN Webhook Slug
   if (rest.ipnWebhookSlug !== undefined) updateData.ipn_webhook_slug = rest.ipnWebhookSlug || null;
-  if (rest.ipnSecretKey !== undefined) updateData.ipn_secret_key = rest.ipnSecretKey || null;
 
   const { data, error } = await supabase
     .from('webinars')
