@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { WebinarConfig } from '@/types/webinar';
+import { ResolvedSequenceClip } from '@/types/clip';
 import { generateEmbedCode } from '@/lib/generateEmbedCode';
 import { generateRegistrationFormCode } from '@/lib/generateRegistrationFormCode';
+import { resolveSequence } from '@/lib/resolveSequence';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -15,8 +17,13 @@ interface CodeOutputProps {
 export function CodeOutput({ webinar }: CodeOutputProps) {
   const [copiedWebinar, setCopiedWebinar] = useState(false);
   const [copiedRegForm, setCopiedRegForm] = useState(false);
+  const [resolvedClips, setResolvedClips] = useState<ResolvedSequenceClip[]>([]);
+
+  useEffect(() => {
+    resolveSequence(webinar).then(setResolvedClips);
+  }, [webinar]);
   
-  const webinarCode = generateEmbedCode(webinar);
+  const webinarCode = generateEmbedCode(webinar, resolvedClips);
   const regFormCode = webinar.enableRegistrationForm ? generateRegistrationFormCode(webinar) : '';
 
   const handleCopyWebinar = async () => {

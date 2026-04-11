@@ -14,7 +14,6 @@ export default function ReplayWebinar() {
   const [error, setError] = useState<string | null>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  // Pre-fill lead data from URL params if provided
   const prefillName = searchParams.get('name') || '';
   const prefillEmail = searchParams.get('email') || '';
 
@@ -70,13 +69,11 @@ export default function ReplayWebinar() {
     fetchWebinar();
   }, [webinarId]);
 
-  // Generate and inject the replay code into iframe
   useEffect(() => {
     if (!config || !iframeRef.current) return;
 
     let replayCode = generateReplayCode(config);
 
-    // Inject prefill data if provided
     if (prefillName || prefillEmail) {
       const prefillScript = `
         <script>

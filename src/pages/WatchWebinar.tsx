@@ -3,18 +3,20 @@ import { useEffect, useState, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { generateEmbedCode } from '@/lib/generateEmbedCode';
 import { rowToConfig } from '@/lib/webinarStorage';
+import { resolveSequence } from '@/lib/resolveSequence';
 import { WebinarConfig } from '@/types/webinar';
+import { ResolvedSequenceClip } from '@/types/clip';
 import { Loader2 } from 'lucide-react';
 
 export default function WatchWebinar() {
   const { webinarId } = useParams<{ webinarId: string }>();
   const [searchParams] = useSearchParams();
   const [config, setConfig] = useState<WebinarConfig | null>(null);
+  const [resolvedClips, setResolvedClips] = useState<ResolvedSequenceClip[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  // Pre-fill lead data from URL params if provided
   const prefillName = searchParams.get('name') || '';
   const prefillEmail = searchParams.get('email') || '';
 
@@ -58,6 +60,10 @@ export default function WatchWebinar() {
         }
 
         const webinarConfig = rowToConfig(data);
+        
+        // Resolve multi-clip sequence
+        const clips = await resolveSequence(webinarConfig);
+        setResolvedClips(clips);
         setConfig(webinarConfig);
         setLoading(false);
       } catch (err) {
@@ -70,13 +76,11 @@ export default function WatchWebinar() {
     fetchWebinar();
   }, [webinarId]);
 
-  // Generate and inject the embed code into iframe
   useEffect(() => {
     if (!config || !iframeRef.current) return;
 
-    let embedCode = generateEmbedCode(config);
+    let embedCode = generateEmbedCode(config, resolvedClips);
 
-    // Inject prefill data if provided
     if (prefillName || prefillEmail) {
       const prefillScript = `
         <script>
@@ -89,7 +93,6 @@ export default function WatchWebinar() {
       embedCode = embedCode.replace('</head>', `${prefillScript}</head>`);
     }
 
-    // Add source tracking for analytics
     const sourceScript = `
       <script>
         window.WEBINAR_SOURCE = 'live';
@@ -98,7 +101,7 @@ export default function WatchWebinar() {
     embedCode = embedCode.replace('</head>', `${sourceScript}</head>`);
 
     iframeRef.current.srcdoc = embedCode;
-  }, [config, prefillName, prefillEmail]);
+  }, [config, resolvedClips, prefillName, prefillEmail]);
 
   if (loading) {
     return (

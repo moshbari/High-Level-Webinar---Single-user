@@ -1,7 +1,9 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useWebinar } from '@/hooks/useWebinars';
 import { generateEmbedCode } from '@/lib/generateEmbedCode';
+import { resolveSequence } from '@/lib/resolveSequence';
+import { ResolvedSequenceClip } from '@/types/clip';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Edit, Maximize2, Loader2 } from 'lucide-react';
 import { ROUTES } from '@/lib/routes';
@@ -10,6 +12,7 @@ export default function WebinarPreviewPage() {
   const navigate = useNavigate();
   const { id } = useParams();
   const { data: webinar, isLoading, error } = useWebinar(id);
+  const [resolvedClips, setResolvedClips] = useState<ResolvedSequenceClip[]>([]);
 
   useEffect(() => {
     if (!isLoading && !webinar && !error) {
@@ -17,9 +20,15 @@ export default function WebinarPreviewPage() {
     }
   }, [isLoading, webinar, error, navigate]);
 
+  useEffect(() => {
+    if (webinar) {
+      resolveSequence(webinar).then(setResolvedClips);
+    }
+  }, [webinar]);
+
   const handleFullscreen = () => {
     if (webinar) {
-      const code = generateEmbedCode(webinar);
+      const code = generateEmbedCode(webinar, resolvedClips);
       const blob = new Blob([code], { type: 'text/html' });
       const url = URL.createObjectURL(blob);
       window.open(url, '_blank');
@@ -36,11 +45,10 @@ export default function WebinarPreviewPage() {
 
   if (!webinar) return null;
 
-  const code = generateEmbedCode(webinar);
+  const code = generateEmbedCode(webinar, resolvedClips);
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Header */}
       <header className="border-b border-border/50 bg-card/50 backdrop-blur-xl">
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -65,7 +73,6 @@ export default function WebinarPreviewPage() {
         </div>
       </header>
 
-      {/* Preview Frame */}
       <main className="flex-1 p-6">
         <div className="w-full h-full rounded-xl overflow-hidden border border-border/50 bg-black">
           <iframe
