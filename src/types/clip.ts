@@ -14,9 +14,24 @@ export interface Clip {
   isArchived: boolean;
 }
 
+export interface QuizOption {
+  id: string;
+  text: string;
+  isCorrect: boolean;
+}
+
+export interface InterstitialQuiz {
+  question: string;
+  options: QuizOption[];
+  correctFeedback: string;
+  wrongFeedback: string;
+  autoAdvanceSeconds: number;
+}
+
 export interface VideoSequenceItem {
   clipId: string;
   order: number;
+  interstitial?: InterstitialQuiz;
 }
 
 export interface VideoSequenceClip {
@@ -25,6 +40,13 @@ export interface VideoSequenceClip {
   url: string;
   durationSeconds: number;
   order: number;
+}
+
+export interface ResolvedSequenceClip {
+  url: string;
+  name: string;
+  durationSeconds: number;
+  interstitial?: InterstitialQuiz | null;
 }
 
 export type VideoMode = 'single' | 'multi';
