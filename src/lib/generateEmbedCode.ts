@@ -1191,7 +1191,7 @@ export const generateEmbedCode = (config: WebinarConfig, resolvedClips?: Resolve
         <div class="youtube-overlay" id="youtubeOverlay"></div>
         ` : `
         <video id="webinarVideo" playsinline>
-          <source src="${config.videoUrl}" type="video/mp4">
+          <source src="${isMultiClip ? resolvedClips[0].url : config.videoUrl}" type="video/mp4">
         </video>
         `}
         <div class="sound-controls" id="soundControls" style="display:none;">
