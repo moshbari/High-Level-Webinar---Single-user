@@ -16,8 +16,12 @@ function extractYouTubeId(url: string): string | null {
 }
 
 export const generateEmbedCode = (config: WebinarConfig, resolvedClips?: ResolvedSequenceClip[]): string => {
-  const youtubeId = extractYouTubeId(config.videoUrl);
+  const isMultiClip = config.videoMode === 'multi' && resolvedClips && resolvedClips.length > 0;
+  const youtubeId = isMultiClip ? null : extractYouTubeId(config.videoUrl);
   const isYouTube = !!youtubeId;
+  const totalMultiClipDuration = isMultiClip ? resolvedClips.reduce((s, c) => s + c.durationSeconds, 0) : 0;
+  const effectiveDuration = isMultiClip ? totalMultiClipDuration : config.durationSeconds;
+  const serializedSequence = isMultiClip ? JSON.stringify(resolvedClips) : '[]';
   const ctaBannerHtml = config.enableCta ? `
   <!-- CTA Banner -->
   <div class="cta-banner hidden" id="ctaBanner">
