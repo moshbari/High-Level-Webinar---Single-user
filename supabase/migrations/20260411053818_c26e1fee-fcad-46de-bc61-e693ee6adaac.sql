@@ -1,0 +1,2 @@
+ALTER TABLE public.webinars DROP CONSTRAINT webinars_video_mode_check;
+ALTER TABLE public.webinars ADD CONSTRAINT webinars_video_mode_check CHECK (video_mode = ANY (ARRAY['single'::text, 'multi'::text, 'sequence'::text, 'youtube'::text]));
