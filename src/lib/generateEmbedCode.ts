@@ -1801,43 +1801,236 @@ export const generateEmbedCode = (config: WebinarConfig, resolvedClips?: Resolve
       }, 3000);
     }
 
+    // ============ MULTI-CLIP STATE ============
+    let currentClipIndex = 0;
+    let clipSequence = CONFIG.videoSequence || [];
+    let isShowingInterstitial = false;
+    let totalElapsedSeconds = 0;
+    let multiClipCtaInterval = null;
+
     function startMP4Webinar(loadingOverlay) {
       const video = document.getElementById('webinarVideo');
-      
-      function seekToLivePosition() {
-        const { state, elapsed } = getWebinarState();
-        if (state !== 'live') return;
-        
-        const targetTime = elapsed || 0;
-        if (Math.abs(video.currentTime - targetTime) > 2) {
-          video.currentTime = targetTime;
-        }
+
+      if (CONFIG.videoMode === 'multi' && clipSequence.length > 0) {
+        // Multi-clip mode: play first clip from beginning
         loadingOverlay.classList.add('hidden');
-      }
-      
-      if (video.readyState >= 1) {
-        seekToLivePosition();
+        video.muted = true;
+        video.play().catch(() => {});
+
+        // Handle clip ended
+        video.addEventListener('ended', handleClipEnded);
+
+        // Track elapsed time for CTA
+        multiClipCtaInterval = setInterval(function() {
+          if (!video.paused && !isShowingInterstitial) {
+            totalElapsedSeconds = getCumulativeElapsed();
+          }
+        }, 1000);
+
       } else {
-        video.addEventListener('loadedmetadata', seekToLivePosition, { once: true });
-      }
-      
-      video.muted = true;
-      video.play().catch(() => {});
-      
-      // Re-sync video when user returns to tab
-      document.addEventListener('visibilitychange', function() {
-        if (document.visibilityState === 'visible') {
+        // Single video mode - original logic
+        function seekToLivePosition() {
           const { state, elapsed } = getWebinarState();
-          if (state === 'live' && video) {
-            const targetTime = elapsed || 0;
+          if (state !== 'live') return;
+
+          const targetTime = elapsed || 0;
+          if (Math.abs(video.currentTime - targetTime) > 2) {
             video.currentTime = targetTime;
-            if (video.paused) {
-              video.play().catch(() => {});
+          }
+          loadingOverlay.classList.add('hidden');
+        }
+
+        if (video.readyState >= 1) {
+          seekToLivePosition();
+        } else {
+          video.addEventListener('loadedmetadata', seekToLivePosition, { once: true });
+        }
+
+        video.muted = true;
+        video.play().catch(() => {});
+
+        // Re-sync video when user returns to tab
+        document.addEventListener('visibilitychange', function() {
+          if (document.visibilityState === 'visible') {
+            const { state, elapsed } = getWebinarState();
+            if (state === 'live' && video) {
+              const targetTime = elapsed || 0;
+              video.currentTime = targetTime;
+              if (video.paused) {
+                video.play().catch(() => {});
+              }
             }
           }
+        });
+      }
+    }
+
+    function getCumulativeElapsed() {
+      if (CONFIG.videoMode !== 'multi') return 0;
+      const video = document.getElementById('webinarVideo');
+      let elapsed = 0;
+      for (let i = 0; i < currentClipIndex; i++) {
+        elapsed += clipSequence[i].durationSeconds;
+      }
+      if (video) elapsed += video.currentTime || 0;
+      return elapsed;
+    }
+
+    function handleClipEnded() {
+      const video = document.getElementById('webinarVideo');
+      if (CONFIG.videoMode !== 'multi') return;
+
+      // Add finished clip duration to total
+      totalElapsedSeconds = getCumulativeElapsed();
+
+      const isLastClip = currentClipIndex >= clipSequence.length - 1;
+      if (isLastClip) {
+        // Last clip ended - show ended overlay
+        const { startTime } = getWebinarState();
+        showEnded(startTime);
+        return;
+      }
+
+      // Show interstitial
+      isShowingInterstitial = true;
+      const currentClip = clipSequence[currentClipIndex];
+      const interstitial = currentClip.interstitial;
+
+      showInterstitialOverlay(interstitial);
+    }
+
+    function showInterstitialOverlay(interstitial) {
+      const wrapper = document.querySelector('.video-wrapper');
+      if (!wrapper) return;
+
+      // Remove any existing interstitial
+      const existing = document.getElementById('interstitialOverlay');
+      if (existing) existing.remove();
+
+      const overlay = document.createElement('div');
+      overlay.className = 'interstitial-overlay';
+      overlay.id = 'interstitialOverlay';
+
+      const card = document.createElement('div');
+      card.className = 'interstitial-card';
+
+      if (interstitial && interstitial.question && interstitial.options && interstitial.options.length > 0) {
+        // Quiz mode
+        const questionEl = document.createElement('div');
+        questionEl.className = 'interstitial-question';
+        questionEl.textContent = interstitial.question;
+        card.appendChild(questionEl);
+
+        const optionsContainer = document.createElement('div');
+        optionsContainer.className = 'interstitial-options';
+
+        interstitial.options.forEach(function(opt) {
+          const btn = document.createElement('button');
+          btn.className = 'interstitial-option';
+          btn.textContent = opt.text;
+          btn.setAttribute('data-correct', opt.isCorrect ? 'true' : 'false');
+          btn.setAttribute('data-id', opt.id);
+          btn.onclick = function() {
+            handleQuizAnswer(btn, opt, interstitial, optionsContainer, card);
+          };
+          optionsContainer.appendChild(btn);
+        });
+
+        card.appendChild(optionsContainer);
+      } else {
+        // No quiz - simple continue button
+        const questionEl = document.createElement('div');
+        questionEl.className = 'interstitial-question';
+        questionEl.textContent = 'Ready to continue?';
+        card.appendChild(questionEl);
+
+        const continueBtn = document.createElement('button');
+        continueBtn.className = 'interstitial-continue-btn';
+        continueBtn.textContent = 'Continue to Next Section \\u2192';
+        continueBtn.onclick = function() {
+          hideInterstitialAndPlayNext();
+        };
+        card.appendChild(continueBtn);
+      }
+
+      overlay.appendChild(card);
+      wrapper.appendChild(overlay);
+    }
+
+    function handleQuizAnswer(selectedBtn, selectedOpt, interstitial, optionsContainer, card) {
+      // Disable all options
+      const allBtns = optionsContainer.querySelectorAll('.interstitial-option');
+      allBtns.forEach(function(btn) {
+        btn.classList.add('disabled');
+        if (btn.getAttribute('data-correct') === 'true') {
+          btn.classList.add('correct');
         }
       });
+
+      const isCorrect = selectedOpt.isCorrect;
+      if (!isCorrect) {
+        selectedBtn.classList.add('wrong');
+      }
+
+      // Show feedback
+      const feedback = document.createElement('div');
+      feedback.className = 'interstitial-feedback ' + (isCorrect ? 'correct' : 'wrong');
+      feedback.textContent = isCorrect ? interstitial.correctFeedback : interstitial.wrongFeedback;
+      card.appendChild(feedback);
+
+      // Show countdown
+      const autoAdvance = interstitial.autoAdvanceSeconds || 3;
+      const countdown = document.createElement('div');
+      countdown.className = 'interstitial-countdown';
+      countdown.textContent = 'Next section in ' + autoAdvance + '...';
+      card.appendChild(countdown);
+
+      let remaining = autoAdvance;
+      const timer = setInterval(function() {
+        remaining--;
+        if (remaining <= 0) {
+          clearInterval(timer);
+          hideInterstitialAndPlayNext();
+        } else {
+          countdown.textContent = 'Next section in ' + remaining + '...';
+        }
+      }, 1000);
     }
+
+    function hideInterstitialAndPlayNext() {
+      isShowingInterstitial = false;
+      const overlay = document.getElementById('interstitialOverlay');
+      if (overlay) overlay.remove();
+
+      // Move to next clip
+      currentClipIndex++;
+      if (currentClipIndex >= clipSequence.length) return;
+
+      const video = document.getElementById('webinarVideo');
+      if (!video) return;
+
+      // Save volume state
+      const wasMuted = video.muted;
+      const currentVolume = video.volume;
+
+      // Load next clip
+      const nextClip = clipSequence[currentClipIndex];
+      const source = video.querySelector('source');
+      if (source) {
+        source.src = nextClip.url;
+      } else {
+        video.src = nextClip.url;
+      }
+      video.load();
+
+      video.addEventListener('loadedmetadata', function() {
+        // Restore volume state
+        video.muted = wasMuted;
+        video.volume = currentVolume;
+        video.play().catch(() => {});
+      }, { once: true });
+    }
+
 
     function showEnded(startTime) {
       document.getElementById('webinarRoom').style.display = 'none';
