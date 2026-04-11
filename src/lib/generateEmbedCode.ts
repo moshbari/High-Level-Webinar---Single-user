@@ -15,7 +15,7 @@ function extractYouTubeId(url: string): string | null {
   return null;
 }
 
-export const generateEmbedCode = (config: WebinarConfig): string => {
+export const generateEmbedCode = (config: WebinarConfig, resolvedClips?: ResolvedSequenceClip[]): string => {
   const youtubeId = extractYouTubeId(config.videoUrl);
   const isYouTube = !!youtubeId;
   const ctaBannerHtml = config.enableCta ? `
