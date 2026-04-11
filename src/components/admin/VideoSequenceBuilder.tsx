@@ -52,7 +52,7 @@ export function VideoSequenceBuilder({ sequence, onChange }: VideoSequenceBuilde
         interstitial: item.interstitial,
       };
     })
-    .filter((c): c is VideoSequenceClip & { interstitial?: InterstitialQuiz } => c !== null)
+    .filter(Boolean) as (VideoSequenceClip & { interstitial?: InterstitialQuiz })[]
     .sort((a, b) => a.order - b.order);
   
   const totalDuration = sequenceClips.reduce((sum, c) => sum + c.durationSeconds, 0);
