@@ -1271,7 +1271,7 @@ export const generateEmbedCode = (config: WebinarConfig, resolvedClips?: Resolve
       webinarId: "${config.id}",
       webinarName: "${config.webinarName}",
       videoUrl: "${config.videoUrl}",
-      durationSeconds: ${config.durationSeconds},
+      durationSeconds: ${effectiveDuration},
       startHour: ${config.startHour},
       startMinute: ${config.startMinute},
       timezone: "${config.timezone}",
@@ -1296,7 +1296,9 @@ export const generateEmbedCode = (config: WebinarConfig, resolvedClips?: Resolve
       justInTimeEnabled: ${config.justInTimeEnabled ?? false},
       justInTimeMinutes: ${config.justInTimeMinutes ?? 15},
       isYouTube: ${isYouTube},
-      youtubeId: "${youtubeId || ''}"
+      youtubeId: "${youtubeId || ''}",
+      videoMode: "${isMultiClip ? 'multi' : 'single'}",
+      videoSequence: ${serializedSequence}
     };
 
     let userData = null;
