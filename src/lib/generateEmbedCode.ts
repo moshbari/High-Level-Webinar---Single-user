@@ -1,4 +1,5 @@
 import { WebinarConfig } from '@/types/webinar';
+import { ResolvedSequenceClip } from '@/types/clip';
 
 // Extract YouTube video ID from various URL formats
 function extractYouTubeId(url: string): string | null {
@@ -14,9 +15,13 @@ function extractYouTubeId(url: string): string | null {
   return null;
 }
 
-export const generateEmbedCode = (config: WebinarConfig): string => {
-  const youtubeId = extractYouTubeId(config.videoUrl);
+export const generateEmbedCode = (config: WebinarConfig, resolvedClips?: ResolvedSequenceClip[]): string => {
+  const isMultiClip = config.videoMode === 'multi' && resolvedClips && resolvedClips.length > 0;
+  const youtubeId = isMultiClip ? null : extractYouTubeId(config.videoUrl);
   const isYouTube = !!youtubeId;
+  const totalMultiClipDuration = isMultiClip ? resolvedClips.reduce((s, c) => s + c.durationSeconds, 0) : 0;
+  const effectiveDuration = isMultiClip ? totalMultiClipDuration : config.durationSeconds;
+  const serializedSequence = isMultiClip ? JSON.stringify(resolvedClips) : '[]';
   const ctaBannerHtml = config.enableCta ? `
   <!-- CTA Banner -->
   <div class="cta-banner hidden" id="ctaBanner">
@@ -355,7 +360,8 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       const { state, elapsed } = getWebinarState();
       if (state !== 'live') return;
       
-      const elapsedSeconds = elapsed || 0;
+      // For multi-clip mode, use cumulative elapsed time
+      const elapsedSeconds = (CONFIG.videoMode === 'multi' && typeof totalElapsedSeconds !== 'undefined') ? totalElapsedSeconds : (elapsed || 0);
       if (elapsedSeconds >= ${config.ctaShowAfterSeconds}) {
         showCta();
         ctaShown = true;
@@ -1068,6 +1074,52 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       }
     }
     ${ctaStyles}
+
+    /* Interstitial Quiz Overlay */
+    .interstitial-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.85);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 100; animation: fadeIn 0.3s ease;
+    }
+    .interstitial-card {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px; padding: 2rem;
+      max-width: 500px; width: 90%; text-align: center;
+    }
+    .interstitial-question {
+      color: #fff; font-size: 1.25rem; font-weight: 600;
+      margin-bottom: 1.5rem; line-height: 1.4;
+    }
+    .interstitial-options { display: flex; flex-direction: column; gap: 0.75rem; }
+    .interstitial-option {
+      background: rgba(255,255,255,0.08);
+      border: 2px solid rgba(255,255,255,0.15);
+      border-radius: 12px; padding: 0.875rem 1.25rem;
+      color: #fff; font-size: 1rem; cursor: pointer;
+      transition: all 0.2s; text-align: left;
+    }
+    .interstitial-option:hover { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.3); }
+    .interstitial-option.correct { background: rgba(34,197,94,0.2); border-color: #22c55e; color: #22c55e; }
+    .interstitial-option.wrong { background: rgba(239,68,68,0.2); border-color: #ef4444; color: #ef4444; }
+    .interstitial-option.disabled { pointer-events: none; opacity: 0.6; }
+    .interstitial-feedback { margin-top: 1rem; padding: 0.75rem 1rem; border-radius: 8px; font-size: 0.95rem; font-weight: 500; }
+    .interstitial-feedback.correct { background: rgba(34,197,94,0.15); color: #22c55e; }
+    .interstitial-feedback.wrong { background: rgba(239,68,68,0.15); color: #ef4444; }
+    .interstitial-countdown { margin-top: 1rem; color: rgba(255,255,255,0.6); font-size: 0.85rem; }
+    .interstitial-continue-btn {
+      background: var(--primary, #e53935); color: #fff; border: none;
+      border-radius: 12px; padding: 1rem 2rem; font-size: 1.1rem;
+      font-weight: 600; cursor: pointer; transition: transform 0.2s, opacity 0.2s; width: 100%;
+    }
+    .interstitial-continue-btn:hover { transform: scale(1.02); opacity: 0.9; }
+    @media (max-width: 768px) {
+      .interstitial-card { padding: 1.25rem; max-width: 95%; }
+      .interstitial-question { font-size: 1.05rem; }
+      .interstitial-option { font-size: 0.9rem; padding: 0.75rem 1rem; }
+    }
   </style>
 </head>
 <body>
@@ -1140,7 +1192,7 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
         <div class="youtube-overlay" id="youtubeOverlay"></div>
         ` : `
         <video id="webinarVideo" playsinline>
-          <source src="${config.videoUrl}" type="video/mp4">
+          <source src="${isMultiClip ? resolvedClips[0].url : config.videoUrl}" type="video/mp4">
         </video>
         `}
         <div class="sound-controls" id="soundControls" style="display:none;">
@@ -1220,7 +1272,7 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       webinarId: "${config.id}",
       webinarName: "${config.webinarName}",
       videoUrl: "${config.videoUrl}",
-      durationSeconds: ${config.durationSeconds},
+      durationSeconds: ${effectiveDuration},
       startHour: ${config.startHour},
       startMinute: ${config.startMinute},
       timezone: "${config.timezone}",
@@ -1245,7 +1297,9 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       justInTimeEnabled: ${config.justInTimeEnabled ?? false},
       justInTimeMinutes: ${config.justInTimeMinutes ?? 15},
       isYouTube: ${isYouTube},
-      youtubeId: "${youtubeId || ''}"
+      youtubeId: "${youtubeId || ''}",
+      videoMode: "${isMultiClip ? 'multi' : 'single'}",
+      videoSequence: ${serializedSequence}
     };
 
     let userData = null;
@@ -1748,43 +1802,236 @@ export const generateEmbedCode = (config: WebinarConfig): string => {
       }, 3000);
     }
 
+    // ============ MULTI-CLIP STATE ============
+    let currentClipIndex = 0;
+    let clipSequence = CONFIG.videoSequence || [];
+    let isShowingInterstitial = false;
+    let totalElapsedSeconds = 0;
+    let multiClipCtaInterval = null;
+
     function startMP4Webinar(loadingOverlay) {
       const video = document.getElementById('webinarVideo');
-      
-      function seekToLivePosition() {
-        const { state, elapsed } = getWebinarState();
-        if (state !== 'live') return;
-        
-        const targetTime = elapsed || 0;
-        if (Math.abs(video.currentTime - targetTime) > 2) {
-          video.currentTime = targetTime;
-        }
+
+      if (CONFIG.videoMode === 'multi' && clipSequence.length > 0) {
+        // Multi-clip mode: play first clip from beginning
         loadingOverlay.classList.add('hidden');
-      }
-      
-      if (video.readyState >= 1) {
-        seekToLivePosition();
+        video.muted = true;
+        video.play().catch(() => {});
+
+        // Handle clip ended
+        video.addEventListener('ended', handleClipEnded);
+
+        // Track elapsed time for CTA
+        multiClipCtaInterval = setInterval(function() {
+          if (!video.paused && !isShowingInterstitial) {
+            totalElapsedSeconds = getCumulativeElapsed();
+          }
+        }, 1000);
+
       } else {
-        video.addEventListener('loadedmetadata', seekToLivePosition, { once: true });
-      }
-      
-      video.muted = true;
-      video.play().catch(() => {});
-      
-      // Re-sync video when user returns to tab
-      document.addEventListener('visibilitychange', function() {
-        if (document.visibilityState === 'visible') {
+        // Single video mode - original logic
+        function seekToLivePosition() {
           const { state, elapsed } = getWebinarState();
-          if (state === 'live' && video) {
-            const targetTime = elapsed || 0;
+          if (state !== 'live') return;
+
+          const targetTime = elapsed || 0;
+          if (Math.abs(video.currentTime - targetTime) > 2) {
             video.currentTime = targetTime;
-            if (video.paused) {
-              video.play().catch(() => {});
+          }
+          loadingOverlay.classList.add('hidden');
+        }
+
+        if (video.readyState >= 1) {
+          seekToLivePosition();
+        } else {
+          video.addEventListener('loadedmetadata', seekToLivePosition, { once: true });
+        }
+
+        video.muted = true;
+        video.play().catch(() => {});
+
+        // Re-sync video when user returns to tab
+        document.addEventListener('visibilitychange', function() {
+          if (document.visibilityState === 'visible') {
+            const { state, elapsed } = getWebinarState();
+            if (state === 'live' && video) {
+              const targetTime = elapsed || 0;
+              video.currentTime = targetTime;
+              if (video.paused) {
+                video.play().catch(() => {});
+              }
             }
           }
+        });
+      }
+    }
+
+    function getCumulativeElapsed() {
+      if (CONFIG.videoMode !== 'multi') return 0;
+      const video = document.getElementById('webinarVideo');
+      let elapsed = 0;
+      for (let i = 0; i < currentClipIndex; i++) {
+        elapsed += clipSequence[i].durationSeconds;
+      }
+      if (video) elapsed += video.currentTime || 0;
+      return elapsed;
+    }
+
+    function handleClipEnded() {
+      const video = document.getElementById('webinarVideo');
+      if (CONFIG.videoMode !== 'multi') return;
+
+      // Add finished clip duration to total
+      totalElapsedSeconds = getCumulativeElapsed();
+
+      const isLastClip = currentClipIndex >= clipSequence.length - 1;
+      if (isLastClip) {
+        // Last clip ended - show ended overlay
+        const { startTime } = getWebinarState();
+        showEnded(startTime);
+        return;
+      }
+
+      // Show interstitial
+      isShowingInterstitial = true;
+      const currentClip = clipSequence[currentClipIndex];
+      const interstitial = currentClip.interstitial;
+
+      showInterstitialOverlay(interstitial);
+    }
+
+    function showInterstitialOverlay(interstitial) {
+      const wrapper = document.querySelector('.video-wrapper');
+      if (!wrapper) return;
+
+      // Remove any existing interstitial
+      const existing = document.getElementById('interstitialOverlay');
+      if (existing) existing.remove();
+
+      const overlay = document.createElement('div');
+      overlay.className = 'interstitial-overlay';
+      overlay.id = 'interstitialOverlay';
+
+      const card = document.createElement('div');
+      card.className = 'interstitial-card';
+
+      if (interstitial && interstitial.question && interstitial.options && interstitial.options.length > 0) {
+        // Quiz mode
+        const questionEl = document.createElement('div');
+        questionEl.className = 'interstitial-question';
+        questionEl.textContent = interstitial.question;
+        card.appendChild(questionEl);
+
+        const optionsContainer = document.createElement('div');
+        optionsContainer.className = 'interstitial-options';
+
+        interstitial.options.forEach(function(opt) {
+          const btn = document.createElement('button');
+          btn.className = 'interstitial-option';
+          btn.textContent = opt.text;
+          btn.setAttribute('data-correct', opt.isCorrect ? 'true' : 'false');
+          btn.setAttribute('data-id', opt.id);
+          btn.onclick = function() {
+            handleQuizAnswer(btn, opt, interstitial, optionsContainer, card);
+          };
+          optionsContainer.appendChild(btn);
+        });
+
+        card.appendChild(optionsContainer);
+      } else {
+        // No quiz - simple continue button
+        const questionEl = document.createElement('div');
+        questionEl.className = 'interstitial-question';
+        questionEl.textContent = 'Ready to continue?';
+        card.appendChild(questionEl);
+
+        const continueBtn = document.createElement('button');
+        continueBtn.className = 'interstitial-continue-btn';
+        continueBtn.textContent = 'Continue to Next Section \\u2192';
+        continueBtn.onclick = function() {
+          hideInterstitialAndPlayNext();
+        };
+        card.appendChild(continueBtn);
+      }
+
+      overlay.appendChild(card);
+      wrapper.appendChild(overlay);
+    }
+
+    function handleQuizAnswer(selectedBtn, selectedOpt, interstitial, optionsContainer, card) {
+      // Disable all options
+      const allBtns = optionsContainer.querySelectorAll('.interstitial-option');
+      allBtns.forEach(function(btn) {
+        btn.classList.add('disabled');
+        if (btn.getAttribute('data-correct') === 'true') {
+          btn.classList.add('correct');
         }
       });
+
+      const isCorrect = selectedOpt.isCorrect;
+      if (!isCorrect) {
+        selectedBtn.classList.add('wrong');
+      }
+
+      // Show feedback
+      const feedback = document.createElement('div');
+      feedback.className = 'interstitial-feedback ' + (isCorrect ? 'correct' : 'wrong');
+      feedback.textContent = isCorrect ? interstitial.correctFeedback : interstitial.wrongFeedback;
+      card.appendChild(feedback);
+
+      // Show countdown
+      const autoAdvance = interstitial.autoAdvanceSeconds || 3;
+      const countdown = document.createElement('div');
+      countdown.className = 'interstitial-countdown';
+      countdown.textContent = 'Next section in ' + autoAdvance + '...';
+      card.appendChild(countdown);
+
+      let remaining = autoAdvance;
+      const timer = setInterval(function() {
+        remaining--;
+        if (remaining <= 0) {
+          clearInterval(timer);
+          hideInterstitialAndPlayNext();
+        } else {
+          countdown.textContent = 'Next section in ' + remaining + '...';
+        }
+      }, 1000);
     }
+
+    function hideInterstitialAndPlayNext() {
+      isShowingInterstitial = false;
+      const overlay = document.getElementById('interstitialOverlay');
+      if (overlay) overlay.remove();
+
+      // Move to next clip
+      currentClipIndex++;
+      if (currentClipIndex >= clipSequence.length) return;
+
+      const video = document.getElementById('webinarVideo');
+      if (!video) return;
+
+      // Save volume state
+      const wasMuted = video.muted;
+      const currentVolume = video.volume;
+
+      // Load next clip
+      const nextClip = clipSequence[currentClipIndex];
+      const source = video.querySelector('source');
+      if (source) {
+        source.src = nextClip.url;
+      } else {
+        video.src = nextClip.url;
+      }
+      video.load();
+
+      video.addEventListener('loadedmetadata', function() {
+        // Restore volume state
+        video.muted = wasMuted;
+        video.volume = currentVolume;
+        video.play().catch(() => {});
+      }, { once: true });
+    }
+
 
     function showEnded(startTime) {
       document.getElementById('webinarRoom').style.display = 'none';
