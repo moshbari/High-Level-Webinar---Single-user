@@ -1,4 +1,5 @@
 import { WebinarConfig } from '@/types/webinar';
+import { ResolvedSequenceClip } from '@/types/clip';
 
 // Extract YouTube video ID from various URL formats
 function extractYouTubeId(url: string): string | null {
