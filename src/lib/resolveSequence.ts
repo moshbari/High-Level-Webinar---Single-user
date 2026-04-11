@@ -27,5 +27,5 @@ export async function resolveSequence(config: WebinarConfig): Promise<ResolvedSe
         interstitial: item.interstitial || null,
       };
     })
-    .filter((c): c is ResolvedSequenceClip => c !== null);
+    .filter(Boolean) as ResolvedSequenceClip[];
 }
