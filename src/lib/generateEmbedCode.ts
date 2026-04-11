@@ -1069,6 +1069,52 @@ export const generateEmbedCode = (config: WebinarConfig, resolvedClips?: Resolve
       }
     }
     ${ctaStyles}
+
+    /* Interstitial Quiz Overlay */
+    .interstitial-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.85);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 100; animation: fadeIn 0.3s ease;
+    }
+    .interstitial-card {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px; padding: 2rem;
+      max-width: 500px; width: 90%; text-align: center;
+    }
+    .interstitial-question {
+      color: #fff; font-size: 1.25rem; font-weight: 600;
+      margin-bottom: 1.5rem; line-height: 1.4;
+    }
+    .interstitial-options { display: flex; flex-direction: column; gap: 0.75rem; }
+    .interstitial-option {
+      background: rgba(255,255,255,0.08);
+      border: 2px solid rgba(255,255,255,0.15);
+      border-radius: 12px; padding: 0.875rem 1.25rem;
+      color: #fff; font-size: 1rem; cursor: pointer;
+      transition: all 0.2s; text-align: left;
+    }
+    .interstitial-option:hover { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.3); }
+    .interstitial-option.correct { background: rgba(34,197,94,0.2); border-color: #22c55e; color: #22c55e; }
+    .interstitial-option.wrong { background: rgba(239,68,68,0.2); border-color: #ef4444; color: #ef4444; }
+    .interstitial-option.disabled { pointer-events: none; opacity: 0.6; }
+    .interstitial-feedback { margin-top: 1rem; padding: 0.75rem 1rem; border-radius: 8px; font-size: 0.95rem; font-weight: 500; }
+    .interstitial-feedback.correct { background: rgba(34,197,94,0.15); color: #22c55e; }
+    .interstitial-feedback.wrong { background: rgba(239,68,68,0.15); color: #ef4444; }
+    .interstitial-countdown { margin-top: 1rem; color: rgba(255,255,255,0.6); font-size: 0.85rem; }
+    .interstitial-continue-btn {
+      background: var(--primary, #e53935); color: #fff; border: none;
+      border-radius: 12px; padding: 1rem 2rem; font-size: 1.1rem;
+      font-weight: 600; cursor: pointer; transition: transform 0.2s, opacity 0.2s; width: 100%;
+    }
+    .interstitial-continue-btn:hover { transform: scale(1.02); opacity: 0.9; }
+    @media (max-width: 768px) {
+      .interstitial-card { padding: 1.25rem; max-width: 95%; }
+      .interstitial-question { font-size: 1.05rem; }
+      .interstitial-option { font-size: 0.9rem; padding: 0.75rem 1rem; }
+    }
   </style>
 </head>
 <body>
