@@ -360,7 +360,8 @@ export const generateEmbedCode = (config: WebinarConfig, resolvedClips?: Resolve
       const { state, elapsed } = getWebinarState();
       if (state !== 'live') return;
       
-      const elapsedSeconds = elapsed || 0;
+      // For multi-clip mode, use cumulative elapsed time
+      const elapsedSeconds = (CONFIG.videoMode === 'multi' && typeof totalElapsedSeconds !== 'undefined') ? totalElapsedSeconds : (elapsed || 0);
       if (elapsedSeconds >= ${config.ctaShowAfterSeconds}) {
         showCta();
         ctaShown = true;
