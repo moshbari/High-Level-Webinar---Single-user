@@ -225,19 +225,25 @@ export const generateRegistrationFormCode = (config: WebinarConfig): string => {
       baseUrl: '${typeof window !== "undefined" ? window.location.origin : "https://live-spark-booster.lovable.app"}'
     };
     
+    function getNextSessionDate() {
+      const now = new Date();
+      if (CONFIG.justInTimeEnabled) {
+        const jitSession = new Date(now.getTime() + CONFIG.justInTimeMinutes * 60000);
+        return jitSession;
+      }
+      const session = new Date(now);
+      session.setHours(CONFIG.startHour, CONFIG.startMinute, 0, 0);
+      if (session <= now) {
+        session.setDate(session.getDate() + 1);
+      }
+      return session;
+    }
+
     function getSessionDisplay() {
       if (CONFIG.justInTimeEnabled) {
         return '⚡ Starting in just ' + CONFIG.justInTimeMinutes + ' minutes!';
       }
-
-      const now = new Date();
-      const session = new Date(now);
-      session.setHours(CONFIG.startHour, CONFIG.startMinute, 0, 0);
-      
-      if (session <= now) {
-        session.setDate(session.getDate() + 1);
-      }
-
+      const session = getNextSessionDate();
       const dateStr = session.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
       const timeStr = session.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
       return '📅 Next Session: ' + dateStr + ' at ' + timeStr;
@@ -283,6 +289,10 @@ export const generateRegistrationFormCode = (config: WebinarConfig): string => {
       const firstName = nameParts[0] || '';
       const lastName = nameParts.slice(1).join(' ') || '';
       
+      const nextSession = getNextSessionDate();
+      const nextSessionDate = nextSession.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+      const nextSessionTime = nextSession.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+      
       const payload = {
         name: name,
         firstName: firstName,
@@ -295,7 +305,10 @@ export const generateRegistrationFormCode = (config: WebinarConfig): string => {
         product_name: CONFIG.productName,
         vendor_name: CONFIG.vendorName,
         watch_link: CONFIG.baseUrl + '/watch/' + CONFIG.urlId,
-        replay_link: CONFIG.baseUrl + '/replay/' + CONFIG.urlId
+        replay_link: CONFIG.baseUrl + '/replay/' + CONFIG.urlId,
+        next_session_date: nextSessionDate,
+        next_session_time: nextSessionTime,
+        next_session_iso: nextSession.toISOString()
       };
       
       try {
