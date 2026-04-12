@@ -163,7 +163,7 @@ export default function RegisterPage() {
 
       const baseUrl = window.location.origin;
       const urlId = config.slug || config.id;
-      const payload = {
+      const payload: Record<string, string> = {
         name: name.trim(),
         firstName,
         lastName,
@@ -177,6 +177,13 @@ export default function RegisterPage() {
         watch_link: `${baseUrl}/watch/${urlId}`,
         replay_link: `${baseUrl}/replay/${urlId}`,
       };
+
+      // Add next session date/time to the payload
+      if (nextSession) {
+        payload.session_date = nextSession.date;
+        payload.session_time = nextSession.time;
+        payload.session_timezone = nextSession.timezone;
+      }
 
       const response = await fetch(webhookUrl, {
         method: 'POST',
