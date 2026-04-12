@@ -112,6 +112,8 @@ export default function Laboratory() {
       const duplicatedConfig = {
         ...config,
         webinarName: `${config.webinarName} (Copy)`,
+        slug: config.slug ? `${config.slug}-copy-${Date.now()}` : null,
+        ipnWebhookSlug: config.ipnWebhookSlug ? `${config.ipnWebhookSlug}-copy-${Date.now()}` : null,
       };
 
       const newWebinar = await saveWebinarMutation.mutateAsync(duplicatedConfig);
