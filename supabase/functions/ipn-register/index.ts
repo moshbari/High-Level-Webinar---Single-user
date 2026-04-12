@@ -205,21 +205,6 @@ Deno.serve(async (req) => {
       const firstName = nameParts[0] || "";
       const lastName = nameParts.slice(1).join(" ") || "";
 
-      // Calculate next session date
-      const now = new Date();
-      let nextSession: Date;
-      if (webinar.just_in_time_enabled) {
-        nextSession = new Date(now.getTime() + (webinar.just_in_time_minutes || 15) * 60000);
-      } else {
-        nextSession = new Date(now);
-        nextSession.setUTCHours(webinar.start_hour, webinar.start_minute, 0, 0);
-        if (nextSession <= now) {
-          nextSession.setDate(nextSession.getDate() + 1);
-        }
-      }
-      const nextSessionDate = nextSession.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-      const nextSessionTime = nextSession.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-
       const webhookPayload = {
         name: parsed.name,
         firstName,
@@ -232,9 +217,6 @@ Deno.serve(async (req) => {
         vendor_name: webinar.vendor_name || "",
         watch_link: watchLink,
         replay_link: replayLink,
-        next_session_date: nextSessionDate,
-        next_session_time: nextSessionTime,
-        next_session_iso: nextSession.toISOString(),
         ipn_source: parsed.source,
       };
 
