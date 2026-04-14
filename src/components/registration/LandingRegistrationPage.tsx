@@ -160,28 +160,27 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
       {/* Hero Section */}
       <div className="relative">
         {config.regFormHeroImageUrl && (
-          <div className="w-full h-48 md:h-64 overflow-hidden">
+          <div className="w-full h-32 sm:h-48 md:h-64 overflow-hidden">
             <img
               src={config.regFormHeroImageUrl}
               alt="Hero"
               className="w-full h-full object-cover"
             />
-            <div className="absolute inset-0 h-48 md:h-64" style={{ background: 'linear-gradient(to bottom, transparent 40%, ' + (config.regFormBackground || '#0a0a0f') + ')' }} />
+            <div className="absolute inset-0 h-32 sm:h-48 md:h-64" style={{ background: 'linear-gradient(to bottom, transparent 40%, ' + (config.regFormBackground || '#0a0a0f') + ')' }} />
           </div>
         )}
 
-        <div className="max-w-4xl mx-auto px-6 pt-8 pb-6 text-center" style={config.regFormHeroImageUrl ? { marginTop: '-3rem', position: 'relative', zIndex: 1 } : {}}>
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-5 sm:pt-8 pb-3 sm:pb-6 text-center" style={config.regFormHeroImageUrl ? { marginTop: '-2rem', position: 'relative', zIndex: 1 } : {}}>
           {config.regFormPreHeadline && (
-            <p className="text-sm md:text-base font-semibold tracking-widest uppercase mb-3" style={{ color: config.regFormBulletColor || config.regFormButtonColor }}>
+            <p className="text-xs sm:text-sm md:text-base font-semibold tracking-widest uppercase mb-2 sm:mb-3" style={{ color: config.regFormBulletColor || config.regFormButtonColor }}>
               {config.regFormPreHeadline}
             </p>
           )}
 
           <h1
-            className="text-3xl md:text-5xl mb-3 leading-tight"
+            className="text-2xl sm:text-3xl md:text-5xl mb-2 sm:mb-3 leading-tight"
             style={{
               fontFamily: `'${config.regFormHeadlineFontFamily}', system-ui, sans-serif`,
-              fontSize: config.regFormHeadlineFontSize || '2.5rem',
               fontWeight: config.regFormHeadlineFontWeight || '700',
               color: config.regFormHeadlineColor || '#000000',
             }}
@@ -190,7 +189,7 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
           </h1>
 
           {config.regFormPostHeadline && (
-            <p className="text-lg md:text-xl mb-4 max-w-2xl mx-auto" style={{ color: config.regFormSubheadlineColor || config.regFormTextColor }}>{config.regFormPostHeadline}</p>
+            <p className="text-sm sm:text-lg md:text-xl mb-2 sm:mb-4 max-w-2xl mx-auto" style={{ color: config.regFormSubheadlineColor || config.regFormTextColor }}>{config.regFormPostHeadline}</p>
           )}
 
         </div>
@@ -198,22 +197,22 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
 
       {/* Presenters */}
       {config.regFormPresenters.length > 0 && (
-        <div className="max-w-4xl mx-auto px-6 pb-8">
-          <div className="flex justify-center gap-6 md:gap-10 flex-wrap">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 pb-4 sm:pb-8">
+          <div className="flex justify-center gap-4 sm:gap-6 md:gap-10 flex-wrap">
             {config.regFormPresenters.map((p, i) => (
-              <div key={i} className="flex flex-col items-center gap-2">
-                <div className="w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden border-2" style={{ borderColor: config.regFormButtonColor }}>
+              <div key={i} className="flex flex-col items-center gap-1.5 sm:gap-2">
+                <div className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-full overflow-hidden border-2" style={{ borderColor: config.regFormButtonColor }}>
                   {p.photoUrl ? (
                     <img src={p.photoUrl} alt={p.name} className="w-full h-full object-cover" />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-2xl font-bold" style={{ background: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }}>
+                    <div className="w-full h-full flex items-center justify-center text-xl sm:text-2xl font-bold" style={{ background: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }}>
                       {p.name.charAt(0).toUpperCase()}
                     </div>
                   )}
                 </div>
                 <div className="text-center">
-                  <p className="text-sm font-semibold">{p.name}</p>
-                  {p.title && <p className="text-xs opacity-60">{p.title}</p>}
+                  <p className="text-xs sm:text-sm font-semibold">{p.name}</p>
+                  {p.title && <p className="text-[10px] sm:text-xs opacity-60">{p.title}</p>}
                 </div>
               </div>
             ))}
@@ -222,14 +221,14 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
       )}
 
       {/* Two Column: Bullets + Form */}
-      <div className="max-w-5xl mx-auto px-6 pb-12">
-        <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-start">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 pb-8 sm:pb-12">
+        <div className="grid md:grid-cols-2 gap-5 sm:gap-8 md:gap-12 items-start">
           {/* Left: Bullets */}
           {(config.regFormBullets.length > 0 || config.regFormBulletHeadline) && (
-            <div className="space-y-5">
+            <div className="space-y-3 sm:space-y-5">
               {config.regFormBulletHeadline && (
                 <h2
-                  className="text-xl md:text-2xl"
+                  className="text-lg sm:text-xl md:text-2xl"
                   style={{
                     fontFamily: `'${config.regFormHeadlineFontFamily}', system-ui, sans-serif`,
                     fontWeight: config.regFormHeadlineFontWeight || '700',
@@ -239,11 +238,11 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
                   {config.regFormBulletHeadline}
                 </h2>
               )}
-              <ul className="space-y-3">
+              <ul className="space-y-2 sm:space-y-3">
                 {config.regFormBullets.map((bullet, i) => (
-                  <li key={i} className="flex items-start gap-3">
-                    <span className="mt-0.5 shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold" style={{ background: config.regFormBulletColor || '#1e40af' }}>✓</span>
-                    <span className="text-base md:text-lg" style={{ color: config.regFormSubheadlineColor || config.regFormTextColor, opacity: 0.9 }}>{bullet}</span>
+                  <li key={i} className="flex items-start gap-2 sm:gap-3">
+                    <span className="mt-0.5 shrink-0 w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-white text-[10px] sm:text-xs font-bold" style={{ background: config.regFormBulletColor || '#1e40af' }}>✓</span>
+                    <span className="text-sm sm:text-base md:text-lg" style={{ color: config.regFormSubheadlineColor || config.regFormTextColor, opacity: 0.9 }}>{bullet}</span>
                   </li>
                 ))}
               </ul>
@@ -251,23 +250,23 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
           )}
 
           {/* Right: Form */}
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {config.regFormSubheadline && (
-              <p className="text-center text-base" style={{ color: config.regFormSubheadlineColor || config.regFormTextColor, opacity: 0.8 }}>{config.regFormSubheadline}</p>
+              <p className="text-center text-sm sm:text-base" style={{ color: config.regFormSubheadlineColor || config.regFormTextColor, opacity: 0.8 }}>{config.regFormSubheadline}</p>
             )}
             {config.regFormShowDatetime && nextSession && !nextSession.isJit && countdown && (
               <div className="text-center">
-                <p className="text-2xl md:text-3xl font-bold tracking-wider" style={{ color: config.regFormHeadlineColor || config.regFormTextColor, fontFamily: 'monospace' }}>
+                <p className="text-xl sm:text-2xl md:text-3xl font-bold tracking-wider" style={{ color: config.regFormHeadlineColor || config.regFormTextColor, fontFamily: 'monospace' }}>
                   {countdown}
                 </p>
               </div>
             )}
             {config.regFormShowDatetime && nextSession && (
               <div
-                className="py-3 px-6 rounded-xl text-center"
+                className="py-2 sm:py-3 px-4 sm:px-6 rounded-xl text-center"
                 style={{ background: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }}
               >
-                <span className="text-sm md:text-base font-semibold">
+                <span className="text-xs sm:text-sm md:text-base font-semibold">
                   {nextSession.isJit
                     ? `⚡ Starting in just ${nextSession.minutesAway} minutes!`
                     : `📅 Next Session: ${nextSession.date} at ${nextSession.time} (${nextSession.timezone})`}
@@ -275,52 +274,52 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
               </div>
             )}
           <div
-            className="p-6 md:p-8 shadow-2xl"
+            className="p-4 sm:p-6 md:p-8 shadow-2xl"
             style={{
               background: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)',
               border: `1px solid ${isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}`,
               borderRadius,
             }}
           >
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1.5">{config.regFormNameLabel || 'Your Name'}</label>
+                <label className="block text-xs sm:text-sm font-medium mb-1 sm:mb-1.5">{config.regFormNameLabel || 'Your Name'}</label>
                 <input
                   type="text"
                   placeholder={config.regFormNamePlaceholder || 'Enter your name'}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full px-4 py-3.5 outline-none transition-all focus:ring-2"
+                  className="w-full px-3 sm:px-4 py-3 sm:py-3.5 text-sm sm:text-base outline-none transition-all focus:ring-2"
                   style={inputStyle}
                   disabled={submitting}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1.5">{config.regFormEmailLabel || 'Your Email'}</label>
+                <label className="block text-xs sm:text-sm font-medium mb-1 sm:mb-1.5">{config.regFormEmailLabel || 'Your Email'}</label>
                 <input
                   type="email"
                   placeholder={config.regFormEmailPlaceholder || 'Enter your email'}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3.5 outline-none transition-all focus:ring-2"
+                  className="w-full px-3 sm:px-4 py-3 sm:py-3.5 text-sm sm:text-base outline-none transition-all focus:ring-2"
                   style={inputStyle}
                   disabled={submitting}
                 />
               </div>
 
               {formError && (
-                <div className="text-red-400 text-sm bg-red-500/10 p-3 rounded-lg">{formError}</div>
+                <div className="text-red-400 text-xs sm:text-sm bg-red-500/10 p-2 sm:p-3 rounded-lg">{formError}</div>
               )}
 
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full py-4 font-semibold text-white text-lg transition-all hover:opacity-90 hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-70 disabled:cursor-not-allowed"
+                className="w-full py-3 sm:py-4 font-semibold text-white text-base sm:text-lg transition-all hover:opacity-90 hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-70 disabled:cursor-not-allowed"
                 style={{ background: config.regFormButtonColor || '#e53935', borderRadius }}
               >
                 {submitting ? (
                   <span className="flex items-center justify-center gap-2">
-                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
                     Registering...
                   </span>
                 ) : (
@@ -329,7 +328,7 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
               </button>
 
               {config.regFormShowPrivacy && (
-                <p className="text-xs opacity-60 text-center">
+                <p className="text-[10px] sm:text-xs opacity-60 text-center">
                   🔒 {config.regFormPrivacyText || 'We respect your privacy.'}
                 </p>
               )}
@@ -342,19 +341,19 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
       {/* Disclaimer & Legal */}
       {(config.regFormDisclaimerText || config.regFormLegalLinks.length > 0) && (
         <div className="border-t" style={{ borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }}>
-          <div className="max-w-4xl mx-auto px-6 py-8 text-center space-y-4">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8 text-center space-y-3 sm:space-y-4">
             {config.regFormDisclaimerText && (
-              <p className="text-xs opacity-50 max-w-2xl mx-auto leading-relaxed">{config.regFormDisclaimerText}</p>
+              <p className="text-[10px] sm:text-xs opacity-50 max-w-2xl mx-auto leading-relaxed">{config.regFormDisclaimerText}</p>
             )}
             {config.regFormLegalLinks.length > 0 && (
-              <div className="flex justify-center gap-4 flex-wrap">
+              <div className="flex justify-center gap-3 sm:gap-4 flex-wrap">
                 {config.regFormLegalLinks.map((link, i) => (
                   <a
                     key={i}
                     href={link.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs underline opacity-50 hover:opacity-80 transition-opacity"
+                    className="text-[10px] sm:text-xs underline opacity-50 hover:opacity-80 transition-opacity"
                   >
                     {link.label}
                   </a>
