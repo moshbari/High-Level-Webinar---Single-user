@@ -178,6 +178,7 @@ const configToRow = (config: Omit<WebinarConfig, 'id' | 'createdAt' | 'updatedAt
   reg_form_headline_font_weight: config.regFormHeadlineFontWeight,
   reg_form_bullet_color: config.regFormBulletColor || null,
   reg_form_subheadline_color: config.regFormSubheadlineColor || null,
+  reg_form_timer_color: config.regFormTimerColor || null,
   // Landing Page Template
   reg_form_layout: config.regFormLayout,
   reg_form_pre_headline: config.regFormPreHeadline,
