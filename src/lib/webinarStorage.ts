@@ -70,6 +70,16 @@ export const rowToConfig = (row: any): WebinarConfig => ({
   regFormShowPrivacy: row.reg_form_show_privacy ?? true,
   regFormPrivacyText: row.reg_form_privacy_text ?? 'We respect your privacy. Unsubscribe anytime.',
   regFormTheme: row.reg_form_theme ?? 'dark',
+  // Landing Page Template
+  regFormLayout: row.reg_form_layout ?? 'simple',
+  regFormPreHeadline: row.reg_form_pre_headline ?? '',
+  regFormPostHeadline: row.reg_form_post_headline ?? '',
+  regFormBulletHeadline: row.reg_form_bullet_headline ?? 'What You Will Learn:',
+  regFormBullets: (row.reg_form_bullets as string[]) ?? [],
+  regFormPresenters: (row.reg_form_presenters as Array<{ name: string; title: string; photoUrl: string }>) ?? [],
+  regFormHeroImageUrl: row.reg_form_hero_image_url ?? '',
+  regFormDisclaimerText: row.reg_form_disclaimer_text ?? '',
+  regFormLegalLinks: (row.reg_form_legal_links as Array<{ label: string; url: string }>) ?? [],
   // Just-in-Time Sessions
   justInTimeEnabled: row.just_in_time_enabled ?? false,
   justInTimeMinutes: row.just_in_time_minutes ?? 15,
@@ -147,6 +157,16 @@ const configToRow = (config: Omit<WebinarConfig, 'id' | 'createdAt' | 'updatedAt
   reg_form_show_privacy: config.regFormShowPrivacy,
   reg_form_privacy_text: config.regFormPrivacyText,
   reg_form_theme: config.regFormTheme,
+  // Landing Page Template
+  reg_form_layout: config.regFormLayout,
+  reg_form_pre_headline: config.regFormPreHeadline,
+  reg_form_post_headline: config.regFormPostHeadline,
+  reg_form_bullet_headline: config.regFormBulletHeadline,
+  reg_form_bullets: config.regFormBullets,
+  reg_form_presenters: config.regFormPresenters,
+  reg_form_hero_image_url: config.regFormHeroImageUrl,
+  reg_form_disclaimer_text: config.regFormDisclaimerText,
+  reg_form_legal_links: config.regFormLegalLinks,
   // Just-in-Time Sessions
   just_in_time_enabled: config.justInTimeEnabled,
   just_in_time_minutes: config.justInTimeMinutes,
@@ -301,6 +321,16 @@ export const updateWebinar = async (id: string, config: Partial<WebinarConfig>):
   if (rest.regFormShowPrivacy !== undefined) updateData.reg_form_show_privacy = rest.regFormShowPrivacy;
   if (rest.regFormPrivacyText !== undefined) updateData.reg_form_privacy_text = rest.regFormPrivacyText;
   if (rest.regFormTheme !== undefined) updateData.reg_form_theme = rest.regFormTheme;
+  // Landing Page Template
+  if (rest.regFormLayout !== undefined) updateData.reg_form_layout = rest.regFormLayout;
+  if (rest.regFormPreHeadline !== undefined) updateData.reg_form_pre_headline = rest.regFormPreHeadline;
+  if (rest.regFormPostHeadline !== undefined) updateData.reg_form_post_headline = rest.regFormPostHeadline;
+  if (rest.regFormBulletHeadline !== undefined) updateData.reg_form_bullet_headline = rest.regFormBulletHeadline;
+  if (rest.regFormBullets !== undefined) updateData.reg_form_bullets = rest.regFormBullets;
+  if (rest.regFormPresenters !== undefined) updateData.reg_form_presenters = rest.regFormPresenters;
+  if (rest.regFormHeroImageUrl !== undefined) updateData.reg_form_hero_image_url = rest.regFormHeroImageUrl;
+  if (rest.regFormDisclaimerText !== undefined) updateData.reg_form_disclaimer_text = rest.regFormDisclaimerText;
+  if (rest.regFormLegalLinks !== undefined) updateData.reg_form_legal_links = rest.regFormLegalLinks;
   // Just-in-Time Sessions
   if (rest.justInTimeEnabled !== undefined) updateData.just_in_time_enabled = rest.justInTimeEnabled;
   if (rest.justInTimeMinutes !== undefined) updateData.just_in_time_minutes = rest.justInTimeMinutes;
