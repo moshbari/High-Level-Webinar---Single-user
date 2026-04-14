@@ -628,7 +628,24 @@ export function RegistrationFormSettings({ config, onChange, webinarId }: Regist
                             className="input-field flex-1"
                           />
                         </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="regFormTimerColor">Countdown Timer Color</Label>
+                        <div className="flex gap-2">
+                          <input
+                            type="color"
+                            value={config.regFormTimerColor || '#e53935'}
+                            onChange={(e) => updateField('regFormTimerColor', e.target.value)}
+                            className="w-12 h-10 rounded cursor-pointer"
+                          />
+                          <Input
+                            value={config.regFormTimerColor}
+                            onChange={(e) => updateField('regFormTimerColor', e.target.value)}
+                            placeholder="#e53935"
+                            className="input-field flex-1"
+                          />
+                        </div>
                       </div>
+                    </div>
                     </div>
                   </div>
                   

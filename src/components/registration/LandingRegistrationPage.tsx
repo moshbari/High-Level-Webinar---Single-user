@@ -256,7 +256,7 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
             )}
             {config.regFormShowDatetime && nextSession && !nextSession.isJit && countdown && (
               <div className="text-center">
-                <p className="text-xl sm:text-2xl md:text-3xl font-bold tracking-wider" style={{ color: config.regFormHeadlineColor || config.regFormTextColor, fontFamily: 'monospace' }}>
+                <p className="text-xl sm:text-2xl md:text-3xl font-bold tracking-wider" style={{ color: config.regFormTimerColor || config.regFormHeadlineColor || config.regFormTextColor, fontFamily: 'monospace' }}>
                   {countdown}
                 </p>
               </div>

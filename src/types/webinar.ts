@@ -89,6 +89,7 @@ export interface WebinarConfig {
   regFormHeadlineFontWeight: string;
   regFormBulletColor: string;
   regFormSubheadlineColor: string;
+  regFormTimerColor: string;
   
   // Landing Page Template
   regFormLayout: 'simple' | 'landing';
