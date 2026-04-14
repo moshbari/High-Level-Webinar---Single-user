@@ -1,5 +1,6 @@
 import { WebinarConfig, TIMEZONES } from '@/types/webinar';
 import { useMemo } from 'react';
+import { formatText } from '@/lib/formatText';
 
 interface RegistrationFormPreviewProps {
   config: Omit<WebinarConfig, 'id' | 'createdAt' | 'updatedAt'>;
@@ -75,13 +76,11 @@ export function RegistrationFormPreview({ config }: RegistrationFormPreviewProps
               <img src={config.regFormHeroImageUrl} alt="Hero" className="w-full h-24 object-cover rounded-lg mb-4" />
             )}
             {config.regFormPreHeadline && (
-              <p className="text-xs font-semibold tracking-widest uppercase mb-1" style={{ color: config.regFormButtonColor }}>{config.regFormPreHeadline}</p>
+              <p className="text-xs font-semibold tracking-widest uppercase mb-1" style={{ color: config.regFormButtonColor }} dangerouslySetInnerHTML={{ __html: formatText(config.regFormPreHeadline) }} />
             )}
-            <h2 className="text-lg font-bold mb-1" style={{ fontFamily: `'${config.regFormHeadlineFontFamily}', system-ui, sans-serif`, color: config.regFormHeadlineColor || config.regFormTextColor, fontWeight: config.regFormHeadlineFontWeight || '700' }}>
-              {config.regFormHeadline || 'Register for the Free Training'}
-            </h2>
-            {config.regFormPostHeadline && <p className="text-xs opacity-80 mb-2">{config.regFormPostHeadline}</p>}
-            {config.regFormSubheadline && <p className="text-xs opacity-70 mb-3">{config.regFormSubheadline}</p>}
+            <h2 className="text-lg font-bold mb-1" style={{ fontFamily: `'${config.regFormHeadlineFontFamily}', system-ui, sans-serif`, color: config.regFormHeadlineColor || config.regFormTextColor, fontWeight: config.regFormHeadlineFontWeight || '700' }} dangerouslySetInnerHTML={{ __html: formatText(config.regFormHeadline || 'Register for the Free Training') }} />
+            {config.regFormPostHeadline && <p className="text-xs opacity-80 mb-2" dangerouslySetInnerHTML={{ __html: formatText(config.regFormPostHeadline) }} />}
+            {config.regFormSubheadline && <p className="text-xs opacity-70 mb-3" dangerouslySetInnerHTML={{ __html: formatText(config.regFormSubheadline) }} />}
 
             {config.regFormPresenters.length > 0 && (
               <div className="flex justify-center gap-3 mb-4">
@@ -103,11 +102,11 @@ export function RegistrationFormPreview({ config }: RegistrationFormPreviewProps
             <div className="grid grid-cols-2 gap-3 text-left">
               {config.regFormBullets.length > 0 && (
                 <div className="space-y-2">
-                  {config.regFormBulletHeadline && <h3 className="text-xs font-bold">{config.regFormBulletHeadline}</h3>}
+                  {config.regFormBulletHeadline && <h3 className="text-xs font-bold" dangerouslySetInnerHTML={{ __html: formatText(config.regFormBulletHeadline) }} />}
                   {config.regFormBullets.slice(0, 4).map((b, i) => (
                     <div key={i} className="flex items-start gap-1.5">
                       <span className="w-3.5 h-3.5 rounded-full flex items-center justify-center text-white text-[8px] font-bold shrink-0 mt-0.5" style={{ background: config.regFormButtonColor }}>✓</span>
-                      <span className="text-[10px] opacity-90">{b}</span>
+                      <span className="text-[10px] opacity-90" dangerouslySetInnerHTML={{ __html: formatText(b) }} />
                     </div>
                   ))}
                 </div>
@@ -145,12 +144,11 @@ export function RegistrationFormPreview({ config }: RegistrationFormPreviewProps
           <h2 
             className="text-2xl mb-2"
             style={{ fontFamily: `'${config.regFormHeadlineFontFamily}', system-ui, sans-serif`, color: config.regFormHeadlineColor || config.regFormTextColor, fontWeight: config.regFormHeadlineFontWeight || '700' }}
-          >
-            {config.regFormHeadline || 'Register for the Free Training'}
-          </h2>
+            dangerouslySetInnerHTML={{ __html: formatText(config.regFormHeadline || 'Register for the Free Training') }}
+          />
           
           {config.regFormSubheadline && (
-            <p className="opacity-80 mb-4">{config.regFormSubheadline}</p>
+            <p className="opacity-80 mb-4" dangerouslySetInnerHTML={{ __html: formatText(config.regFormSubheadline) }} />
           )}
           
           {config.regFormShowDatetime && (
