@@ -80,6 +80,14 @@ export interface WebinarConfig {
   regFormPrivacyText: string;
   regFormTheme: 'dark' | 'light';
   
+  // Font Settings
+  regFormFontFamily: string;
+  regFormHeadlineFontFamily: string;
+  regFormHeadlineFontSize: string;
+  regFormBodyFontSize: string;
+  regFormHeadlineColor: string;
+  regFormHeadlineFontWeight: string;
+  
   // Landing Page Template
   regFormLayout: 'simple' | 'landing';
   regFormPreHeadline: string;
@@ -229,6 +237,13 @@ export const DEFAULT_WEBINAR_CONFIG: Omit<WebinarConfig, 'id' | 'createdAt' | 'u
   regFormShowPrivacy: true,
   regFormPrivacyText: 'We respect your privacy. Unsubscribe anytime.',
   regFormTheme: 'dark',
+  // Font Settings
+  regFormFontFamily: 'Inter',
+  regFormHeadlineFontFamily: 'Space Grotesk',
+  regFormHeadlineFontSize: '2.5rem',
+  regFormBodyFontSize: '1rem',
+  regFormHeadlineColor: '',
+  regFormHeadlineFontWeight: '700',
   // Landing Page Template
   regFormLayout: 'simple',
   regFormPreHeadline: '',
