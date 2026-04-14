@@ -1,6 +1,6 @@
 import { WebinarConfig, TIMEZONES } from '@/types/webinar';
 import { Loader2 } from 'lucide-react';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
 interface LandingRegistrationPageProps {
@@ -53,6 +53,29 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
       minutesAway: 0,
     };
   }, [config]);
+
+  // Countdown timer for scheduled webinars
+  const [countdown, setCountdown] = useState('');
+  useEffect(() => {
+    if (!nextSession || nextSession.isJit) return;
+    const getTargetDate = () => {
+      const d = new Date();
+      d.setHours(config.startHour, config.startMinute, 0, 0);
+      if (d <= new Date()) d.setDate(d.getDate() + 1);
+      return d;
+    };
+    const update = () => {
+      const diff = getTargetDate().getTime() - Date.now();
+      if (diff <= 0) { setCountdown('Starting now!'); return; }
+      const h = Math.floor(diff / 3600000);
+      const m = Math.floor((diff % 3600000) / 60000);
+      const s = Math.floor((diff % 60000) / 1000);
+      setCountdown(`${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`);
+    };
+    update();
+    const id = setInterval(update, 1000);
+    return () => clearInterval(id);
+  }, [config.startHour, config.startMinute, nextSession]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -170,7 +193,6 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
             <p className="text-lg md:text-xl mb-4 max-w-2xl mx-auto" style={{ color: config.regFormSubheadlineColor || config.regFormTextColor }}>{config.regFormPostHeadline}</p>
           )}
 
-
         </div>
       </div>
 
@@ -233,12 +255,19 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
             {config.regFormSubheadline && (
               <p className="text-center text-base" style={{ color: config.regFormSubheadlineColor || config.regFormTextColor, opacity: 0.8 }}>{config.regFormSubheadline}</p>
             )}
+            {config.regFormShowDatetime && nextSession && !nextSession.isJit && countdown && (
+              <div className="text-center">
+                <p className="text-2xl md:text-3xl font-bold tracking-wider" style={{ color: config.regFormHeadlineColor || config.regFormTextColor, fontFamily: 'monospace' }}>
+                  {countdown}
+                </p>
+              </div>
+            )}
             {config.regFormShowDatetime && nextSession && (
               <div
                 className="py-3 px-6 rounded-xl text-center"
                 style={{ background: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }}
               >
-                <span className="text-sm md:text-base">
+                <span className="text-sm md:text-base font-semibold">
                   {nextSession.isJit
                     ? `⚡ Starting in just ${nextSession.minutesAway} minutes!`
                     : `📅 Next Session: ${nextSession.date} at ${nextSession.time} (${nextSession.timezone})`}
