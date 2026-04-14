@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { ClipboardList, ChevronDown, Settings2, Link, Copy, Check, Send, Loader2, Layout, FileText } from 'lucide-react';
+import { ClipboardList, ChevronDown, Settings2, Link, Copy, Check, Send, Loader2, Layout, FileText, Palette } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -356,6 +356,52 @@ export function RegistrationFormSettings({ config, onChange, webinarId }: Regist
                   <ChevronDown className={`w-4 h-4 ml-auto transition-transform ${advancedOpen ? 'rotate-180' : ''}`} />
                 </CollapsibleTrigger>
                 <CollapsibleContent className="space-y-4 pt-4">
+                  {/* Theme Presets */}
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Palette className="w-4 h-4 text-primary" />
+                      <Label className="font-medium">Theme Presets</Label>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => onChange({ ...config, regFormTheme: 'dark', regFormBackground: '#0a0a0f', regFormTextColor: '#ffffff', regFormButtonColor: '#e53935', regFormHeadlineColor: '' })}
+                        className={`p-3 rounded-lg border-2 text-center transition-all ${config.regFormTheme === 'dark' && config.regFormBackground === '#0a0a0f' ? 'border-primary ring-2 ring-primary/20' : 'border-border/50 hover:border-border'}`}
+                      >
+                        <div className="w-full h-6 rounded mb-1.5" style={{ background: '#0a0a0f' }}>
+                          <div className="h-full flex items-center justify-center">
+                            <div className="w-8 h-2 rounded" style={{ background: '#e53935' }} />
+                          </div>
+                        </div>
+                        <span className="text-[10px] font-medium">Dark Red</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => onChange({ ...config, regFormTheme: 'light', regFormBackground: '#ffffff', regFormTextColor: '#1a1a1a', regFormButtonColor: '#f97316', regFormHeadlineColor: '#1e40af' })}
+                        className={`p-3 rounded-lg border-2 text-center transition-all ${config.regFormTheme === 'light' && config.regFormButtonColor === '#f97316' ? 'border-primary ring-2 ring-primary/20' : 'border-border/50 hover:border-border'}`}
+                      >
+                        <div className="w-full h-6 rounded mb-1.5" style={{ background: '#ffffff', border: '1px solid #e5e7eb' }}>
+                          <div className="h-full flex items-center justify-center">
+                            <div className="w-8 h-2 rounded" style={{ background: '#f97316' }} />
+                          </div>
+                        </div>
+                        <span className="text-[10px] font-medium">Trust Blue</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => onChange({ ...config, regFormTheme: 'light', regFormBackground: '#f8fafc', regFormTextColor: '#334155', regFormButtonColor: '#22c55e', regFormHeadlineColor: '#0f172a' })}
+                        className={`p-3 rounded-lg border-2 text-center transition-all ${config.regFormTheme === 'light' && config.regFormButtonColor === '#22c55e' ? 'border-primary ring-2 ring-primary/20' : 'border-border/50 hover:border-border'}`}
+                      >
+                        <div className="w-full h-6 rounded mb-1.5" style={{ background: '#f8fafc', border: '1px solid #e5e7eb' }}>
+                          <div className="h-full flex items-center justify-center">
+                            <div className="w-8 h-2 rounded" style={{ background: '#22c55e' }} />
+                          </div>
+                        </div>
+                        <span className="text-[10px] font-medium">Clean Green</span>
+                      </button>
+                    </div>
+                  </div>
+
                   <div className="space-y-2">
                     <Label htmlFor="regFormTheme">Form Theme</Label>
                     <Select
