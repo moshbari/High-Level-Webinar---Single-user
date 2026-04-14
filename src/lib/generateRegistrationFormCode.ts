@@ -27,9 +27,165 @@ export const generateRegistrationFormCode = (config: WebinarConfig): string => {
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700;800;900&display=swap');
     
     body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: ${config.regFormBackground};
+      color: ${config.regFormTextColor};
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    
+    h1, h2 { font-family: 'Space Grotesk', system-ui, sans-serif; }
+
+    .formatted-text strong {
+      font-weight: 900;
+    }
+
+    .formatted-text em {
+      font-style: italic;
+    }
+
+    .formatted-text u {
+      text-decoration: underline;
+      text-decoration-thickness: 2px;
+      text-underline-offset: 0.18em;
+    }
+    
+    .reg-container {
+      width: 100%;
+      max-width: 420px;
+      padding: 2.5rem;
+      border-radius: ${borderRadius};
+      background: ${config.regFormBackground};
+      text-align: center;
+    }
+    
+    .reg-headline {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      line-height: 1.2;
+    }
+    
+    .reg-subheadline {
+      opacity: 0.8;
+      margin-bottom: 1rem;
+    }
+    
+    .reg-datetime {
+      display: inline-block;
+      background: ${isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)'};
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .reg-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    
+    .form-group {
+      text-align: left;
+    }
+    
+    .form-label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin-bottom: 0.375rem;
+    }
+    
+    .form-input {
+      width: 100%;
+      padding: 0.875rem 1rem;
+      background: ${inputBg};
+      border: 1px solid ${inputBorder};
+      border-radius: ${borderRadius};
+      color: ${config.regFormTextColor};
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    
+    .form-input:focus {
+      border-color: ${config.regFormButtonColor};
+      box-shadow: 0 0 0 3px ${config.regFormButtonColor}33;
+    }
+    
+    .form-input::placeholder {
+      opacity: 0.5;
+    }
+    
+    .submit-btn {
+      width: 100%;
+      padding: 1rem;
+      background: ${config.regFormButtonColor};
+      color: white;
+      border: none;
+      border-radius: ${borderRadius};
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px ${config.regFormButtonColor}40;
+    }
+    
+    .submit-btn:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .privacy-note {
+      font-size: 0.75rem;
+      opacity: 0.6;
+      margin-top: 0.5rem;
+    }
+    
+    .error-message {
+      color: #ef4444;
+      font-size: 0.875rem;
+      margin-top: 0.5rem;
+      display: none;
+    }
+    
+    .error-message.show {
+      display: block;
+    }
+    
+    .loading-spinner {
+      display: inline-block;
+      width: 1rem;
+      height: 1rem;
+      border: 2px solid white;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-right: 0.5rem;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="reg-container">
+    <h1 class="reg-headline formatted-text">${formatText(config.regFormHeadline)}</h1>
+    ${config.regFormSubheadline ? `<p class="reg-subheadline formatted-text">${formatText(config.regFormSubheadline)}</p>` : ''}
+    ${config.regFormShowDatetime ? '<div class="reg-datetime" id="sessionDateTime">📅 Loading next session...</div>' : ''}
       font-family: 'Inter', system-ui, sans-serif;
       background: ${config.regFormBackground};
       color: ${config.regFormTextColor};

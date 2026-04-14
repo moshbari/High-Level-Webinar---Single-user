@@ -179,7 +179,118 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
     .map(f => f.replace(/ /g, '+'))
     .join('&family=');
 
+  const richTextClassName = '[&_strong]:font-black [&_em]:italic [&_u]:underline [&_u]:decoration-2 [&_u]:underline-offset-4';
+
   return (
+    <div
+      className="min-h-screen"
+      style={{ background: config.regFormBackground || '#0a0a0f', color: config.regFormTextColor || '#ffffff', fontFamily: `'${config.regFormFontFamily}', system-ui, sans-serif`, fontSize: config.regFormBodyFontSize || '1rem' }}
+    >
+      <link href={`https://fonts.googleapis.com/css2?family=${fontImports}:wght@300;400;500;600;700;800;900&display=swap`} rel="stylesheet" />
+      {/* Subtle ambient glow */}
+      <div
+        className="absolute top-0 left-0 w-full h-[500px] pointer-events-none"
+        style={{ background: `radial-gradient(ellipse 80% 50% at 50% 0%, ${config.regFormButtonColor || '#e53935'}0A, transparent)` }}
+      />
+      {/* Hero Section */}
+      <div className="relative">
+        {config.regFormHeroImageUrl && (
+          <div className="w-full h-32 sm:h-48 md:h-64 overflow-hidden">
+            <img
+              src={config.regFormHeroImageUrl}
+              alt="Hero"
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 h-32 sm:h-48 md:h-64" style={{ background: 'linear-gradient(to bottom, transparent 40%, ' + (config.regFormBackground || '#0a0a0f') + ')' }} />
+          </div>
+        )}
+
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-8 sm:pt-10 pb-2 sm:pb-4 text-center" style={config.regFormHeroImageUrl ? { marginTop: '-2rem', position: 'relative', zIndex: 1 } : {}}>
+          {config.regFormPreHeadline && (
+            <p className={`text-sm sm:text-base font-bold tracking-[0.3em] uppercase mb-4 sm:mb-5 ${richTextClassName}`} style={{ color: config.regFormBulletColor || config.regFormButtonColor }} dangerouslySetInnerHTML={{ __html: formatText(config.regFormPreHeadline) }} />
+          )}
+
+          <h1
+            className={`mb-4 sm:mb-5 leading-[1.25] sm:leading-[1.3] ${richTextClassName}`}
+            style={{
+              fontFamily: `'${config.regFormHeadlineFontFamily}', system-ui, sans-serif`,
+              fontWeight: config.regFormHeadlineFontWeight || '700',
+              fontSize: config.regFormHeadlineFontSize || 'clamp(1.5rem, 4vw, 2.5rem)',
+              color: config.regFormHeadlineColor || config.regFormTextColor || '#ffffff',
+            }}
+          >
+            <span dangerouslySetInnerHTML={{ __html: formatText(config.regFormHeadline || 'Register for the Free Training') }} />
+          </h1>
+
+          {config.regFormPostHeadline && (
+            <p className={`text-sm sm:text-base md:text-lg mb-6 sm:mb-8 max-w-2xl mx-auto opacity-70 leading-relaxed ${richTextClassName}`} style={{ color: config.regFormSubheadlineColor || config.regFormTextColor }} dangerouslySetInnerHTML={{ __html: formatText(config.regFormPostHeadline) }} />
+          )}
+
+        </div>
+      </div>
+
+      {/* Two Column: Bullets + Form */}
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 pb-6 sm:pb-12">
+        <div className="grid md:grid-cols-2 gap-6 sm:gap-10 md:gap-14 items-start">
+          {/* Left: Presenters + Bullets */}
+          <div className="space-y-5 sm:space-y-6">
+            {/* Presenters */}
+            {config.regFormPresenters.length > 0 && (
+              <div className="flex gap-6 sm:gap-8 flex-wrap mb-2 sm:mb-4">
+                {config.regFormPresenters.map((p, i) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <div className="w-14 h-14 sm:w-[72px] sm:h-[72px] rounded-full overflow-hidden shrink-0" style={{ border: `3px solid ${config.regFormButtonColor}`, boxShadow: '0 4px 12px rgba(0,0,0,0.25)' }}>
+                      {p.photoUrl ? (
+                        <img src={p.photoUrl} alt={p.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-xl font-black" style={{ background: `linear-gradient(135deg, ${config.regFormButtonColor || '#e53935'}, ${config.regFormButtonColor || '#e53935'}cc)` }}>
+                          {p.name.charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <p className="text-sm sm:text-[15px] font-bold leading-tight">{p.name}</p>
+                      {p.title && <p className="text-xs sm:text-[13px] opacity-50 mt-0.5">{p.title}</p>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Bullets */}
+            {(config.regFormBullets.length > 0 || config.regFormBulletHeadline) && (
+              <div className="space-y-2 sm:space-y-4">
+                {config.regFormBulletHeadline && (
+                  <h2
+                    className={`text-base sm:text-lg md:text-xl mb-1 sm:mb-2 ${richTextClassName}`}
+                    style={{
+                      fontFamily: `'${config.regFormHeadlineFontFamily}', system-ui, sans-serif`,
+                      fontWeight: '800',
+                      letterSpacing: '0.02em',
+                      color: config.regFormHeadlineColor || config.regFormTextColor,
+                    }}
+                  >
+                    <span dangerouslySetInnerHTML={{ __html: formatText(config.regFormBulletHeadline) }} />
+                  </h2>
+                )}
+                <ul className="space-y-3 sm:space-y-4">
+                  {config.regFormBullets.map((bullet, i) => (
+                    <li key={i} className="flex items-start gap-2 sm:gap-3">
+                      <span className="mt-1 shrink-0 w-5 h-5 sm:w-[22px] sm:h-[22px] rounded-full flex items-center justify-center text-white text-[10px] sm:text-xs font-bold" style={{ background: config.regFormBulletColor || '#1e40af' }}>✓</span>
+                      <span className={`text-sm sm:text-[15px] md:text-base leading-relaxed ${richTextClassName}`} style={{ color: config.regFormSubheadlineColor || config.regFormTextColor, opacity: 0.75 }} dangerouslySetInnerHTML={{ __html: formatText(bullet) }} />
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+
+          {/* Right: Form */}
+          <div className="space-y-2 sm:space-y-3">
+            {config.regFormSubheadline && (
+              <p className={`text-center text-base sm:text-lg font-extrabold tracking-tight ${richTextClassName}`} style={{ color: config.regFormSubheadlineColor || config.regFormHeadlineColor || config.regFormTextColor }} dangerouslySetInnerHTML={{ __html: formatText(config.regFormSubheadline) }} />
+            )}
+            {config.regFormShowDatetime && nextSession && !nextSession.isJit && countdown && (
     <div
       className="min-h-screen"
       style={{ background: config.regFormBackground || '#0a0a0f', color: config.regFormTextColor || '#ffffff', fontFamily: `'${config.regFormFontFamily}', system-ui, sans-serif`, fontSize: config.regFormBodyFontSize || '1rem' }}
