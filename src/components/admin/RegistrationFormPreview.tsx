@@ -1,5 +1,6 @@
 import { WebinarConfig, TIMEZONES } from '@/types/webinar';
 import { useMemo } from 'react';
+import { formatText } from '@/lib/formatText';
 
 interface RegistrationFormPreviewProps {
   config: Omit<WebinarConfig, 'id' | 'createdAt' | 'updatedAt'>;
