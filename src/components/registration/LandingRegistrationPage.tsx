@@ -149,7 +149,7 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
 
         <div className="max-w-4xl mx-auto px-6 pt-8 pb-6 text-center" style={config.regFormHeroImageUrl ? { marginTop: '-3rem', position: 'relative', zIndex: 1 } : {}}>
           {config.regFormPreHeadline && (
-            <p className="text-sm md:text-base font-semibold tracking-widest uppercase mb-3" style={{ color: config.regFormButtonColor }}>
+            <p className="text-sm md:text-base font-semibold tracking-widest uppercase mb-3" style={{ color: config.regFormBulletColor || config.regFormButtonColor }}>
               {config.regFormPreHeadline}
             </p>
           )}
@@ -160,18 +160,18 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
               fontFamily: `'${config.regFormHeadlineFontFamily}', system-ui, sans-serif`,
               fontSize: config.regFormHeadlineFontSize || '2.5rem',
               fontWeight: config.regFormHeadlineFontWeight || '700',
-              color: config.regFormHeadlineColor || config.regFormTextColor || '#ffffff',
+              color: config.regFormHeadlineColor || '#000000',
             }}
           >
             {config.regFormHeadline || 'Register for the Free Training'}
           </h1>
 
           {config.regFormPostHeadline && (
-            <p className="text-lg md:text-xl opacity-80 mb-4 max-w-2xl mx-auto">{config.regFormPostHeadline}</p>
+            <p className="text-lg md:text-xl mb-4 max-w-2xl mx-auto" style={{ color: config.regFormSubheadlineColor || config.regFormTextColor }}>{config.regFormPostHeadline}</p>
           )}
 
           {config.regFormSubheadline && (
-            <p className="opacity-70 mb-6">{config.regFormSubheadline}</p>
+            <p style={{ color: config.regFormSubheadlineColor || config.regFormTextColor, opacity: 0.8 }} className="mb-6">{config.regFormSubheadline}</p>
           )}
 
           {config.regFormShowDatetime && nextSession && (
@@ -235,8 +235,8 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
               <ul className="space-y-3">
                 {config.regFormBullets.map((bullet, i) => (
                   <li key={i} className="flex items-start gap-3">
-                    <span className="mt-0.5 shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold" style={{ background: config.regFormButtonColor }}>✓</span>
-                    <span className="text-base md:text-lg opacity-90">{bullet}</span>
+                    <span className="mt-0.5 shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold" style={{ background: config.regFormBulletColor || '#1e40af' }}>✓</span>
+                    <span className="text-base md:text-lg" style={{ color: config.regFormSubheadlineColor || config.regFormTextColor, opacity: 0.9 }}>{bullet}</span>
                   </li>
                 ))}
               </ul>

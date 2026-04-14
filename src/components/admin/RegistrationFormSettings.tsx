@@ -595,7 +595,40 @@ export function RegistrationFormSettings({ config, onChange, webinarId }: Regist
                           />
                         </div>
                       </div>
-                    </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="regFormSubheadlineColor">Subheadline / Body Color</Label>
+                        <div className="flex gap-2">
+                          <input
+                            type="color"
+                            value={config.regFormSubheadlineColor || config.regFormTextColor}
+                            onChange={(e) => updateField('regFormSubheadlineColor', e.target.value)}
+                            className="w-12 h-10 rounded cursor-pointer"
+                          />
+                          <Input
+                            value={config.regFormSubheadlineColor}
+                            onChange={(e) => updateField('regFormSubheadlineColor', e.target.value)}
+                            placeholder="Same as text"
+                            className="input-field flex-1"
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="regFormBulletColor">Bullet Point Color</Label>
+                        <div className="flex gap-2">
+                          <input
+                            type="color"
+                            value={config.regFormBulletColor || '#1e40af'}
+                            onChange={(e) => updateField('regFormBulletColor', e.target.value)}
+                            className="w-12 h-10 rounded cursor-pointer"
+                          />
+                          <Input
+                            value={config.regFormBulletColor}
+                            onChange={(e) => updateField('regFormBulletColor', e.target.value)}
+                            placeholder="#1e40af"
+                            className="input-field flex-1"
+                          />
+                        </div>
+                      </div>
                   </div>
                   
                   <div className="flex items-center justify-between p-3 rounded-lg bg-secondary/50">
