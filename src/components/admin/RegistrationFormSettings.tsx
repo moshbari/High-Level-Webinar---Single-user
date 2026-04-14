@@ -86,27 +86,50 @@ export function RegistrationFormSettings({ config, onChange, webinarId }: Regist
               </div>
               <RadioGroup
                 value={config.regFormLayout}
-                onValueChange={(v) => updateField('regFormLayout', v as 'simple' | 'landing')}
-                className="grid grid-cols-2 gap-3"
+                onValueChange={(v) => updateField('regFormLayout', v as any)}
+                className="grid grid-cols-1 sm:grid-cols-2 gap-3"
               >
-                <label htmlFor="layout-simple" className={`cursor-pointer flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all ${config.regFormLayout === 'simple' ? 'border-primary bg-primary/5' : 'border-border/50 hover:border-border'}`}>
-                  <RadioGroupItem value="simple" id="layout-simple" className="sr-only" />
-                  <FileText className="w-6 h-6" />
-                  <span className="text-sm font-medium">Simple Form</span>
-                  <span className="text-xs text-muted-foreground text-center">Centered form only</span>
-                </label>
-                <label htmlFor="layout-landing" className={`cursor-pointer flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all ${config.regFormLayout === 'landing' ? 'border-primary bg-primary/5' : 'border-border/50 hover:border-border'}`}>
-                  <RadioGroupItem value="landing" id="layout-landing" className="sr-only" />
-                  <Layout className="w-6 h-6" />
-                  <span className="text-sm font-medium">Landing Page</span>
-                  <span className="text-xs text-muted-foreground text-center">Full page with bullets & photos</span>
-                </label>
+                {[
+                  { value: 'simple', label: 'Simple Form', desc: 'Centered form, minimal design', icon: '📝' },
+                  { value: 'landing', label: 'Landing Page', desc: 'Full page with hero, bullets, presenters', icon: '🏠' },
+                  { value: 'curiosity', label: 'Curiosity Machine', desc: 'Brunson "3 Secrets" pattern. Gold/dark. Best for cold traffic.', icon: '🔥' },
+                  { value: 'just-in-time', label: 'Just-In-Time', desc: '"Starting in X min" urgency. Best for evergreen funnels.', icon: '⚡' },
+                  { value: 'proof-stack', label: 'Proof Stack', desc: 'Results grid + qualifiers. Best for warm traffic.', icon: '📈' },
+                  { value: 'challenge', label: 'Challenge Invite', desc: 'Workshop style + bonus stack. Best for live events.', icon: '🎯' },
+                  { value: 'minimalist', label: 'Minimalist Closer', desc: 'Ultra-clean, one headline + form. Best for email list.', icon: '✨' },
+                ].map((t) => (
+                  <label key={t.value} htmlFor={`layout-${t.value}`} className={`cursor-pointer flex items-start gap-3 p-3 rounded-lg border-2 transition-all ${config.regFormLayout === t.value ? 'border-primary bg-primary/5' : 'border-border/50 hover:border-border'}`}>
+                    <RadioGroupItem value={t.value} id={`layout-${t.value}`} className="sr-only" />
+                    <span className="text-xl shrink-0 mt-0.5">{t.icon}</span>
+                    <div>
+                      <span className="text-sm font-medium block">{t.label}</span>
+                      <span className="text-xs text-muted-foreground">{t.desc}</span>
+                    </div>
+                  </label>
+                ))}
               </RadioGroup>
             </div>
 
-            {/* Landing Page specific settings */}
-            {config.regFormLayout === 'landing' && (
+            {/* Landing Page specific settings - show for landing and new templates */}
+            {config.regFormLayout !== 'simple' && (
               <LandingPageSettings config={config} onChange={onChange} />
+            )}
+
+            {/* Template-specific settings */}
+            {config.regFormLayout === 'curiosity' && (
+              <TemplateSpecificSettings config={config} onChange={onChange} type="curiosity" />
+            )}
+            {config.regFormLayout === 'just-in-time' && (
+              <TemplateSpecificSettings config={config} onChange={onChange} type="just-in-time" />
+            )}
+            {config.regFormLayout === 'proof-stack' && (
+              <TemplateSpecificSettings config={config} onChange={onChange} type="proof-stack" />
+            )}
+            {config.regFormLayout === 'challenge' && (
+              <TemplateSpecificSettings config={config} onChange={onChange} type="challenge" />
+            )}
+            {config.regFormLayout === 'minimalist' && (
+              <TemplateSpecificSettings config={config} onChange={onChange} type="minimalist" />
             )}
 
             {/* Form Content */}
