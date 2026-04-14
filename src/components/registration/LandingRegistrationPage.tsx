@@ -123,11 +123,17 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
     color: config.regFormTextColor || '#ffffff',
   };
 
+  const fontImports = [config.regFormFontFamily, config.regFormHeadlineFontFamily]
+    .filter((f, i, a) => a.indexOf(f) === i)
+    .map(f => f.replace(/ /g, '+'))
+    .join('&family=');
+
   return (
     <div
       className="min-h-screen"
-      style={{ background: config.regFormBackground || '#0a0a0f', color: config.regFormTextColor || '#ffffff' }}
+      style={{ background: config.regFormBackground || '#0a0a0f', color: config.regFormTextColor || '#ffffff', fontFamily: `'${config.regFormFontFamily}', system-ui, sans-serif`, fontSize: config.regFormBodyFontSize || '1rem' }}
     >
+      <link href={`https://fonts.googleapis.com/css2?family=${fontImports}:wght@300;400;500;600;700;800&display=swap`} rel="stylesheet" />
       {/* Hero Section */}
       <div className="relative">
         {config.regFormHeroImageUrl && (
@@ -149,8 +155,13 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
           )}
 
           <h1
-            className="text-3xl md:text-5xl font-bold mb-3 leading-tight"
-            style={{ fontFamily: "'Space Grotesk', system-ui, sans-serif" }}
+            className="text-3xl md:text-5xl mb-3 leading-tight"
+            style={{
+              fontFamily: `'${config.regFormHeadlineFontFamily}', system-ui, sans-serif`,
+              fontSize: config.regFormHeadlineFontSize || '2.5rem',
+              fontWeight: config.regFormHeadlineFontWeight || '700',
+              color: config.regFormHeadlineColor || config.regFormTextColor || '#ffffff',
+            }}
           >
             {config.regFormHeadline || 'Register for the Free Training'}
           </h1>
@@ -211,8 +222,12 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
             <div className="space-y-5">
               {config.regFormBulletHeadline && (
                 <h2
-                  className="text-xl md:text-2xl font-bold"
-                  style={{ fontFamily: "'Space Grotesk', system-ui, sans-serif" }}
+                  className="text-xl md:text-2xl"
+                  style={{
+                    fontFamily: `'${config.regFormHeadlineFontFamily}', system-ui, sans-serif`,
+                    fontWeight: config.regFormHeadlineFontWeight || '700',
+                    color: config.regFormHeadlineColor || config.regFormTextColor,
+                  }}
                 >
                   {config.regFormBulletHeadline}
                 </h2>
