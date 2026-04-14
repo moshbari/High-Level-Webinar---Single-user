@@ -205,7 +205,7 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
           </div>
         )}
 
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-5 sm:pt-8 pb-3 sm:pb-6 text-center" style={config.regFormHeroImageUrl ? { marginTop: '-2rem', position: 'relative', zIndex: 1 } : {}}>
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-4 sm:pt-6 pb-2 sm:pb-4 text-center" style={config.regFormHeroImageUrl ? { marginTop: '-2rem', position: 'relative', zIndex: 1 } : {}}>
           {config.regFormPreHeadline && (
             <p className="text-xs sm:text-sm md:text-base font-semibold tracking-widest uppercase mb-2 sm:mb-3" style={{ color: config.regFormBulletColor || config.regFormButtonColor }}>
               {config.regFormPreHeadline}
@@ -231,62 +231,63 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
         </div>
       </div>
 
-      {/* Presenters */}
-      {config.regFormPresenters.length > 0 && (
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 pb-4 sm:pb-8">
-          <div className="flex justify-center gap-4 sm:gap-6 md:gap-10 flex-wrap">
-            {config.regFormPresenters.map((p, i) => (
-              <div key={i} className="flex flex-col items-center gap-1.5 sm:gap-2">
-                <div className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-full overflow-hidden border-2" style={{ borderColor: config.regFormButtonColor }}>
-                  {p.photoUrl ? (
-                    <img src={p.photoUrl} alt={p.name} className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-xl sm:text-2xl font-bold" style={{ background: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }}>
-                      {p.name.charAt(0).toUpperCase()}
-                    </div>
-                  )}
-                </div>
-                <div className="text-center">
-                  <p className="text-xs sm:text-sm font-semibold">{p.name}</p>
-                  {p.title && <p className="text-[10px] sm:text-xs opacity-60">{p.title}</p>}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
       {/* Two Column: Bullets + Form */}
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 pb-8 sm:pb-12">
-        <div className="grid md:grid-cols-2 gap-5 sm:gap-8 md:gap-12 items-start">
-          {/* Left: Bullets */}
-          {(config.regFormBullets.length > 0 || config.regFormBulletHeadline) && (
-            <div className="space-y-3 sm:space-y-5">
-              {config.regFormBulletHeadline && (
-                <h2
-                  className="text-lg sm:text-xl md:text-2xl"
-                  style={{
-                    fontFamily: `'${config.regFormHeadlineFontFamily}', system-ui, sans-serif`,
-                    fontWeight: config.regFormHeadlineFontWeight || '700',
-                    color: config.regFormHeadlineColor || config.regFormTextColor,
-                  }}
-                >
-                  {config.regFormBulletHeadline}
-                </h2>
-              )}
-              <ul className="space-y-2 sm:space-y-3">
-                {config.regFormBullets.map((bullet, i) => (
-                  <li key={i} className="flex items-start gap-2 sm:gap-3">
-                    <span className="mt-0.5 shrink-0 w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-white text-[10px] sm:text-xs font-bold" style={{ background: config.regFormBulletColor || '#1e40af' }}>✓</span>
-                    <span className="text-sm sm:text-base md:text-lg" style={{ color: config.regFormSubheadlineColor || config.regFormTextColor, opacity: 0.9 }}>{bullet}</span>
-                  </li>
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 pb-6 sm:pb-12">
+        <div className="grid md:grid-cols-2 gap-4 sm:gap-8 md:gap-12 items-start">
+          {/* Left: Presenters + Bullets */}
+          <div className="space-y-3 sm:space-y-4">
+            {/* Presenters */}
+            {config.regFormPresenters.length > 0 && (
+              <div className="flex gap-3 sm:gap-5 flex-wrap">
+                {config.regFormPresenters.map((p, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-full overflow-hidden border-2 shrink-0" style={{ borderColor: config.regFormButtonColor }}>
+                      {p.photoUrl ? (
+                        <img src={p.photoUrl} alt={p.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-lg font-bold" style={{ background: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }}>
+                          {p.name.charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <p className="text-xs sm:text-sm font-semibold leading-tight">{p.name}</p>
+                      {p.title && <p className="text-[10px] sm:text-xs opacity-60">{p.title}</p>}
+                    </div>
+                  </div>
                 ))}
-              </ul>
-            </div>
-          )}
+              </div>
+            )}
+
+            {/* Bullets */}
+            {(config.regFormBullets.length > 0 || config.regFormBulletHeadline) && (
+              <div className="space-y-2 sm:space-y-4">
+                {config.regFormBulletHeadline && (
+                  <h2
+                    className="text-lg sm:text-xl md:text-2xl"
+                    style={{
+                      fontFamily: `'${config.regFormHeadlineFontFamily}', system-ui, sans-serif`,
+                      fontWeight: config.regFormHeadlineFontWeight || '700',
+                      color: config.regFormHeadlineColor || config.regFormTextColor,
+                    }}
+                  >
+                    {config.regFormBulletHeadline}
+                  </h2>
+                )}
+                <ul className="space-y-2 sm:space-y-3">
+                  {config.regFormBullets.map((bullet, i) => (
+                    <li key={i} className="flex items-start gap-2 sm:gap-3">
+                      <span className="mt-0.5 shrink-0 w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-white text-[10px] sm:text-xs font-bold" style={{ background: config.regFormBulletColor || '#1e40af' }}>✓</span>
+                      <span className="text-sm sm:text-base md:text-lg" style={{ color: config.regFormSubheadlineColor || config.regFormTextColor, opacity: 0.9 }}>{bullet}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
 
           {/* Right: Form */}
-          <div className="space-y-3 sm:space-y-4">
+          <div className="space-y-2 sm:space-y-3">
             {config.regFormSubheadline && (
               <p className="text-center text-sm sm:text-base" style={{ color: config.regFormSubheadlineColor || config.regFormTextColor, opacity: 0.8 }}>{config.regFormSubheadline}</p>
             )}
@@ -299,10 +300,10 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
             )}
             {config.regFormShowDatetime && nextSession && (
               <div
-                className="py-2 sm:py-3 px-4 sm:px-6 rounded-xl text-center"
+                className="py-2 px-3 sm:px-5 rounded-xl text-center"
                 style={{ background: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }}
               >
-                <span className="text-xs sm:text-sm md:text-base font-semibold">
+                <span className="text-xs sm:text-sm font-semibold">
                   {nextSession.isJit
                     ? `⚡ Starting in just ${nextSession.minutesAway} minutes!`
                     : `📅 Next Session: ${nextSession.date} at ${nextSession.time} (${nextSession.timezone})`}
@@ -310,52 +311,52 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
               </div>
             )}
           <div
-            className="p-4 sm:p-6 md:p-8 shadow-2xl"
+            className="p-3 sm:p-5 md:p-6 shadow-2xl"
             style={{
               background: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)',
               border: `1px solid ${isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}`,
               borderRadius,
             }}
           >
-            <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-2.5 sm:space-y-3">
               <div>
-                <label className="block text-xs sm:text-sm font-medium mb-1 sm:mb-1.5">{config.regFormNameLabel || 'Your Name'}</label>
+                <label className="block text-xs sm:text-sm font-medium mb-1">{config.regFormNameLabel || 'Your Name'}</label>
                 <input
                   type="text"
                   placeholder={config.regFormNamePlaceholder || 'Enter your name'}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full px-3 sm:px-4 py-3 sm:py-3.5 text-sm sm:text-base outline-none transition-all focus:ring-2"
+                  className="w-full px-3 py-2.5 sm:py-3 text-sm outline-none transition-all focus:ring-2"
                   style={inputStyle}
                   disabled={submitting}
                 />
               </div>
               <div>
-                <label className="block text-xs sm:text-sm font-medium mb-1 sm:mb-1.5">{config.regFormEmailLabel || 'Your Email'}</label>
+                <label className="block text-xs sm:text-sm font-medium mb-1">{config.regFormEmailLabel || 'Your Email'}</label>
                 <input
                   type="email"
                   placeholder={config.regFormEmailPlaceholder || 'Enter your email'}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-3 sm:px-4 py-3 sm:py-3.5 text-sm sm:text-base outline-none transition-all focus:ring-2"
+                  className="w-full px-3 py-2.5 sm:py-3 text-sm outline-none transition-all focus:ring-2"
                   style={inputStyle}
                   disabled={submitting}
                 />
               </div>
 
               {formError && (
-                <div className="text-red-400 text-xs sm:text-sm bg-red-500/10 p-2 sm:p-3 rounded-lg">{formError}</div>
+                <div className="text-red-400 text-xs sm:text-sm bg-red-500/10 p-2 rounded-lg">{formError}</div>
               )}
 
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full py-3 sm:py-4 font-semibold text-white text-base sm:text-lg transition-all hover:opacity-90 hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-70 disabled:cursor-not-allowed"
+                className="w-full py-3 sm:py-3.5 font-semibold text-white text-sm sm:text-base transition-all hover:opacity-90 hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-70 disabled:cursor-not-allowed"
                 style={{ background: config.regFormButtonColor || '#e53935', borderRadius }}
               >
                 {submitting ? (
                   <span className="flex items-center justify-center gap-2">
-                    <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
+                    <Loader2 className="w-4 h-4 animate-spin" />
                     Registering...
                   </span>
                 ) : (
