@@ -31,21 +31,15 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
   const getNextSessionInTz = () => {
     const tz = config.timezone || 'UTC';
     const now = new Date();
-    // Build today's date string in the webinar timezone
     const todayInTz = new Intl.DateTimeFormat('en-CA', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit' }).format(now);
-    // Create a date string like "2026-04-14T11:00:00" and interpret it in the target timezone
     const hh = String(config.startHour).padStart(2, '0');
     const mm = String(config.startMinute).padStart(2, '0');
     const candidateStr = `${todayInTz}T${hh}:${mm}:00`;
-    // Use Intl to figure out the UTC offset for this timezone at this moment
     const getUtcMs = (dateStr: string, timeZone: string) => {
-      // Parse the components from the dateStr
       const [datePart, timePart] = dateStr.split('T');
       const [y, mo, d] = datePart.split('-').map(Number);
       const [hr, mi, sc] = timePart.split(':').map(Number);
-      // Create a rough guess in UTC
       const guess = new Date(Date.UTC(y, mo - 1, d, hr, mi, sc));
-      // Find what time it is in the target tz at that UTC moment
       const parts = new Intl.DateTimeFormat('en-US', {
         timeZone, year: 'numeric', month: '2-digit', day: '2-digit',
         hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false,
@@ -57,7 +51,6 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
     };
     let targetMs = getUtcMs(candidateStr, tz);
     if (targetMs <= now.getTime()) {
-      // Move to tomorrow
       const tomorrow = new Date(now);
       tomorrow.setDate(tomorrow.getDate() + 1);
       const tomorrowInTz = new Intl.DateTimeFormat('en-CA', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit' }).format(tomorrow);
@@ -81,7 +74,6 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
     const sessionDate = getNextSessionInTz();
     const tz = config.timezone || 'UTC';
     const tzObj = TIMEZONES.find(t => t.value === tz);
-    // Format the session date in the webinar's timezone
     const dateStr = sessionDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: tz });
     const timeStr = sessionDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: tz });
     const tzLabel = tzObj ? tzObj.label.split(' - ')[1]?.replace(/[()]/g, '').trim() || tzObj.label.split(' ')[0] : 'Local';
@@ -192,6 +184,11 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
       style={{ background: config.regFormBackground || '#0a0a0f', color: config.regFormTextColor || '#ffffff', fontFamily: `'${config.regFormFontFamily}', system-ui, sans-serif`, fontSize: config.regFormBodyFontSize || '1rem' }}
     >
       <link href={`https://fonts.googleapis.com/css2?family=${fontImports}:wght@300;400;500;600;700;800&display=swap`} rel="stylesheet" />
+      {/* Subtle ambient glow */}
+      <div
+        className="absolute top-0 left-0 w-full h-[500px] pointer-events-none"
+        style={{ background: `radial-gradient(ellipse 80% 50% at 50% 0%, ${config.regFormButtonColor || '#e53935'}0A, transparent)` }}
+      />
       {/* Hero Section */}
       <div className="relative">
         {config.regFormHeroImageUrl && (
@@ -205,27 +202,27 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
           </div>
         )}
 
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-4 sm:pt-6 pb-2 sm:pb-4 text-center" style={config.regFormHeroImageUrl ? { marginTop: '-2rem', position: 'relative', zIndex: 1 } : {}}>
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-8 sm:pt-10 pb-2 sm:pb-4 text-center" style={config.regFormHeroImageUrl ? { marginTop: '-2rem', position: 'relative', zIndex: 1 } : {}}>
           {config.regFormPreHeadline && (
-            <p className="text-xs sm:text-sm md:text-base font-semibold tracking-widest uppercase mb-2 sm:mb-3" style={{ color: config.regFormBulletColor || config.regFormButtonColor }}>
+            <p className="text-sm sm:text-base font-bold tracking-[0.3em] uppercase mb-4 sm:mb-5" style={{ color: config.regFormBulletColor || config.regFormButtonColor }}>
               {config.regFormPreHeadline}
             </p>
           )}
 
           <h1
-            className="mb-2 sm:mb-3 leading-tight"
+            className="mb-4 sm:mb-5 leading-[1.25] sm:leading-[1.3]"
             style={{
               fontFamily: `'${config.regFormHeadlineFontFamily}', system-ui, sans-serif`,
               fontWeight: config.regFormHeadlineFontWeight || '700',
-              fontSize: config.regFormHeadlineFontSize || '1.75rem',
-              color: config.regFormHeadlineColor || '#000000',
+              fontSize: config.regFormHeadlineFontSize || 'clamp(1.5rem, 4vw, 2.5rem)',
+              color: config.regFormHeadlineColor || config.regFormTextColor || '#ffffff',
             }}
           >
             {config.regFormHeadline || 'Register for the Free Training'}
           </h1>
 
           {config.regFormPostHeadline && (
-            <p className="text-sm sm:text-lg md:text-xl mb-2 sm:mb-4 max-w-2xl mx-auto" style={{ color: config.regFormSubheadlineColor || config.regFormTextColor }}>{config.regFormPostHeadline}</p>
+            <p className="text-sm sm:text-base md:text-lg mb-6 sm:mb-8 max-w-2xl mx-auto opacity-70 leading-relaxed" style={{ color: config.regFormSubheadlineColor || config.regFormTextColor }}>{config.regFormPostHeadline}</p>
           )}
 
         </div>
@@ -233,26 +230,26 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
 
       {/* Two Column: Bullets + Form */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 pb-6 sm:pb-12">
-        <div className="grid md:grid-cols-2 gap-4 sm:gap-8 md:gap-12 items-start">
+        <div className="grid md:grid-cols-2 gap-6 sm:gap-10 md:gap-14 items-start">
           {/* Left: Presenters + Bullets */}
           <div className="space-y-5 sm:space-y-6">
             {/* Presenters */}
             {config.regFormPresenters.length > 0 && (
-              <div className="flex gap-3 sm:gap-5 flex-wrap">
+              <div className="flex gap-6 sm:gap-8 flex-wrap mb-2 sm:mb-4">
                 {config.regFormPresenters.map((p, i) => (
-                  <div key={i} className="flex items-center gap-2">
-                    <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-full overflow-hidden border-2 shrink-0" style={{ borderColor: config.regFormButtonColor }}>
+                  <div key={i} className="flex items-center gap-3">
+                    <div className="w-14 h-14 sm:w-[72px] sm:h-[72px] rounded-full overflow-hidden shrink-0" style={{ border: `3px solid ${config.regFormButtonColor}`, boxShadow: '0 4px 12px rgba(0,0,0,0.25)' }}>
                       {p.photoUrl ? (
                         <img src={p.photoUrl} alt={p.name} className="w-full h-full object-cover" />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center text-lg font-bold" style={{ background: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }}>
+                        <div className="w-full h-full flex items-center justify-center text-xl font-black" style={{ background: `linear-gradient(135deg, ${config.regFormButtonColor || '#e53935'}, ${config.regFormButtonColor || '#e53935'}cc)` }}>
                           {p.name.charAt(0).toUpperCase()}
                         </div>
                       )}
                     </div>
                     <div>
-                      <p className="text-xs sm:text-sm font-semibold leading-tight">{p.name}</p>
-                      {p.title && <p className="text-[10px] sm:text-xs opacity-60">{p.title}</p>}
+                      <p className="text-sm sm:text-[15px] font-bold leading-tight">{p.name}</p>
+                      {p.title && <p className="text-xs sm:text-[13px] opacity-50 mt-0.5">{p.title}</p>}
                     </div>
                   </div>
                 ))}
@@ -264,21 +261,22 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
               <div className="space-y-2 sm:space-y-4">
                 {config.regFormBulletHeadline && (
                   <h2
-                    className="text-lg sm:text-xl md:text-2xl"
+                    className="text-base sm:text-lg md:text-xl mb-1 sm:mb-2"
                     style={{
                       fontFamily: `'${config.regFormHeadlineFontFamily}', system-ui, sans-serif`,
-                      fontWeight: config.regFormHeadlineFontWeight || '700',
+                      fontWeight: '800',
+                      letterSpacing: '0.02em',
                       color: config.regFormHeadlineColor || config.regFormTextColor,
                     }}
                   >
                     {config.regFormBulletHeadline}
                   </h2>
                 )}
-                <ul className="space-y-2 sm:space-y-3">
+                <ul className="space-y-3 sm:space-y-4">
                   {config.regFormBullets.map((bullet, i) => (
                     <li key={i} className="flex items-start gap-2 sm:gap-3">
-                      <span className="mt-0.5 shrink-0 w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-white text-[10px] sm:text-xs font-bold" style={{ background: config.regFormBulletColor || '#1e40af' }}>✓</span>
-                      <span className="text-sm sm:text-base md:text-lg" style={{ color: config.regFormSubheadlineColor || config.regFormTextColor, opacity: 0.9 }}>{bullet}</span>
+                      <span className="mt-1 shrink-0 w-5 h-5 sm:w-[22px] sm:h-[22px] rounded-full flex items-center justify-center text-white text-[10px] sm:text-xs font-bold" style={{ background: config.regFormBulletColor || '#1e40af' }}>✓</span>
+                      <span className="text-sm sm:text-[15px] md:text-base leading-relaxed" style={{ color: config.regFormSubheadlineColor || config.regFormTextColor, opacity: 0.75 }}>{bullet}</span>
                     </li>
                   ))}
                 </ul>
@@ -289,21 +287,21 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
           {/* Right: Form */}
           <div className="space-y-2 sm:space-y-3">
             {config.regFormSubheadline && (
-              <p className="text-center text-lg sm:text-xl md:text-2xl font-bold" style={{ color: config.regFormSubheadlineColor || config.regFormHeadlineColor || config.regFormTextColor }}>{config.regFormSubheadline}</p>
+              <p className="text-center text-base sm:text-lg font-extrabold tracking-tight" style={{ color: config.regFormSubheadlineColor || config.regFormHeadlineColor || config.regFormTextColor }}>{config.regFormSubheadline}</p>
             )}
             {config.regFormShowDatetime && nextSession && !nextSession.isJit && countdown && (
-              <div className="text-center">
-                <p className="text-xl sm:text-2xl md:text-3xl font-bold tracking-wider" style={{ color: config.regFormTimerColor || config.regFormHeadlineColor || config.regFormTextColor, fontFamily: 'monospace' }}>
+              <div className="text-center py-1 sm:py-2">
+                <p className="text-2xl sm:text-3xl md:text-4xl font-black tracking-wider" style={{ color: config.regFormTimerColor || config.regFormButtonColor || config.regFormHeadlineColor || config.regFormTextColor, fontFamily: "'Courier New', 'Lucida Console', monospace", fontVariantNumeric: 'tabular-nums' }}>
                   {countdown}
                 </p>
               </div>
             )}
             {config.regFormShowDatetime && nextSession && (
               <div
-                className="py-2 px-3 sm:px-5 rounded-xl text-center"
-                style={{ background: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }}
+                className="py-2.5 sm:py-3 px-4 sm:px-6 rounded-xl text-center"
+                style={{ background: isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.05)', border: isDark ? '1px solid rgba(255,255,255,0.1)' : 'none' }}
               >
-                <span className="text-xs sm:text-sm font-semibold">
+                <span className="text-xs sm:text-sm font-bold">
                   {nextSession.isJit
                     ? `⚡ Starting in just ${nextSession.minutesAway} minutes!`
                     : `📅 Next Session: ${nextSession.date} at ${nextSession.time} (${nextSession.timezone})`}
@@ -311,14 +309,14 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
               </div>
             )}
           <div
-            className="p-3 sm:p-5 md:p-6 shadow-2xl"
+            className="p-4 sm:p-6 md:p-8 mt-3 sm:mt-4 shadow-2xl"
             style={{
-              background: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)',
-              border: `1px solid ${isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}`,
+              background: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.02)',
+              border: `1px solid ${isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.1)'}`,
               borderRadius,
             }}
           >
-            <form onSubmit={handleSubmit} className="space-y-2.5 sm:space-y-3">
+            <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
               <div>
                 <label className="block text-xs sm:text-sm font-medium mb-1">{config.regFormNameLabel || 'Your Name'}</label>
                 <input
@@ -326,7 +324,7 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
                   placeholder={config.regFormNamePlaceholder || 'Enter your name'}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full px-3 py-2.5 sm:py-3 text-sm outline-none transition-all focus:ring-2"
+                  className="w-full px-4 py-3 sm:py-3.5 text-sm sm:text-base outline-none transition-all focus:ring-2"
                   style={inputStyle}
                   disabled={submitting}
                 />
@@ -338,7 +336,7 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
                   placeholder={config.regFormEmailPlaceholder || 'Enter your email'}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-3 py-2.5 sm:py-3 text-sm outline-none transition-all focus:ring-2"
+                  className="w-full px-4 py-3 sm:py-3.5 text-sm sm:text-base outline-none transition-all focus:ring-2"
                   style={inputStyle}
                   disabled={submitting}
                 />
@@ -351,8 +349,8 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full py-3 sm:py-3.5 font-semibold text-white text-sm sm:text-base transition-all hover:opacity-90 hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-70 disabled:cursor-not-allowed"
-                style={{ background: config.regFormButtonColor || '#e53935', borderRadius }}
+                className="w-full py-3.5 sm:py-4 font-extrabold text-white text-base sm:text-lg transition-all hover:opacity-90 hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed"
+                style={{ background: config.regFormButtonColor || '#e53935', borderRadius, boxShadow: `0 8px 24px ${config.regFormButtonColor || '#e53935'}45` }}
               >
                 {submitting ? (
                   <span className="flex items-center justify-center gap-2">
@@ -365,7 +363,7 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
               </button>
 
               {config.regFormShowPrivacy && (
-                <p className="text-[10px] sm:text-xs opacity-60 text-center">
+                <p className="text-[10px] sm:text-xs opacity-50 text-center mt-1 sm:mt-2">
                   🔒 {config.regFormPrivacyText || 'We respect your privacy.'}
                 </p>
               )}
@@ -378,19 +376,19 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
       {/* Disclaimer & Legal */}
       {(config.regFormDisclaimerText || config.regFormLegalLinks.length > 0) && (
         <div className="border-t" style={{ borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }}>
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8 text-center space-y-3 sm:space-y-4">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-10 text-center space-y-3 sm:space-y-4">
             {config.regFormDisclaimerText && (
-              <p className="text-[10px] sm:text-xs opacity-50 max-w-2xl mx-auto leading-relaxed">{config.regFormDisclaimerText}</p>
+              <p className="text-[10px] sm:text-[11px] opacity-35 max-w-2xl mx-auto leading-[1.7]">{config.regFormDisclaimerText}</p>
             )}
             {config.regFormLegalLinks.length > 0 && (
-              <div className="flex justify-center gap-3 sm:gap-4 flex-wrap">
+              <div className="flex justify-center gap-4 sm:gap-6 flex-wrap">
                 {config.regFormLegalLinks.map((link, i) => (
                   <a
                     key={i}
                     href={link.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-[10px] sm:text-xs underline opacity-50 hover:opacity-80 transition-opacity"
+                    className="text-[11px] sm:text-xs underline opacity-40 hover:opacity-80 transition-opacity"
                   >
                     {link.label}
                   </a>
