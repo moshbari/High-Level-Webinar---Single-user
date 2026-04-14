@@ -352,6 +352,7 @@ export const updateWebinar = async (id: string, config: Partial<WebinarConfig>):
   if (rest.regFormHeadlineFontWeight !== undefined) updateData.reg_form_headline_font_weight = rest.regFormHeadlineFontWeight;
   if (rest.regFormBulletColor !== undefined) updateData.reg_form_bullet_color = rest.regFormBulletColor || null;
   if (rest.regFormSubheadlineColor !== undefined) updateData.reg_form_subheadline_color = rest.regFormSubheadlineColor || null;
+  if (rest.regFormTimerColor !== undefined) (updateData as any).reg_form_timer_color = rest.regFormTimerColor || null;
   // Landing Page Template
   if (rest.regFormLayout !== undefined) updateData.reg_form_layout = rest.regFormLayout;
   if (rest.regFormPreHeadline !== undefined) updateData.reg_form_pre_headline = rest.regFormPreHeadline;
