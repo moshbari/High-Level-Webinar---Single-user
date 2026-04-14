@@ -249,6 +249,7 @@ export const DEFAULT_WEBINAR_CONFIG: Omit<WebinarConfig, 'id' | 'createdAt' | 'u
   regFormHeadlineFontWeight: '700',
   regFormBulletColor: '#1e40af',
   regFormSubheadlineColor: '',
+  regFormTimerColor: '#e53935',
   // Landing Page Template
   regFormLayout: 'simple',
   regFormPreHeadline: '',

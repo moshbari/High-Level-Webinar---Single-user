@@ -79,6 +79,7 @@ export const rowToConfig = (row: any): WebinarConfig => ({
   regFormHeadlineFontWeight: row.reg_form_headline_font_weight ?? '700',
   regFormBulletColor: row.reg_form_bullet_color ?? '#1e40af',
   regFormSubheadlineColor: row.reg_form_subheadline_color ?? '',
+  regFormTimerColor: (row as any).reg_form_timer_color ?? '#e53935',
   // Landing Page Template
   regFormLayout: row.reg_form_layout ?? 'simple',
   regFormPreHeadline: row.reg_form_pre_headline ?? '',
