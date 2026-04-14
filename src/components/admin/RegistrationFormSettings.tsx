@@ -120,6 +120,7 @@ export function RegistrationFormSettings({ config, onChange, webinarId }: Regist
                   placeholder="Register for the Free Training"
                   className="input-field"
                 />
+                <p className="text-[10px] text-muted-foreground/60">Format: **bold** · *italic* · __underline__</p>
               </div>
               
               <div className="space-y-2">
@@ -131,6 +132,7 @@ export function RegistrationFormSettings({ config, onChange, webinarId }: Regist
                   placeholder="Save your spot now!"
                   className="input-field"
                 />
+                <p className="text-[10px] text-muted-foreground/60">Format: **bold** · *italic* · __underline__</p>
               </div>
               
               <div className="grid gap-4 md:grid-cols-2">
