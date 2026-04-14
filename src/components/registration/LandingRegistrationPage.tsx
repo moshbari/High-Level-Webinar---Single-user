@@ -306,6 +306,7 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
               )}
             </form>
           </div>
+          </div>
         </div>
       </div>
 
