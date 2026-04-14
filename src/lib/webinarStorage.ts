@@ -75,8 +75,10 @@ export const rowToConfig = (row: any): WebinarConfig => ({
   regFormHeadlineFontFamily: row.reg_form_headline_font_family ?? 'Space Grotesk',
   regFormHeadlineFontSize: row.reg_form_headline_font_size ?? '2.5rem',
   regFormBodyFontSize: row.reg_form_body_font_size ?? '1rem',
-  regFormHeadlineColor: row.reg_form_headline_color ?? '',
+  regFormHeadlineColor: row.reg_form_headline_color ?? '#000000',
   regFormHeadlineFontWeight: row.reg_form_headline_font_weight ?? '700',
+  regFormBulletColor: row.reg_form_bullet_color ?? '#1e40af',
+  regFormSubheadlineColor: row.reg_form_subheadline_color ?? '',
   // Landing Page Template
   regFormLayout: row.reg_form_layout ?? 'simple',
   regFormPreHeadline: row.reg_form_pre_headline ?? '',
@@ -171,6 +173,8 @@ const configToRow = (config: Omit<WebinarConfig, 'id' | 'createdAt' | 'updatedAt
   reg_form_body_font_size: config.regFormBodyFontSize,
   reg_form_headline_color: config.regFormHeadlineColor || null,
   reg_form_headline_font_weight: config.regFormHeadlineFontWeight,
+  reg_form_bullet_color: config.regFormBulletColor || null,
+  reg_form_subheadline_color: config.regFormSubheadlineColor || null,
   // Landing Page Template
   reg_form_layout: config.regFormLayout,
   reg_form_pre_headline: config.regFormPreHeadline,

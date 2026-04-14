@@ -578,6 +578,7 @@ export type Database = {
           reg_form_background: string | null
           reg_form_body_font_size: string | null
           reg_form_border_radius: string | null
+          reg_form_bullet_color: string | null
           reg_form_bullet_headline: string | null
           reg_form_bullets: Json | null
           reg_form_button_color: string | null
@@ -605,6 +606,7 @@ export type Database = {
           reg_form_show_datetime: boolean | null
           reg_form_show_privacy: boolean | null
           reg_form_subheadline: string | null
+          reg_form_subheadline_color: string | null
           reg_form_systeme_webhook_url: string | null
           reg_form_text_color: string | null
           reg_form_thank_you_url: string | null
@@ -667,6 +669,7 @@ export type Database = {
           reg_form_background?: string | null
           reg_form_body_font_size?: string | null
           reg_form_border_radius?: string | null
+          reg_form_bullet_color?: string | null
           reg_form_bullet_headline?: string | null
           reg_form_bullets?: Json | null
           reg_form_button_color?: string | null
@@ -694,6 +697,7 @@ export type Database = {
           reg_form_show_datetime?: boolean | null
           reg_form_show_privacy?: boolean | null
           reg_form_subheadline?: string | null
+          reg_form_subheadline_color?: string | null
           reg_form_systeme_webhook_url?: string | null
           reg_form_text_color?: string | null
           reg_form_thank_you_url?: string | null
@@ -756,6 +760,7 @@ export type Database = {
           reg_form_background?: string | null
           reg_form_body_font_size?: string | null
           reg_form_border_radius?: string | null
+          reg_form_bullet_color?: string | null
           reg_form_bullet_headline?: string | null
           reg_form_bullets?: Json | null
           reg_form_button_color?: string | null
@@ -783,6 +788,7 @@ export type Database = {
           reg_form_show_datetime?: boolean | null
           reg_form_show_privacy?: boolean | null
           reg_form_subheadline?: string | null
+          reg_form_subheadline_color?: string | null
           reg_form_systeme_webhook_url?: string | null
           reg_form_text_color?: string | null
           reg_form_thank_you_url?: string | null
