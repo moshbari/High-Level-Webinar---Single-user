@@ -629,6 +629,7 @@ export function RegistrationFormSettings({ config, onChange, webinarId }: Regist
                           />
                         </div>
                       </div>
+                    </div>
                   </div>
                   
                   <div className="flex items-center justify-between p-3 rounded-lg bg-secondary/50">
