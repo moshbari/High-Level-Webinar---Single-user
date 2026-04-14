@@ -235,7 +235,7 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
       <div className="max-w-5xl mx-auto px-4 sm:px-6 pb-6 sm:pb-12">
         <div className="grid md:grid-cols-2 gap-4 sm:gap-8 md:gap-12 items-start">
           {/* Left: Presenters + Bullets */}
-          <div className="space-y-3 sm:space-y-4">
+          <div className="space-y-5 sm:space-y-6">
             {/* Presenters */}
             {config.regFormPresenters.length > 0 && (
               <div className="flex gap-3 sm:gap-5 flex-wrap">
