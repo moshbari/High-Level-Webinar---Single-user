@@ -611,6 +611,7 @@ export type Database = {
           reg_form_text_color: string | null
           reg_form_thank_you_url: string | null
           reg_form_theme: string | null
+          reg_form_timer_color: string | null
           require_email: boolean
           require_name: boolean
           slug: string | null
@@ -702,6 +703,7 @@ export type Database = {
           reg_form_text_color?: string | null
           reg_form_thank_you_url?: string | null
           reg_form_theme?: string | null
+          reg_form_timer_color?: string | null
           require_email?: boolean
           require_name?: boolean
           slug?: string | null
@@ -793,6 +795,7 @@ export type Database = {
           reg_form_text_color?: string | null
           reg_form_thank_you_url?: string | null
           reg_form_theme?: string | null
+          reg_form_timer_color?: string | null
           require_email?: boolean
           require_name?: boolean
           slug?: string | null

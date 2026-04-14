@@ -79,6 +79,7 @@ export const rowToConfig = (row: any): WebinarConfig => ({
   regFormHeadlineFontWeight: row.reg_form_headline_font_weight ?? '700',
   regFormBulletColor: row.reg_form_bullet_color ?? '#1e40af',
   regFormSubheadlineColor: row.reg_form_subheadline_color ?? '',
+  regFormTimerColor: (row as any).reg_form_timer_color ?? '#e53935',
   // Landing Page Template
   regFormLayout: row.reg_form_layout ?? 'simple',
   regFormPreHeadline: row.reg_form_pre_headline ?? '',
@@ -177,6 +178,7 @@ const configToRow = (config: Omit<WebinarConfig, 'id' | 'createdAt' | 'updatedAt
   reg_form_headline_font_weight: config.regFormHeadlineFontWeight,
   reg_form_bullet_color: config.regFormBulletColor || null,
   reg_form_subheadline_color: config.regFormSubheadlineColor || null,
+  reg_form_timer_color: config.regFormTimerColor || null,
   // Landing Page Template
   reg_form_layout: config.regFormLayout,
   reg_form_pre_headline: config.regFormPreHeadline,
@@ -350,6 +352,7 @@ export const updateWebinar = async (id: string, config: Partial<WebinarConfig>):
   if (rest.regFormHeadlineFontWeight !== undefined) updateData.reg_form_headline_font_weight = rest.regFormHeadlineFontWeight;
   if (rest.regFormBulletColor !== undefined) updateData.reg_form_bullet_color = rest.regFormBulletColor || null;
   if (rest.regFormSubheadlineColor !== undefined) updateData.reg_form_subheadline_color = rest.regFormSubheadlineColor || null;
+  if (rest.regFormTimerColor !== undefined) (updateData as any).reg_form_timer_color = rest.regFormTimerColor || null;
   // Landing Page Template
   if (rest.regFormLayout !== undefined) updateData.reg_form_layout = rest.regFormLayout;
   if (rest.regFormPreHeadline !== undefined) updateData.reg_form_pre_headline = rest.regFormPreHeadline;
