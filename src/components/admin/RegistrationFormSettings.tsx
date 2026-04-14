@@ -6,11 +6,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { ClipboardList, ChevronDown, Settings2, Link, Copy, Check, Send, Loader2 } from 'lucide-react';
+import { ClipboardList, ChevronDown, Settings2, Link, Copy, Check, Send, Loader2, Layout, FileText } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { sendSampleWebhookData } from '@/pages/WebinarEditor';
+import { LandingPageSettings } from './LandingPageSettings';
 
 interface RegistrationFormSettingsProps {
   config: Omit<WebinarConfig, 'id' | 'createdAt' | 'updatedAt'>;
