@@ -87,8 +87,10 @@ export const rowToConfig = (row: any): WebinarConfig => ({
   regFormBullets: (row.reg_form_bullets as string[]) ?? [],
   regFormPresenters: (row.reg_form_presenters as Array<{ name: string; title: string; photoUrl: string }>) ?? [],
   regFormHeroImageUrl: row.reg_form_hero_image_url ?? '',
-  regFormDisclaimerText: row.reg_form_disclaimer_text ?? '',
-  regFormLegalLinks: (row.reg_form_legal_links as Array<{ label: string; url: string }>) ?? [],
+  regFormDisclaimerText: row.reg_form_disclaimer_text || DEFAULT_WEBINAR_CONFIG.regFormDisclaimerText,
+  regFormLegalLinks: (row.reg_form_legal_links && (row.reg_form_legal_links as any[]).length > 0)
+    ? (row.reg_form_legal_links as Array<{ label: string; url: string }>)
+    : DEFAULT_WEBINAR_CONFIG.regFormLegalLinks,
   // Just-in-Time Sessions
   justInTimeEnabled: row.just_in_time_enabled ?? false,
   justInTimeMinutes: row.just_in_time_minutes ?? 15,
