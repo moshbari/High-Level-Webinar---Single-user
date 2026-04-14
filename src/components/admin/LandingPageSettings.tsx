@@ -144,7 +144,7 @@ export function LandingPageSettings({ config, onChange }: LandingPageSettingsPro
             placeholder="FREE LIVE TRAINING"
             className="input-field"
           />
-          <p className="text-[10px] text-muted-foreground/60">Format: **bold** · *italic* · __underline__</p>
+          <p className="text-[10px] text-muted-foreground/60">Format: **bold** · *italic* or _italic_ · __underline__</p>
         </div>
         <div className="space-y-2">
           <Label htmlFor="regFormPostHeadline">Post-Headline <span className="text-muted-foreground text-xs">(text below headline)</span></Label>
@@ -155,7 +155,7 @@ export function LandingPageSettings({ config, onChange }: LandingPageSettingsPro
             placeholder="Join thousands who have already transformed their business..."
             className="input-field"
           />
-          <p className="text-[10px] text-muted-foreground/60">Format: **bold** · *italic* · __underline__</p>
+          <p className="text-[10px] text-muted-foreground/60">Format: **bold** · *italic* or _italic_ · __underline__</p>
         </div>
       </div>
 
@@ -245,7 +245,7 @@ export function LandingPageSettings({ config, onChange }: LandingPageSettingsPro
             className="input-field"
           />
         </div>
-        <p className="text-[10px] text-muted-foreground/60 -mt-1">Format: **bold** · *italic* · __underline__</p>
+        <p className="text-[10px] text-muted-foreground/60 -mt-1">Format: **bold** · *italic* or _italic_ · __underline__</p>
         {config.regFormBullets.map((bullet, i) => (
           <div key={i} className="flex gap-2 items-center">
             <span className="text-primary text-sm font-bold shrink-0">✓</span>
