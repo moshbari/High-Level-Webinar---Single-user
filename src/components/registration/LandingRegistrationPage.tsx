@@ -27,6 +27,45 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
   const isDark = config.regFormTheme === 'dark';
   const borderRadius = getBorderRadius(config.regFormBorderRadius);
 
+  // Build next session date in the configured timezone
+  const getNextSessionInTz = () => {
+    const tz = config.timezone || 'UTC';
+    const now = new Date();
+    // Build today's date string in the webinar timezone
+    const todayInTz = new Intl.DateTimeFormat('en-CA', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit' }).format(now);
+    // Create a date string like "2026-04-14T11:00:00" and interpret it in the target timezone
+    const hh = String(config.startHour).padStart(2, '0');
+    const mm = String(config.startMinute).padStart(2, '0');
+    const candidateStr = `${todayInTz}T${hh}:${mm}:00`;
+    // Use Intl to figure out the UTC offset for this timezone at this moment
+    const getUtcMs = (dateStr: string, timeZone: string) => {
+      // Parse the components from the dateStr
+      const [datePart, timePart] = dateStr.split('T');
+      const [y, mo, d] = datePart.split('-').map(Number);
+      const [hr, mi, sc] = timePart.split(':').map(Number);
+      // Create a rough guess in UTC
+      const guess = new Date(Date.UTC(y, mo - 1, d, hr, mi, sc));
+      // Find what time it is in the target tz at that UTC moment
+      const parts = new Intl.DateTimeFormat('en-US', {
+        timeZone, year: 'numeric', month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false,
+      }).formatToParts(guess);
+      const get = (type: string) => parseInt(parts.find(p => p.type === type)?.value || '0');
+      const tzAtGuess = new Date(Date.UTC(get('year'), get('month') - 1, get('day'), get('hour') === 24 ? 0 : get('hour'), get('minute'), get('second')));
+      const offsetMs = tzAtGuess.getTime() - guess.getTime();
+      return guess.getTime() - offsetMs;
+    };
+    let targetMs = getUtcMs(candidateStr, tz);
+    if (targetMs <= now.getTime()) {
+      // Move to tomorrow
+      const tomorrow = new Date(now);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const tomorrowInTz = new Intl.DateTimeFormat('en-CA', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit' }).format(tomorrow);
+      targetMs = getUtcMs(`${tomorrowInTz}T${hh}:${mm}:00`, tz);
+    }
+    return new Date(targetMs);
+  };
+
   const nextSession = useMemo(() => {
     if (config.justInTimeEnabled) {
       const now = new Date();
@@ -39,15 +78,16 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
         minutesAway: config.justInTimeMinutes,
       };
     }
-    const now = new Date();
-    const sessionDate = new Date(now);
-    sessionDate.setHours(config.startHour, config.startMinute, 0, 0);
-    if (sessionDate <= now) sessionDate.setDate(sessionDate.getDate() + 1);
-    const tz = TIMEZONES.find(t => t.value === config.timezone);
-    const tzLabel = tz ? tz.label.split(' ')[0] : 'Local';
+    const sessionDate = getNextSessionInTz();
+    const tz = config.timezone || 'UTC';
+    const tzObj = TIMEZONES.find(t => t.value === tz);
+    // Format the session date in the webinar's timezone
+    const dateStr = sessionDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: tz });
+    const timeStr = sessionDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: tz });
+    const tzLabel = tzObj ? tzObj.label.split(' - ')[1]?.replace(/[()]/g, '').trim() || tzObj.label.split(' ')[0] : 'Local';
     return {
-      date: sessionDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
-      time: sessionDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }),
+      date: dateStr,
+      time: timeStr,
       timezone: tzLabel,
       isJit: false,
       minutesAway: 0,
@@ -58,14 +98,9 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
   const [countdown, setCountdown] = useState('');
   useEffect(() => {
     if (!nextSession || nextSession.isJit) return;
-    const getTargetDate = () => {
-      const d = new Date();
-      d.setHours(config.startHour, config.startMinute, 0, 0);
-      if (d <= new Date()) d.setDate(d.getDate() + 1);
-      return d;
-    };
     const update = () => {
-      const diff = getTargetDate().getTime() - Date.now();
+      const target = getNextSessionInTz();
+      const diff = target.getTime() - Date.now();
       if (diff <= 0) { setCountdown('Starting now!'); return; }
       const h = Math.floor(diff / 3600000);
       const m = Math.floor((diff % 3600000) / 60000);
@@ -75,7 +110,7 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
     update();
     const id = setInterval(update, 1000);
     return () => clearInterval(id);
-  }, [config.startHour, config.startMinute, nextSession]);
+  }, [config.startHour, config.startMinute, config.timezone, nextSession]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
