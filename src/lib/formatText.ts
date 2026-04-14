@@ -14,5 +14,5 @@ export function formatText(text: string): string {
     // Italic: *text*
     .replace(/\*(.+?)\*/g, '<em>$1</em>')
     // Italic: _text_ (single underscore)
-    .replace(/\b_(.+?)_\b/g, '<em>$1</em>');
+    .replace(/(?<!\w)_(.+?)_(?!\w)/g, '<em>$1</em>');
 }
