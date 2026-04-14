@@ -213,10 +213,11 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
           )}
 
           <h1
-            className="text-2xl sm:text-3xl md:text-5xl mb-2 sm:mb-3 leading-tight"
+            className="mb-2 sm:mb-3 leading-tight"
             style={{
               fontFamily: `'${config.regFormHeadlineFontFamily}', system-ui, sans-serif`,
               fontWeight: config.regFormHeadlineFontWeight || '700',
+              fontSize: config.regFormHeadlineFontSize || '1.75rem',
               color: config.regFormHeadlineColor || '#000000',
             }}
           >
