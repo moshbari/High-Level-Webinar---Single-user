@@ -237,8 +237,12 @@ export const DEFAULT_WEBINAR_CONFIG: Omit<WebinarConfig, 'id' | 'createdAt' | 'u
   regFormBullets: [],
   regFormPresenters: [],
   regFormHeroImageUrl: '',
-  regFormDisclaimerText: '',
-  regFormLegalLinks: [],
+  regFormDisclaimerText: 'This site is not a part of the Facebook website or Facebook Inc. Additionally, This site is NOT endorsed by Facebook in any way. FACEBOOK is a trademark of FACEBOOK, Inc.\n\n*Earnings and income representations made by Mosh Bari, Mosh Bari\'s agency, and Mosh Bari\'s agency and their advertisers/sponsors (collectively, "Mosh Bari\'s agency") are aspirational statements only of your earnings potential. These results are not typical and results will vary. The results on this page are OUR results and from years of testing. We can in NO way guarantee you will get similar results.',
+  regFormLegalLinks: [
+    { label: 'Privacy Policy', url: 'https://winarzapps.com/privacy-policy/' },
+    { label: 'Terms of Service', url: 'https://winarzapps.com/terms-of-service/' },
+    { label: 'Disclaimer', url: 'https://winarzapps.com/earning-disclaimer' },
+  ],
   // Just-in-Time Sessions
   justInTimeEnabled: false,
   justInTimeMinutes: 15,
