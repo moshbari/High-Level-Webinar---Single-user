@@ -142,7 +142,6 @@ export function RegistrationFormPreview({ config }: RegistrationFormPreviewProps
           className="max-w-md mx-auto p-8 text-center"
           style={{ ...containerStyle, fontFamily: `'${config.regFormFontFamily}', system-ui, sans-serif`, fontSize: config.regFormBodyFontSize }}
         >
-        >
           <h2 
             className="text-2xl mb-2"
             style={{ fontFamily: `'${config.regFormHeadlineFontFamily}', system-ui, sans-serif`, color: config.regFormHeadlineColor || config.regFormTextColor, fontWeight: config.regFormHeadlineFontWeight || '700' }}
