@@ -1,4 +1,4 @@
-import { WebinarConfig, TIMEZONES } from '@/types/webinar';
+import { WebinarConfig } from '@/types/webinar';
 import { formatText } from './formatText';
 
 const getBorderRadius = (radius: string) => {
@@ -14,10 +14,10 @@ const getBorderRadius = (radius: string) => {
 export const generateRegistrationFormCode = (config: WebinarConfig): string => {
   const isDark = config.regFormTheme === 'dark';
   const borderRadius = getBorderRadius(config.regFormBorderRadius);
-  
+
   const inputBg = isDark ? 'rgba(255,255,255,0.05)' : '#f3f4f6';
   const inputBorder = isDark ? 'rgba(255,255,255,0.1)' : '#d1d5db';
-  
+
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -26,9 +26,9 @@ export const generateRegistrationFormCode = (config: WebinarConfig): string => {
   <title>Register - ${config.webinarName}</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
-    
+
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700;800;900&display=swap');
+
     body {
       font-family: 'Inter', system-ui, sans-serif;
       background: ${config.regFormBackground};
@@ -39,9 +39,23 @@ export const generateRegistrationFormCode = (config: WebinarConfig): string => {
       justify-content: center;
       padding: 1rem;
     }
-    
+
     h1, h2 { font-family: 'Space Grotesk', system-ui, sans-serif; }
-    
+
+    .formatted-text strong {
+      font-weight: 900;
+    }
+
+    .formatted-text em {
+      font-style: italic;
+    }
+
+    .formatted-text u {
+      text-decoration: underline;
+      text-decoration-thickness: 2px;
+      text-underline-offset: 0.18em;
+    }
+
     .reg-container {
       width: 100%;
       max-width: 420px;
@@ -50,19 +64,19 @@ export const generateRegistrationFormCode = (config: WebinarConfig): string => {
       background: ${config.regFormBackground};
       text-align: center;
     }
-    
+
     .reg-headline {
       font-size: 1.75rem;
       font-weight: 700;
       margin-bottom: 0.5rem;
       line-height: 1.2;
     }
-    
+
     .reg-subheadline {
       opacity: 0.8;
       margin-bottom: 1rem;
     }
-    
+
     .reg-datetime {
       display: inline-block;
       background: ${isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)'};
@@ -71,24 +85,24 @@ export const generateRegistrationFormCode = (config: WebinarConfig): string => {
       font-size: 0.9rem;
       margin-bottom: 1.5rem;
     }
-    
+
     .reg-form {
       display: flex;
       flex-direction: column;
       gap: 1rem;
     }
-    
+
     .form-group {
       text-align: left;
     }
-    
+
     .form-label {
       display: block;
       font-size: 0.875rem;
       font-weight: 500;
       margin-bottom: 0.375rem;
     }
-    
+
     .form-input {
       width: 100%;
       padding: 0.875rem 1rem;
@@ -100,16 +114,16 @@ export const generateRegistrationFormCode = (config: WebinarConfig): string => {
       outline: none;
       transition: border-color 0.2s, box-shadow 0.2s;
     }
-    
+
     .form-input:focus {
       border-color: ${config.regFormButtonColor};
       box-shadow: 0 0 0 3px ${config.regFormButtonColor}33;
     }
-    
+
     .form-input::placeholder {
       opacity: 0.5;
     }
-    
+
     .submit-btn {
       width: 100%;
       padding: 1rem;
@@ -122,35 +136,35 @@ export const generateRegistrationFormCode = (config: WebinarConfig): string => {
       cursor: pointer;
       transition: transform 0.2s, box-shadow 0.2s;
     }
-    
+
     .submit-btn:hover {
       transform: translateY(-2px);
       box-shadow: 0 10px 30px ${config.regFormButtonColor}40;
     }
-    
+
     .submit-btn:disabled {
       opacity: 0.7;
       cursor: not-allowed;
       transform: none;
     }
-    
+
     .privacy-note {
       font-size: 0.75rem;
       opacity: 0.6;
       margin-top: 0.5rem;
     }
-    
+
     .error-message {
       color: #ef4444;
       font-size: 0.875rem;
       margin-top: 0.5rem;
       display: none;
     }
-    
+
     .error-message.show {
       display: block;
     }
-    
+
     .loading-spinner {
       display: inline-block;
       width: 1rem;
@@ -161,7 +175,7 @@ export const generateRegistrationFormCode = (config: WebinarConfig): string => {
       animation: spin 0.8s linear infinite;
       margin-right: 0.5rem;
     }
-    
+
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
@@ -169,45 +183,45 @@ export const generateRegistrationFormCode = (config: WebinarConfig): string => {
 </head>
 <body>
   <div class="reg-container">
-    <h1 class="reg-headline">${formatText(config.regFormHeadline)}</h1>
-    ${config.regFormSubheadline ? `<p class="reg-subheadline">${formatText(config.regFormSubheadline)}</p>` : ''}
+    <h1 class="reg-headline formatted-text">${formatText(config.regFormHeadline)}</h1>
+    ${config.regFormSubheadline ? `<p class="reg-subheadline formatted-text">${formatText(config.regFormSubheadline)}</p>` : ''}
     ${config.regFormShowDatetime ? '<div class="reg-datetime" id="sessionDateTime">📅 Loading next session...</div>' : ''}
-    
+
     <form class="reg-form" id="registrationForm">
       <div class="form-group">
         <label class="form-label">${config.regFormNameLabel}</label>
-        <input 
-          type="text" 
-          class="form-input" 
+        <input
+          type="text"
+          class="form-input"
           id="nameInput"
           name="name"
           placeholder="${config.regFormNamePlaceholder}"
           required
         />
       </div>
-      
+
       <div class="form-group">
         <label class="form-label">${config.regFormEmailLabel}</label>
-        <input 
-          type="email" 
-          class="form-input" 
+        <input
+          type="email"
+          class="form-input"
           id="emailInput"
           name="email"
           placeholder="${config.regFormEmailPlaceholder}"
           required
         />
       </div>
-      
+
       <button type="submit" class="submit-btn" id="submitBtn">
         ${config.regFormButtonText}
       </button>
-      
+
       <div class="error-message" id="errorMessage"></div>
-      
+
       ${config.regFormShowPrivacy ? `<p class="privacy-note">🔒 ${config.regFormPrivacyText}</p>` : ''}
     </form>
   </div>
-  
+
   <script>
     const CONFIG = {
       webinarId: '${config.id}',
@@ -223,9 +237,9 @@ export const generateRegistrationFormCode = (config: WebinarConfig): string => {
       ghlWebhookUrl: '${config.regFormEmailPlatform === 'ghl' ? config.regFormGhlWebhookUrl : ''}',
       systemeWebhookUrl: '${config.regFormEmailPlatform === 'systeme' ? config.regFormSystemeWebhookUrl : ''}',
       thankYouUrl: '${config.regFormThankYouUrl}',
-      baseUrl: '${typeof window !== "undefined" ? window.location.origin : "https://live-spark-booster.lovable.app"}'
+      baseUrl: '${typeof window !== 'undefined' ? window.location.origin : 'https://live-spark-booster.lovable.app'}'
     };
-    
+
     function getSessionDisplay() {
       if (CONFIG.justInTimeEnabled) {
         return '⚡ Starting in just ' + CONFIG.justInTimeMinutes + ' minutes!';
@@ -234,7 +248,7 @@ export const generateRegistrationFormCode = (config: WebinarConfig): string => {
       const now = new Date();
       const session = new Date(now);
       session.setHours(CONFIG.startHour, CONFIG.startMinute, 0, 0);
-      
+
       if (session <= now) {
         session.setDate(session.getDate() + 1);
       }
@@ -243,47 +257,43 @@ export const generateRegistrationFormCode = (config: WebinarConfig): string => {
       const timeStr = session.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
       return '📅 Next Session: ' + dateStr + ' at ' + timeStr;
     }
-    
+
     ${config.regFormShowDatetime ? `
     const sessionEl = document.getElementById('sessionDateTime');
     if (sessionEl) {
       sessionEl.textContent = getSessionDisplay();
     }
     ` : ''}
-    
-    // Form submission
+
     const form = document.getElementById('registrationForm');
     const submitBtn = document.getElementById('submitBtn');
     const errorEl = document.getElementById('errorMessage');
     const originalBtnText = submitBtn.textContent;
-    
+
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      
+
       const name = document.getElementById('nameInput').value.trim();
       const email = document.getElementById('emailInput').value.trim();
-      
-      // Validation
+
       if (!name || !email) {
         showError('Please fill in all fields');
         return;
       }
-      
+
       if (!isValidEmail(email)) {
         showError('Please enter a valid email address');
         return;
       }
-      
-      // Set loading state
+
       submitBtn.disabled = true;
       submitBtn.innerHTML = '<span class="loading-spinner"></span>Registering...';
       errorEl.classList.remove('show');
-      
-      // Prepare data
+
       const nameParts = name.split(' ');
       const firstName = nameParts[0] || '';
       const lastName = nameParts.slice(1).join(' ') || '';
-      
+
       const payload = {
         name: name,
         firstName: firstName,
@@ -298,9 +308,8 @@ export const generateRegistrationFormCode = (config: WebinarConfig): string => {
         watch_link: CONFIG.baseUrl + '/watch/' + CONFIG.urlId,
         replay_link: CONFIG.baseUrl + '/replay/' + CONFIG.urlId
       };
-      
+
       try {
-        // Send to webhook (GHL or Systeme.io)
         const webhookUrl = CONFIG.ghlWebhookUrl || CONFIG.systemeWebhookUrl;
         if (webhookUrl) {
           await fetch(webhookUrl, {
@@ -310,15 +319,13 @@ export const generateRegistrationFormCode = (config: WebinarConfig): string => {
             mode: 'no-cors'
           });
         }
-        
-        // Redirect to thank you page
+
         if (CONFIG.thankYouUrl) {
           const redirectUrl = new URL(CONFIG.thankYouUrl);
           redirectUrl.searchParams.set('name', encodeURIComponent(name));
           redirectUrl.searchParams.set('email', encodeURIComponent(email));
           window.location.href = redirectUrl.toString();
         } else {
-          // Show success state
           submitBtn.textContent = '✓ Registered!';
           submitBtn.style.background = '#22c55e';
         }
@@ -329,12 +336,12 @@ export const generateRegistrationFormCode = (config: WebinarConfig): string => {
         submitBtn.innerHTML = originalBtnText;
       }
     });
-    
+
     function showError(message) {
       errorEl.textContent = message;
       errorEl.classList.add('show');
     }
-    
+
     function isValidEmail(email) {
       return /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email);
     }
