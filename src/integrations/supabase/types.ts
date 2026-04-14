@@ -575,14 +575,18 @@ export type Database = {
           min_viewers: number
           primary_color: string
           product_name: string | null
+          reg_form_accent_color: string | null
           reg_form_background: string | null
           reg_form_body_font_size: string | null
+          reg_form_bonuses: Json | null
+          reg_form_bonuses_total_value: string | null
           reg_form_border_radius: string | null
           reg_form_bullet_color: string | null
           reg_form_bullet_headline: string | null
           reg_form_bullets: Json | null
           reg_form_button_color: string | null
           reg_form_button_text: string | null
+          reg_form_countdown_seconds: number | null
           reg_form_disclaimer_text: string | null
           reg_form_email_label: string | null
           reg_form_email_placeholder: string | null
@@ -603,8 +607,18 @@ export type Database = {
           reg_form_pre_headline: string | null
           reg_form_presenters: Json | null
           reg_form_privacy_text: string | null
+          reg_form_qualifiers_for: Json | null
+          reg_form_qualifiers_not_for: Json | null
+          reg_form_results: Json | null
+          reg_form_secondary_timezone: string | null
+          reg_form_secrets: Json | null
+          reg_form_show_countdown: boolean | null
           reg_form_show_datetime: boolean | null
           reg_form_show_privacy: boolean | null
+          reg_form_show_spots_left: boolean | null
+          reg_form_show_urgency_bar: boolean | null
+          reg_form_show_viewer_count: boolean | null
+          reg_form_spots_left: number | null
           reg_form_subheadline: string | null
           reg_form_subheadline_color: string | null
           reg_form_systeme_webhook_url: string | null
@@ -612,6 +626,7 @@ export type Database = {
           reg_form_thank_you_url: string | null
           reg_form_theme: string | null
           reg_form_timer_color: string | null
+          reg_form_urgency_bar_text: string | null
           require_email: boolean
           require_name: boolean
           slug: string | null
@@ -667,14 +682,18 @@ export type Database = {
           min_viewers?: number
           primary_color?: string
           product_name?: string | null
+          reg_form_accent_color?: string | null
           reg_form_background?: string | null
           reg_form_body_font_size?: string | null
+          reg_form_bonuses?: Json | null
+          reg_form_bonuses_total_value?: string | null
           reg_form_border_radius?: string | null
           reg_form_bullet_color?: string | null
           reg_form_bullet_headline?: string | null
           reg_form_bullets?: Json | null
           reg_form_button_color?: string | null
           reg_form_button_text?: string | null
+          reg_form_countdown_seconds?: number | null
           reg_form_disclaimer_text?: string | null
           reg_form_email_label?: string | null
           reg_form_email_placeholder?: string | null
@@ -695,8 +714,18 @@ export type Database = {
           reg_form_pre_headline?: string | null
           reg_form_presenters?: Json | null
           reg_form_privacy_text?: string | null
+          reg_form_qualifiers_for?: Json | null
+          reg_form_qualifiers_not_for?: Json | null
+          reg_form_results?: Json | null
+          reg_form_secondary_timezone?: string | null
+          reg_form_secrets?: Json | null
+          reg_form_show_countdown?: boolean | null
           reg_form_show_datetime?: boolean | null
           reg_form_show_privacy?: boolean | null
+          reg_form_show_spots_left?: boolean | null
+          reg_form_show_urgency_bar?: boolean | null
+          reg_form_show_viewer_count?: boolean | null
+          reg_form_spots_left?: number | null
           reg_form_subheadline?: string | null
           reg_form_subheadline_color?: string | null
           reg_form_systeme_webhook_url?: string | null
@@ -704,6 +733,7 @@ export type Database = {
           reg_form_thank_you_url?: string | null
           reg_form_theme?: string | null
           reg_form_timer_color?: string | null
+          reg_form_urgency_bar_text?: string | null
           require_email?: boolean
           require_name?: boolean
           slug?: string | null
@@ -759,14 +789,18 @@ export type Database = {
           min_viewers?: number
           primary_color?: string
           product_name?: string | null
+          reg_form_accent_color?: string | null
           reg_form_background?: string | null
           reg_form_body_font_size?: string | null
+          reg_form_bonuses?: Json | null
+          reg_form_bonuses_total_value?: string | null
           reg_form_border_radius?: string | null
           reg_form_bullet_color?: string | null
           reg_form_bullet_headline?: string | null
           reg_form_bullets?: Json | null
           reg_form_button_color?: string | null
           reg_form_button_text?: string | null
+          reg_form_countdown_seconds?: number | null
           reg_form_disclaimer_text?: string | null
           reg_form_email_label?: string | null
           reg_form_email_placeholder?: string | null
@@ -787,8 +821,18 @@ export type Database = {
           reg_form_pre_headline?: string | null
           reg_form_presenters?: Json | null
           reg_form_privacy_text?: string | null
+          reg_form_qualifiers_for?: Json | null
+          reg_form_qualifiers_not_for?: Json | null
+          reg_form_results?: Json | null
+          reg_form_secondary_timezone?: string | null
+          reg_form_secrets?: Json | null
+          reg_form_show_countdown?: boolean | null
           reg_form_show_datetime?: boolean | null
           reg_form_show_privacy?: boolean | null
+          reg_form_show_spots_left?: boolean | null
+          reg_form_show_urgency_bar?: boolean | null
+          reg_form_show_viewer_count?: boolean | null
+          reg_form_spots_left?: number | null
           reg_form_subheadline?: string | null
           reg_form_subheadline_color?: string | null
           reg_form_systeme_webhook_url?: string | null
@@ -796,6 +840,7 @@ export type Database = {
           reg_form_thank_you_url?: string | null
           reg_form_theme?: string | null
           reg_form_timer_color?: string | null
+          reg_form_urgency_bar_text?: string | null
           require_email?: boolean
           require_name?: boolean
           slug?: string | null

@@ -104,6 +104,22 @@ export const rowToConfig = (row: any): WebinarConfig => ({
   ipnWebhookSlug: row.ipn_webhook_slug ?? '',
   ipnForwardEnabled: row.ipn_forward_enabled ?? false,
   ipnForwardUrl: row.ipn_forward_url ?? '',
+  // Template-specific fields
+  regFormSecrets: (row.reg_form_secrets as string[]) ?? [],
+  regFormQualifiersFor: (row.reg_form_qualifiers_for as string[]) ?? [],
+  regFormQualifiersNotFor: (row.reg_form_qualifiers_not_for as string[]) ?? [],
+  regFormResults: (row.reg_form_results as any[]) ?? [],
+  regFormBonuses: (row.reg_form_bonuses as any[]) ?? [],
+  regFormShowCountdown: row.reg_form_show_countdown ?? true,
+  regFormCountdownSeconds: row.reg_form_countdown_seconds ?? 6137,
+  regFormShowViewerCount: row.reg_form_show_viewer_count ?? false,
+  regFormShowSpotsLeft: row.reg_form_show_spots_left ?? false,
+  regFormSpotsLeft: row.reg_form_spots_left ?? 17,
+  regFormSecondaryTimezone: row.reg_form_secondary_timezone ?? 'Asia/Dubai',
+  regFormAccentColor: row.reg_form_accent_color ?? '#f7c948',
+  regFormUrgencyBarText: row.reg_form_urgency_bar_text ?? '⚠️ SEATS ARE LIMITED — Registration closing soon',
+  regFormShowUrgencyBar: row.reg_form_show_urgency_bar ?? true,
+  regFormBonusTotalValue: row.reg_form_bonuses_total_value ?? '$891',
   createdAt: row.created_at,
   updatedAt: row.updated_at,
 });
@@ -201,6 +217,22 @@ const configToRow = (config: Omit<WebinarConfig, 'id' | 'createdAt' | 'updatedAt
   ipn_webhook_slug: config.ipnWebhookSlug || null,
   ipn_forward_enabled: config.ipnForwardEnabled,
   ipn_forward_url: config.ipnForwardUrl || '',
+  // Template-specific fields
+  reg_form_secrets: config.regFormSecrets,
+  reg_form_qualifiers_for: config.regFormQualifiersFor,
+  reg_form_qualifiers_not_for: config.regFormQualifiersNotFor,
+  reg_form_results: config.regFormResults,
+  reg_form_bonuses: config.regFormBonuses,
+  reg_form_show_countdown: config.regFormShowCountdown,
+  reg_form_countdown_seconds: config.regFormCountdownSeconds,
+  reg_form_show_viewer_count: config.regFormShowViewerCount,
+  reg_form_show_spots_left: config.regFormShowSpotsLeft,
+  reg_form_spots_left: config.regFormSpotsLeft,
+  reg_form_secondary_timezone: config.regFormSecondaryTimezone,
+  reg_form_accent_color: config.regFormAccentColor,
+  reg_form_urgency_bar_text: config.regFormUrgencyBarText,
+  reg_form_show_urgency_bar: config.regFormShowUrgencyBar,
+  reg_form_bonuses_total_value: config.regFormBonusTotalValue,
 });
 
 export const getWebinars = async (): Promise<WebinarConfig[]> => {
@@ -375,6 +407,22 @@ export const updateWebinar = async (id: string, config: Partial<WebinarConfig>):
   if (rest.ipnWebhookSlug !== undefined) updateData.ipn_webhook_slug = rest.ipnWebhookSlug || null;
   if (rest.ipnForwardEnabled !== undefined) updateData.ipn_forward_enabled = rest.ipnForwardEnabled;
   if (rest.ipnForwardUrl !== undefined) updateData.ipn_forward_url = rest.ipnForwardUrl || '';
+  // Template-specific fields
+  if (rest.regFormSecrets !== undefined) updateData.reg_form_secrets = rest.regFormSecrets;
+  if (rest.regFormQualifiersFor !== undefined) updateData.reg_form_qualifiers_for = rest.regFormQualifiersFor;
+  if (rest.regFormQualifiersNotFor !== undefined) updateData.reg_form_qualifiers_not_for = rest.regFormQualifiersNotFor;
+  if (rest.regFormResults !== undefined) updateData.reg_form_results = rest.regFormResults;
+  if (rest.regFormBonuses !== undefined) updateData.reg_form_bonuses = rest.regFormBonuses;
+  if (rest.regFormShowCountdown !== undefined) updateData.reg_form_show_countdown = rest.regFormShowCountdown;
+  if (rest.regFormCountdownSeconds !== undefined) updateData.reg_form_countdown_seconds = rest.regFormCountdownSeconds;
+  if (rest.regFormShowViewerCount !== undefined) updateData.reg_form_show_viewer_count = rest.regFormShowViewerCount;
+  if (rest.regFormShowSpotsLeft !== undefined) updateData.reg_form_show_spots_left = rest.regFormShowSpotsLeft;
+  if (rest.regFormSpotsLeft !== undefined) updateData.reg_form_spots_left = rest.regFormSpotsLeft;
+  if (rest.regFormSecondaryTimezone !== undefined) updateData.reg_form_secondary_timezone = rest.regFormSecondaryTimezone;
+  if (rest.regFormAccentColor !== undefined) updateData.reg_form_accent_color = rest.regFormAccentColor;
+  if (rest.regFormUrgencyBarText !== undefined) updateData.reg_form_urgency_bar_text = rest.regFormUrgencyBarText;
+  if (rest.regFormShowUrgencyBar !== undefined) updateData.reg_form_show_urgency_bar = rest.regFormShowUrgencyBar;
+  if (rest.regFormBonusTotalValue !== undefined) updateData.reg_form_bonuses_total_value = rest.regFormBonusTotalValue;
 
   const { data, error } = await supabase
     .from('webinars')

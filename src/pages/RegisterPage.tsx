@@ -6,6 +6,11 @@ import { WebinarConfig, TIMEZONES } from '@/types/webinar';
 import { Loader2, AlertCircle, CalendarOff } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import LandingRegistrationPage from '@/components/registration/LandingRegistrationPage';
+import CuriosityTemplate from '@/components/registration/templates/CuriosityTemplate';
+import JustInTimeTemplate from '@/components/registration/templates/JustInTimeTemplate';
+import ProofStackTemplate from '@/components/registration/templates/ProofStackTemplate';
+import ChallengeTemplate from '@/components/registration/templates/ChallengeTemplate';
+import MinimalistTemplate from '@/components/registration/templates/MinimalistTemplate';
 
 const getBorderRadius = (radius: string) => {
   switch (radius) {
@@ -263,9 +268,20 @@ export default function RegisterPage() {
     );
   }
 
-  // Landing page layout
-  if (config.regFormLayout === 'landing') {
-    return <LandingRegistrationPage config={config} />;
+  // Template-based layouts
+  switch (config.regFormLayout) {
+    case 'landing':
+      return <LandingRegistrationPage config={config} />;
+    case 'curiosity':
+      return <CuriosityTemplate config={config} />;
+    case 'just-in-time':
+      return <JustInTimeTemplate config={config} />;
+    case 'proof-stack':
+      return <ProofStackTemplate config={config} />;
+    case 'challenge':
+      return <ChallengeTemplate config={config} />;
+    case 'minimalist':
+      return <MinimalistTemplate config={config} />;
   }
 
   // Simple form layout
