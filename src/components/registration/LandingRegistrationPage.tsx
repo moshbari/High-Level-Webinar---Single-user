@@ -205,7 +205,7 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
           </div>
         )}
 
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-5 sm:pt-8 pb-3 sm:pb-6 text-center" style={config.regFormHeroImageUrl ? { marginTop: '-2rem', position: 'relative', zIndex: 1 } : {}}>
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-4 sm:pt-6 pb-2 sm:pb-4 text-center" style={config.regFormHeroImageUrl ? { marginTop: '-2rem', position: 'relative', zIndex: 1 } : {}}>
           {config.regFormPreHeadline && (
             <p className="text-xs sm:text-sm md:text-base font-semibold tracking-widest uppercase mb-2 sm:mb-3" style={{ color: config.regFormBulletColor || config.regFormButtonColor }}>
               {config.regFormPreHeadline}
