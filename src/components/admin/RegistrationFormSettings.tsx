@@ -78,6 +78,37 @@ export function RegistrationFormSettings({ config, onChange, webinarId }: Regist
         
         {config.enableRegistrationForm && (
           <>
+            {/* Layout Picker */}
+            <div className="space-y-3 p-4 rounded-lg border border-border/50 bg-secondary/20">
+              <div className="flex items-center gap-2">
+                <Layout className="w-4 h-4 text-primary" />
+                <Label className="font-medium">Page Layout</Label>
+              </div>
+              <RadioGroup
+                value={config.regFormLayout}
+                onValueChange={(v) => updateField('regFormLayout', v as 'simple' | 'landing')}
+                className="grid grid-cols-2 gap-3"
+              >
+                <label htmlFor="layout-simple" className={`cursor-pointer flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all ${config.regFormLayout === 'simple' ? 'border-primary bg-primary/5' : 'border-border/50 hover:border-border'}`}>
+                  <RadioGroupItem value="simple" id="layout-simple" className="sr-only" />
+                  <FileText className="w-6 h-6" />
+                  <span className="text-sm font-medium">Simple Form</span>
+                  <span className="text-xs text-muted-foreground text-center">Centered form only</span>
+                </label>
+                <label htmlFor="layout-landing" className={`cursor-pointer flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all ${config.regFormLayout === 'landing' ? 'border-primary bg-primary/5' : 'border-border/50 hover:border-border'}`}>
+                  <RadioGroupItem value="landing" id="layout-landing" className="sr-only" />
+                  <Layout className="w-6 h-6" />
+                  <span className="text-sm font-medium">Landing Page</span>
+                  <span className="text-xs text-muted-foreground text-center">Full page with bullets & photos</span>
+                </label>
+              </RadioGroup>
+            </div>
+
+            {/* Landing Page specific settings */}
+            {config.regFormLayout === 'landing' && (
+              <LandingPageSettings config={config} onChange={onChange} />
+            )}
+
             {/* Form Content */}
             <div className="space-y-4 pt-2">
               <div className="space-y-2">
