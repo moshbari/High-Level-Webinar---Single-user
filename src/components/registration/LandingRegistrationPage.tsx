@@ -170,9 +170,6 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
             <p className="text-lg md:text-xl mb-4 max-w-2xl mx-auto" style={{ color: config.regFormSubheadlineColor || config.regFormTextColor }}>{config.regFormPostHeadline}</p>
           )}
 
-          {config.regFormSubheadline && (
-            <p style={{ color: config.regFormSubheadlineColor || config.regFormTextColor, opacity: 0.8 }} className="mb-6">{config.regFormSubheadline}</p>
-          )}
 
         </div>
       </div>
@@ -233,6 +230,9 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
 
           {/* Right: Form */}
           <div className="space-y-4">
+            {config.regFormSubheadline && (
+              <p className="text-center text-base" style={{ color: config.regFormSubheadlineColor || config.regFormTextColor, opacity: 0.8 }}>{config.regFormSubheadline}</p>
+            )}
             {config.regFormShowDatetime && nextSession && (
               <div
                 className="py-3 px-6 rounded-xl text-center"
