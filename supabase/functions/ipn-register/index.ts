@@ -163,7 +163,8 @@ Deno.serve(async (req) => {
       }
     } else {
       try {
-        body = await req.json();
+        const raw = await req.json();
+        body = unwrapBody(raw);
       } catch {
         body = {};
       }
