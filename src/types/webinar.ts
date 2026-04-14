@@ -87,6 +87,8 @@ export interface WebinarConfig {
   regFormBodyFontSize: string;
   regFormHeadlineColor: string;
   regFormHeadlineFontWeight: string;
+  regFormBulletColor: string;
+  regFormSubheadlineColor: string;
   
   // Landing Page Template
   regFormLayout: 'simple' | 'landing';
@@ -242,8 +244,10 @@ export const DEFAULT_WEBINAR_CONFIG: Omit<WebinarConfig, 'id' | 'createdAt' | 'u
   regFormHeadlineFontFamily: 'Space Grotesk',
   regFormHeadlineFontSize: '2.5rem',
   regFormBodyFontSize: '1rem',
-  regFormHeadlineColor: '',
+  regFormHeadlineColor: '#000000',
   regFormHeadlineFontWeight: '700',
+  regFormBulletColor: '#1e40af',
+  regFormSubheadlineColor: '',
   // Landing Page Template
   regFormLayout: 'simple',
   regFormPreHeadline: '',
