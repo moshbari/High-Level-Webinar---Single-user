@@ -232,6 +232,19 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
           )}
 
           {/* Right: Form */}
+          <div className="space-y-4">
+            {config.regFormShowDatetime && nextSession && (
+              <div
+                className="py-3 px-6 rounded-xl text-center"
+                style={{ background: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }}
+              >
+                <span className="text-sm md:text-base">
+                  {nextSession.isJit
+                    ? `⚡ Starting in just ${nextSession.minutesAway} minutes!`
+                    : `📅 Next Session: ${nextSession.date} at ${nextSession.time} (${nextSession.timezone})`}
+                </span>
+              </div>
+            )}
           <div
             className="p-6 md:p-8 shadow-2xl"
             style={{
