@@ -365,7 +365,7 @@ export function RegistrationFormSettings({ config, onChange, webinarId }: Regist
                     <div className="grid grid-cols-3 gap-2">
                       <button
                         type="button"
-                        onClick={() => onChange({ ...config, regFormTheme: 'dark', regFormBackground: '#0a0a0f', regFormTextColor: '#ffffff', regFormButtonColor: '#e53935', regFormHeadlineColor: '' })}
+                        onClick={() => onChange({ ...config, regFormTheme: 'dark', regFormBackground: '#0a0a0f', regFormTextColor: '#ffffff', regFormButtonColor: '#e53935', regFormHeadlineColor: '#ffffff', regFormBulletColor: '#e53935', regFormSubheadlineColor: '' })}
                         className={`p-3 rounded-lg border-2 text-center transition-all ${config.regFormTheme === 'dark' && config.regFormBackground === '#0a0a0f' ? 'border-primary ring-2 ring-primary/20' : 'border-border/50 hover:border-border'}`}
                       >
                         <div className="w-full h-6 rounded mb-1.5" style={{ background: '#0a0a0f' }}>
@@ -377,7 +377,7 @@ export function RegistrationFormSettings({ config, onChange, webinarId }: Regist
                       </button>
                       <button
                         type="button"
-                        onClick={() => onChange({ ...config, regFormTheme: 'light', regFormBackground: '#ffffff', regFormTextColor: '#1a1a1a', regFormButtonColor: '#f97316', regFormHeadlineColor: '#1e40af' })}
+                        onClick={() => onChange({ ...config, regFormTheme: 'light', regFormBackground: '#ffffff', regFormTextColor: '#1a1a1a', regFormButtonColor: '#f97316', regFormHeadlineColor: '#1e40af', regFormBulletColor: '#1e40af', regFormSubheadlineColor: '#374151' })}
                         className={`p-3 rounded-lg border-2 text-center transition-all ${config.regFormTheme === 'light' && config.regFormButtonColor === '#f97316' ? 'border-primary ring-2 ring-primary/20' : 'border-border/50 hover:border-border'}`}
                       >
                         <div className="w-full h-6 rounded mb-1.5" style={{ background: '#ffffff', border: '1px solid #e5e7eb' }}>
@@ -389,7 +389,7 @@ export function RegistrationFormSettings({ config, onChange, webinarId }: Regist
                       </button>
                       <button
                         type="button"
-                        onClick={() => onChange({ ...config, regFormTheme: 'light', regFormBackground: '#f8fafc', regFormTextColor: '#334155', regFormButtonColor: '#22c55e', regFormHeadlineColor: '#0f172a' })}
+                        onClick={() => onChange({ ...config, regFormTheme: 'light', regFormBackground: '#f8fafc', regFormTextColor: '#334155', regFormButtonColor: '#22c55e', regFormHeadlineColor: '#0f172a', regFormBulletColor: '#22c55e', regFormSubheadlineColor: '#475569' })}
                         className={`p-3 rounded-lg border-2 text-center transition-all ${config.regFormTheme === 'light' && config.regFormButtonColor === '#22c55e' ? 'border-primary ring-2 ring-primary/20' : 'border-border/50 hover:border-border'}`}
                       >
                         <div className="w-full h-6 rounded mb-1.5" style={{ background: '#f8fafc', border: '1px solid #e5e7eb' }}>
