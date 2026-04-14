@@ -1,6 +1,6 @@
 import { WebinarConfig, TIMEZONES } from '@/types/webinar';
 import { Loader2 } from 'lucide-react';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
 interface LandingRegistrationPageProps {
@@ -233,12 +233,19 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
             {config.regFormSubheadline && (
               <p className="text-center text-base" style={{ color: config.regFormSubheadlineColor || config.regFormTextColor, opacity: 0.8 }}>{config.regFormSubheadline}</p>
             )}
+            {config.regFormShowDatetime && nextSession && !nextSession.isJit && countdown && (
+              <div className="text-center">
+                <p className="text-2xl md:text-3xl font-bold tracking-wider" style={{ color: config.regFormHeadlineColor || config.regFormTextColor, fontFamily: 'monospace' }}>
+                  {countdown}
+                </p>
+              </div>
+            )}
             {config.regFormShowDatetime && nextSession && (
               <div
                 className="py-3 px-6 rounded-xl text-center"
                 style={{ background: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }}
               >
-                <span className="text-sm md:text-base">
+                <span className="text-sm md:text-base font-semibold">
                   {nextSession.isJit
                     ? `⚡ Starting in just ${nextSession.minutesAway} minutes!`
                     : `📅 Next Session: ${nextSession.date} at ${nextSession.time} (${nextSession.timezone})`}
