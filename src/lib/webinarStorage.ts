@@ -70,6 +70,13 @@ export const rowToConfig = (row: any): WebinarConfig => ({
   regFormShowPrivacy: row.reg_form_show_privacy ?? true,
   regFormPrivacyText: row.reg_form_privacy_text ?? 'We respect your privacy. Unsubscribe anytime.',
   regFormTheme: row.reg_form_theme ?? 'dark',
+  // Font Settings
+  regFormFontFamily: row.reg_form_font_family ?? 'Inter',
+  regFormHeadlineFontFamily: row.reg_form_headline_font_family ?? 'Space Grotesk',
+  regFormHeadlineFontSize: row.reg_form_headline_font_size ?? '2.5rem',
+  regFormBodyFontSize: row.reg_form_body_font_size ?? '1rem',
+  regFormHeadlineColor: row.reg_form_headline_color ?? '',
+  regFormHeadlineFontWeight: row.reg_form_headline_font_weight ?? '700',
   // Landing Page Template
   regFormLayout: row.reg_form_layout ?? 'simple',
   regFormPreHeadline: row.reg_form_pre_headline ?? '',
@@ -157,6 +164,13 @@ const configToRow = (config: Omit<WebinarConfig, 'id' | 'createdAt' | 'updatedAt
   reg_form_show_privacy: config.regFormShowPrivacy,
   reg_form_privacy_text: config.regFormPrivacyText,
   reg_form_theme: config.regFormTheme,
+  // Font Settings
+  reg_form_font_family: config.regFormFontFamily,
+  reg_form_headline_font_family: config.regFormHeadlineFontFamily,
+  reg_form_headline_font_size: config.regFormHeadlineFontSize,
+  reg_form_body_font_size: config.regFormBodyFontSize,
+  reg_form_headline_color: config.regFormHeadlineColor || null,
+  reg_form_headline_font_weight: config.regFormHeadlineFontWeight,
   // Landing Page Template
   reg_form_layout: config.regFormLayout,
   reg_form_pre_headline: config.regFormPreHeadline,

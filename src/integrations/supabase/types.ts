@@ -576,6 +576,7 @@ export type Database = {
           primary_color: string
           product_name: string | null
           reg_form_background: string | null
+          reg_form_body_font_size: string | null
           reg_form_border_radius: string | null
           reg_form_bullet_headline: string | null
           reg_form_bullets: Json | null
@@ -585,8 +586,13 @@ export type Database = {
           reg_form_email_label: string | null
           reg_form_email_placeholder: string | null
           reg_form_email_platform: string | null
+          reg_form_font_family: string | null
           reg_form_ghl_webhook_url: string | null
           reg_form_headline: string | null
+          reg_form_headline_color: string | null
+          reg_form_headline_font_family: string | null
+          reg_form_headline_font_size: string | null
+          reg_form_headline_font_weight: string | null
           reg_form_hero_image_url: string | null
           reg_form_layout: string | null
           reg_form_legal_links: Json | null
@@ -659,6 +665,7 @@ export type Database = {
           primary_color?: string
           product_name?: string | null
           reg_form_background?: string | null
+          reg_form_body_font_size?: string | null
           reg_form_border_radius?: string | null
           reg_form_bullet_headline?: string | null
           reg_form_bullets?: Json | null
@@ -668,8 +675,13 @@ export type Database = {
           reg_form_email_label?: string | null
           reg_form_email_placeholder?: string | null
           reg_form_email_platform?: string | null
+          reg_form_font_family?: string | null
           reg_form_ghl_webhook_url?: string | null
           reg_form_headline?: string | null
+          reg_form_headline_color?: string | null
+          reg_form_headline_font_family?: string | null
+          reg_form_headline_font_size?: string | null
+          reg_form_headline_font_weight?: string | null
           reg_form_hero_image_url?: string | null
           reg_form_layout?: string | null
           reg_form_legal_links?: Json | null
@@ -742,6 +754,7 @@ export type Database = {
           primary_color?: string
           product_name?: string | null
           reg_form_background?: string | null
+          reg_form_body_font_size?: string | null
           reg_form_border_radius?: string | null
           reg_form_bullet_headline?: string | null
           reg_form_bullets?: Json | null
@@ -751,8 +764,13 @@ export type Database = {
           reg_form_email_label?: string | null
           reg_form_email_placeholder?: string | null
           reg_form_email_platform?: string | null
+          reg_form_font_family?: string | null
           reg_form_ghl_webhook_url?: string | null
           reg_form_headline?: string | null
+          reg_form_headline_color?: string | null
+          reg_form_headline_font_family?: string | null
+          reg_form_headline_font_size?: string | null
+          reg_form_headline_font_weight?: string | null
           reg_form_hero_image_url?: string | null
           reg_form_layout?: string | null
           reg_form_legal_links?: Json | null

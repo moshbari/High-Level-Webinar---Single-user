@@ -70,14 +70,14 @@ export function RegistrationFormPreview({ config }: RegistrationFormPreviewProps
           <span className="text-xs text-muted-foreground font-medium">Landing Page Preview</span>
         </div>
         <div className="p-4 bg-background/50">
-          <div className="max-w-lg mx-auto text-center" style={{ background: config.regFormBackground, color: config.regFormTextColor, borderRadius, padding: '1.5rem' }}>
+          <div className="max-w-lg mx-auto text-center" style={{ background: config.regFormBackground, color: config.regFormTextColor, borderRadius, padding: '1.5rem', fontFamily: `'${config.regFormFontFamily}', system-ui, sans-serif`, fontSize: config.regFormBodyFontSize }}>
             {config.regFormHeroImageUrl && (
               <img src={config.regFormHeroImageUrl} alt="Hero" className="w-full h-24 object-cover rounded-lg mb-4" />
             )}
             {config.regFormPreHeadline && (
               <p className="text-xs font-semibold tracking-widest uppercase mb-1" style={{ color: config.regFormButtonColor }}>{config.regFormPreHeadline}</p>
             )}
-            <h2 className="text-lg font-bold mb-1" style={{ fontFamily: "'Space Grotesk', system-ui, sans-serif" }}>
+            <h2 className="text-lg font-bold mb-1" style={{ fontFamily: `'${config.regFormHeadlineFontFamily}', system-ui, sans-serif`, color: config.regFormHeadlineColor || config.regFormTextColor, fontWeight: config.regFormHeadlineFontWeight || '700' }}>
               {config.regFormHeadline || 'Register for the Free Training'}
             </h2>
             {config.regFormPostHeadline && <p className="text-xs opacity-80 mb-2">{config.regFormPostHeadline}</p>}
@@ -140,11 +140,11 @@ export function RegistrationFormPreview({ config }: RegistrationFormPreviewProps
       <div className="p-6 bg-background/50">
         <div 
           className="max-w-md mx-auto p-8 text-center"
-          style={containerStyle}
+          style={{ ...containerStyle, fontFamily: `'${config.regFormFontFamily}', system-ui, sans-serif`, fontSize: config.regFormBodyFontSize }}
         >
           <h2 
-            className="text-2xl font-bold mb-2"
-            style={{ fontFamily: "'Space Grotesk', system-ui, sans-serif" }}
+            className="text-2xl mb-2"
+            style={{ fontFamily: `'${config.regFormHeadlineFontFamily}', system-ui, sans-serif`, color: config.regFormHeadlineColor || config.regFormTextColor, fontWeight: config.regFormHeadlineFontWeight || '700' }}
           >
             {config.regFormHeadline || 'Register for the Free Training'}
           </h2>

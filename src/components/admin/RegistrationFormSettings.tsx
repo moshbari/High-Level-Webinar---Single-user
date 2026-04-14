@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { ClipboardList, ChevronDown, Settings2, Link, Copy, Check, Send, Loader2, Layout, FileText } from 'lucide-react';
+import { ClipboardList, ChevronDown, Settings2, Link, Copy, Check, Send, Loader2, Layout, FileText, Palette } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -356,6 +356,52 @@ export function RegistrationFormSettings({ config, onChange, webinarId }: Regist
                   <ChevronDown className={`w-4 h-4 ml-auto transition-transform ${advancedOpen ? 'rotate-180' : ''}`} />
                 </CollapsibleTrigger>
                 <CollapsibleContent className="space-y-4 pt-4">
+                  {/* Theme Presets */}
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Palette className="w-4 h-4 text-primary" />
+                      <Label className="font-medium">Theme Presets</Label>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => onChange({ ...config, regFormTheme: 'dark', regFormBackground: '#0a0a0f', regFormTextColor: '#ffffff', regFormButtonColor: '#e53935', regFormHeadlineColor: '' })}
+                        className={`p-3 rounded-lg border-2 text-center transition-all ${config.regFormTheme === 'dark' && config.regFormBackground === '#0a0a0f' ? 'border-primary ring-2 ring-primary/20' : 'border-border/50 hover:border-border'}`}
+                      >
+                        <div className="w-full h-6 rounded mb-1.5" style={{ background: '#0a0a0f' }}>
+                          <div className="h-full flex items-center justify-center">
+                            <div className="w-8 h-2 rounded" style={{ background: '#e53935' }} />
+                          </div>
+                        </div>
+                        <span className="text-[10px] font-medium">Dark Red</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => onChange({ ...config, regFormTheme: 'light', regFormBackground: '#ffffff', regFormTextColor: '#1a1a1a', regFormButtonColor: '#f97316', regFormHeadlineColor: '#1e40af' })}
+                        className={`p-3 rounded-lg border-2 text-center transition-all ${config.regFormTheme === 'light' && config.regFormButtonColor === '#f97316' ? 'border-primary ring-2 ring-primary/20' : 'border-border/50 hover:border-border'}`}
+                      >
+                        <div className="w-full h-6 rounded mb-1.5" style={{ background: '#ffffff', border: '1px solid #e5e7eb' }}>
+                          <div className="h-full flex items-center justify-center">
+                            <div className="w-8 h-2 rounded" style={{ background: '#f97316' }} />
+                          </div>
+                        </div>
+                        <span className="text-[10px] font-medium">Trust Blue</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => onChange({ ...config, regFormTheme: 'light', regFormBackground: '#f8fafc', regFormTextColor: '#334155', regFormButtonColor: '#22c55e', regFormHeadlineColor: '#0f172a' })}
+                        className={`p-3 rounded-lg border-2 text-center transition-all ${config.regFormTheme === 'light' && config.regFormButtonColor === '#22c55e' ? 'border-primary ring-2 ring-primary/20' : 'border-border/50 hover:border-border'}`}
+                      >
+                        <div className="w-full h-6 rounded mb-1.5" style={{ background: '#f8fafc', border: '1px solid #e5e7eb' }}>
+                          <div className="h-full flex items-center justify-center">
+                            <div className="w-8 h-2 rounded" style={{ background: '#22c55e' }} />
+                          </div>
+                        </div>
+                        <span className="text-[10px] font-medium">Clean Green</span>
+                      </button>
+                    </div>
+                  </div>
+
                   <div className="space-y-2">
                     <Label htmlFor="regFormTheme">Form Theme</Label>
                     <Select
@@ -425,6 +471,131 @@ export function RegistrationFormSettings({ config, onChange, webinarId }: Regist
                         <SelectItem value="pill">Pill (9999px)</SelectItem>
                       </SelectContent>
                     </Select>
+                  </div>
+
+                  {/* Font Settings */}
+                  <div className="space-y-3 p-4 rounded-lg border border-border/50 bg-secondary/20">
+                    <Label className="font-medium">Typography</Label>
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <div className="space-y-2">
+                        <Label htmlFor="regFormFontFamily">Body Font</Label>
+                        <Select
+                          value={config.regFormFontFamily}
+                          onValueChange={(v) => updateField('regFormFontFamily', v)}
+                        >
+                          <SelectTrigger className="input-field">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Inter">Inter</SelectItem>
+                            <SelectItem value="Space Grotesk">Space Grotesk</SelectItem>
+                            <SelectItem value="Poppins">Poppins</SelectItem>
+                            <SelectItem value="Roboto">Roboto</SelectItem>
+                            <SelectItem value="Open Sans">Open Sans</SelectItem>
+                            <SelectItem value="Lato">Lato</SelectItem>
+                            <SelectItem value="Montserrat">Montserrat</SelectItem>
+                            <SelectItem value="Raleway">Raleway</SelectItem>
+                            <SelectItem value="Nunito">Nunito</SelectItem>
+                            <SelectItem value="Playfair Display">Playfair Display</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="regFormHeadlineFontFamily">Headline Font</Label>
+                        <Select
+                          value={config.regFormHeadlineFontFamily}
+                          onValueChange={(v) => updateField('regFormHeadlineFontFamily', v)}
+                        >
+                          <SelectTrigger className="input-field">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Space Grotesk">Space Grotesk</SelectItem>
+                            <SelectItem value="Inter">Inter</SelectItem>
+                            <SelectItem value="Poppins">Poppins</SelectItem>
+                            <SelectItem value="Roboto">Roboto</SelectItem>
+                            <SelectItem value="Montserrat">Montserrat</SelectItem>
+                            <SelectItem value="Raleway">Raleway</SelectItem>
+                            <SelectItem value="Playfair Display">Playfair Display</SelectItem>
+                            <SelectItem value="Oswald">Oswald</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <div className="space-y-2">
+                        <Label htmlFor="regFormHeadlineFontSize">Headline Size</Label>
+                        <Select
+                          value={config.regFormHeadlineFontSize}
+                          onValueChange={(v) => updateField('regFormHeadlineFontSize', v)}
+                        >
+                          <SelectTrigger className="input-field">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="1.75rem">Small (1.75rem)</SelectItem>
+                            <SelectItem value="2rem">Medium (2rem)</SelectItem>
+                            <SelectItem value="2.5rem">Large (2.5rem)</SelectItem>
+                            <SelectItem value="3rem">X-Large (3rem)</SelectItem>
+                            <SelectItem value="3.5rem">XX-Large (3.5rem)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="regFormBodyFontSize">Body Size</Label>
+                        <Select
+                          value={config.regFormBodyFontSize}
+                          onValueChange={(v) => updateField('regFormBodyFontSize', v)}
+                        >
+                          <SelectTrigger className="input-field">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="0.875rem">Small (14px)</SelectItem>
+                            <SelectItem value="1rem">Medium (16px)</SelectItem>
+                            <SelectItem value="1.125rem">Large (18px)</SelectItem>
+                            <SelectItem value="1.25rem">X-Large (20px)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <div className="space-y-2">
+                        <Label htmlFor="regFormHeadlineFontWeight">Headline Weight</Label>
+                        <Select
+                          value={config.regFormHeadlineFontWeight}
+                          onValueChange={(v) => updateField('regFormHeadlineFontWeight', v)}
+                        >
+                          <SelectTrigger className="input-field">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="400">Regular (400)</SelectItem>
+                            <SelectItem value="500">Medium (500)</SelectItem>
+                            <SelectItem value="600">Semi-Bold (600)</SelectItem>
+                            <SelectItem value="700">Bold (700)</SelectItem>
+                            <SelectItem value="800">Extra-Bold (800)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="regFormHeadlineColor">Headline Color</Label>
+                        <div className="flex gap-2">
+                          <input
+                            type="color"
+                            value={config.regFormHeadlineColor || config.regFormTextColor}
+                            onChange={(e) => updateField('regFormHeadlineColor', e.target.value)}
+                            className="w-12 h-10 rounded cursor-pointer"
+                          />
+                          <Input
+                            value={config.regFormHeadlineColor}
+                            onChange={(e) => updateField('regFormHeadlineColor', e.target.value)}
+                            placeholder="Same as text"
+                            className="input-field flex-1"
+                          />
+                        </div>
+                      </div>
+                    </div>
                   </div>
                   
                   <div className="flex items-center justify-between p-3 rounded-lg bg-secondary/50">
