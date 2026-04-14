@@ -472,6 +472,131 @@ export function RegistrationFormSettings({ config, onChange, webinarId }: Regist
                       </SelectContent>
                     </Select>
                   </div>
+
+                  {/* Font Settings */}
+                  <div className="space-y-3 p-4 rounded-lg border border-border/50 bg-secondary/20">
+                    <Label className="font-medium">Typography</Label>
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <div className="space-y-2">
+                        <Label htmlFor="regFormFontFamily">Body Font</Label>
+                        <Select
+                          value={config.regFormFontFamily}
+                          onValueChange={(v) => updateField('regFormFontFamily', v)}
+                        >
+                          <SelectTrigger className="input-field">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Inter">Inter</SelectItem>
+                            <SelectItem value="Space Grotesk">Space Grotesk</SelectItem>
+                            <SelectItem value="Poppins">Poppins</SelectItem>
+                            <SelectItem value="Roboto">Roboto</SelectItem>
+                            <SelectItem value="Open Sans">Open Sans</SelectItem>
+                            <SelectItem value="Lato">Lato</SelectItem>
+                            <SelectItem value="Montserrat">Montserrat</SelectItem>
+                            <SelectItem value="Raleway">Raleway</SelectItem>
+                            <SelectItem value="Nunito">Nunito</SelectItem>
+                            <SelectItem value="Playfair Display">Playfair Display</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="regFormHeadlineFontFamily">Headline Font</Label>
+                        <Select
+                          value={config.regFormHeadlineFontFamily}
+                          onValueChange={(v) => updateField('regFormHeadlineFontFamily', v)}
+                        >
+                          <SelectTrigger className="input-field">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Space Grotesk">Space Grotesk</SelectItem>
+                            <SelectItem value="Inter">Inter</SelectItem>
+                            <SelectItem value="Poppins">Poppins</SelectItem>
+                            <SelectItem value="Roboto">Roboto</SelectItem>
+                            <SelectItem value="Montserrat">Montserrat</SelectItem>
+                            <SelectItem value="Raleway">Raleway</SelectItem>
+                            <SelectItem value="Playfair Display">Playfair Display</SelectItem>
+                            <SelectItem value="Oswald">Oswald</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <div className="space-y-2">
+                        <Label htmlFor="regFormHeadlineFontSize">Headline Size</Label>
+                        <Select
+                          value={config.regFormHeadlineFontSize}
+                          onValueChange={(v) => updateField('regFormHeadlineFontSize', v)}
+                        >
+                          <SelectTrigger className="input-field">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="1.75rem">Small (1.75rem)</SelectItem>
+                            <SelectItem value="2rem">Medium (2rem)</SelectItem>
+                            <SelectItem value="2.5rem">Large (2.5rem)</SelectItem>
+                            <SelectItem value="3rem">X-Large (3rem)</SelectItem>
+                            <SelectItem value="3.5rem">XX-Large (3.5rem)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="regFormBodyFontSize">Body Size</Label>
+                        <Select
+                          value={config.regFormBodyFontSize}
+                          onValueChange={(v) => updateField('regFormBodyFontSize', v)}
+                        >
+                          <SelectTrigger className="input-field">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="0.875rem">Small (14px)</SelectItem>
+                            <SelectItem value="1rem">Medium (16px)</SelectItem>
+                            <SelectItem value="1.125rem">Large (18px)</SelectItem>
+                            <SelectItem value="1.25rem">X-Large (20px)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <div className="space-y-2">
+                        <Label htmlFor="regFormHeadlineFontWeight">Headline Weight</Label>
+                        <Select
+                          value={config.regFormHeadlineFontWeight}
+                          onValueChange={(v) => updateField('regFormHeadlineFontWeight', v)}
+                        >
+                          <SelectTrigger className="input-field">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="400">Regular (400)</SelectItem>
+                            <SelectItem value="500">Medium (500)</SelectItem>
+                            <SelectItem value="600">Semi-Bold (600)</SelectItem>
+                            <SelectItem value="700">Bold (700)</SelectItem>
+                            <SelectItem value="800">Extra-Bold (800)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="regFormHeadlineColor">Headline Color</Label>
+                        <div className="flex gap-2">
+                          <input
+                            type="color"
+                            value={config.regFormHeadlineColor || config.regFormTextColor}
+                            onChange={(e) => updateField('regFormHeadlineColor', e.target.value)}
+                            className="w-12 h-10 rounded cursor-pointer"
+                          />
+                          <Input
+                            value={config.regFormHeadlineColor}
+                            onChange={(e) => updateField('regFormHeadlineColor', e.target.value)}
+                            placeholder="Same as text"
+                            className="input-field flex-1"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                   
                   <div className="flex items-center justify-between p-3 rounded-lg bg-secondary/50">
                     <div>
