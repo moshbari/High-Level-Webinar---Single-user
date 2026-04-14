@@ -1,0 +1,1 @@
+ALTER TABLE public.webinars ADD COLUMN reg_form_timer_color text DEFAULT '#e53935';
