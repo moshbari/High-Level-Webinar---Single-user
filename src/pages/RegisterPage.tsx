@@ -5,6 +5,7 @@ import { rowToConfig } from '@/lib/webinarStorage';
 import { WebinarConfig, TIMEZONES } from '@/types/webinar';
 import { Loader2, AlertCircle, CalendarOff } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import LandingRegistrationPage from '@/components/registration/LandingRegistrationPage';
 
 const getBorderRadius = (radius: string) => {
   switch (radius) {
@@ -262,6 +263,12 @@ export default function RegisterPage() {
     );
   }
 
+  // Landing page layout
+  if (config.regFormLayout === 'landing') {
+    return <LandingRegistrationPage config={config} />;
+  }
+
+  // Simple form layout
   const isDark = config.regFormTheme === 'dark';
   const borderRadius = getBorderRadius(config.regFormBorderRadius);
 

@@ -1,0 +1,323 @@
+import { WebinarConfig, TIMEZONES } from '@/types/webinar';
+import { Loader2 } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { useToast } from '@/hooks/use-toast';
+
+interface LandingRegistrationPageProps {
+  config: WebinarConfig;
+}
+
+const getBorderRadius = (radius: string) => {
+  switch (radius) {
+    case 'none': return '0px';
+    case 'slight': return '6px';
+    case 'rounded': return '12px';
+    case 'pill': return '9999px';
+    default: return '12px';
+  }
+};
+
+export default function LandingRegistrationPage({ config }: LandingRegistrationPageProps) {
+  const { toast } = useToast();
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+
+  const isDark = config.regFormTheme === 'dark';
+  const borderRadius = getBorderRadius(config.regFormBorderRadius);
+
+  const nextSession = useMemo(() => {
+    if (config.justInTimeEnabled) {
+      const now = new Date();
+      const jitStart = new Date(now.getTime() + config.justInTimeMinutes * 60 * 1000);
+      return {
+        date: jitStart.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+        time: jitStart.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }),
+        timezone: 'Your Time',
+        isJit: true,
+        minutesAway: config.justInTimeMinutes,
+      };
+    }
+    const now = new Date();
+    const sessionDate = new Date(now);
+    sessionDate.setHours(config.startHour, config.startMinute, 0, 0);
+    if (sessionDate <= now) sessionDate.setDate(sessionDate.getDate() + 1);
+    const tz = TIMEZONES.find(t => t.value === config.timezone);
+    const tzLabel = tz ? tz.label.split(' ')[0] : 'Local';
+    return {
+      date: sessionDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+      time: sessionDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }),
+      timezone: tzLabel,
+      isJit: false,
+      minutesAway: 0,
+    };
+  }, [config]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name.trim()) { setFormError('Please enter your name'); return; }
+    if (!email.trim()) { setFormError('Please enter your email'); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setFormError('Please enter a valid email'); return; }
+    setFormError(null);
+
+    const webhookUrl = config.regFormEmailPlatform === 'systeme'
+      ? config.regFormSystemeWebhookUrl
+      : config.regFormGhlWebhookUrl;
+
+    if (!webhookUrl) { setFormError('Registration not configured.'); return; }
+
+    setSubmitting(true);
+    try {
+      const nameParts = name.trim().split(' ');
+      const baseUrl = window.location.origin;
+      const urlId = config.slug || config.id;
+      const payload: Record<string, string> = {
+        name: name.trim(),
+        firstName: nameParts[0] || '',
+        lastName: nameParts.slice(1).join(' ') || '',
+        email: email.trim(),
+        webinar_id: config.id,
+        webinar_name: config.webinarName,
+        registered_at: new Date().toISOString(),
+        source: 'HighLevelWebinar',
+        product_name: config.productName || '',
+        vendor_name: config.vendorName || '',
+        watch_link: `${baseUrl}/watch/${urlId}`,
+        replay_link: `${baseUrl}/replay/${urlId}`,
+      };
+      if (nextSession) {
+        payload.session_date = nextSession.date;
+        payload.session_time = nextSession.time;
+        payload.session_timezone = nextSession.timezone;
+      }
+
+      const response = await fetch(webhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!response.ok) throw new Error('Failed');
+
+      if (config.regFormThankYouUrl) {
+        const thankYouUrl = new URL(config.regFormThankYouUrl);
+        thankYouUrl.searchParams.set('name', name.trim());
+        thankYouUrl.searchParams.set('email', email.trim());
+        window.location.href = thankYouUrl.toString();
+      } else {
+        toast({ title: "Registration successful!", description: "You've been registered." });
+        setName('');
+        setEmail('');
+      }
+    } catch {
+      setFormError('Failed to submit. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const inputStyle = {
+    background: isDark ? 'rgba(255,255,255,0.05)' : '#f3f4f6',
+    border: `1px solid ${isDark ? 'rgba(255,255,255,0.2)' : '#d1d5db'}`,
+    borderRadius: '8px',
+    color: config.regFormTextColor || '#ffffff',
+  };
+
+  return (
+    <div
+      className="min-h-screen"
+      style={{ background: config.regFormBackground || '#0a0a0f', color: config.regFormTextColor || '#ffffff' }}
+    >
+      {/* Hero Section */}
+      <div className="relative">
+        {config.regFormHeroImageUrl && (
+          <div className="w-full h-48 md:h-64 overflow-hidden">
+            <img
+              src={config.regFormHeroImageUrl}
+              alt="Hero"
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 h-48 md:h-64" style={{ background: 'linear-gradient(to bottom, transparent 40%, ' + (config.regFormBackground || '#0a0a0f') + ')' }} />
+          </div>
+        )}
+
+        <div className="max-w-4xl mx-auto px-6 pt-8 pb-6 text-center" style={config.regFormHeroImageUrl ? { marginTop: '-3rem', position: 'relative', zIndex: 1 } : {}}>
+          {config.regFormPreHeadline && (
+            <p className="text-sm md:text-base font-semibold tracking-widest uppercase mb-3" style={{ color: config.regFormButtonColor }}>
+              {config.regFormPreHeadline}
+            </p>
+          )}
+
+          <h1
+            className="text-3xl md:text-5xl font-bold mb-3 leading-tight"
+            style={{ fontFamily: "'Space Grotesk', system-ui, sans-serif" }}
+          >
+            {config.regFormHeadline || 'Register for the Free Training'}
+          </h1>
+
+          {config.regFormPostHeadline && (
+            <p className="text-lg md:text-xl opacity-80 mb-4 max-w-2xl mx-auto">{config.regFormPostHeadline}</p>
+          )}
+
+          {config.regFormSubheadline && (
+            <p className="opacity-70 mb-6">{config.regFormSubheadline}</p>
+          )}
+
+          {config.regFormShowDatetime && nextSession && (
+            <div
+              className="mb-6 py-3 px-6 rounded-xl inline-block"
+              style={{ background: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }}
+            >
+              <span className="text-sm md:text-base">
+                {nextSession.isJit
+                  ? `⚡ Starting in just ${nextSession.minutesAway} minutes!`
+                  : `📅 Next Session: ${nextSession.date} at ${nextSession.time} (${nextSession.timezone})`}
+              </span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Presenters */}
+      {config.regFormPresenters.length > 0 && (
+        <div className="max-w-4xl mx-auto px-6 pb-8">
+          <div className="flex justify-center gap-6 md:gap-10 flex-wrap">
+            {config.regFormPresenters.map((p, i) => (
+              <div key={i} className="flex flex-col items-center gap-2">
+                <div className="w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden border-2" style={{ borderColor: config.regFormButtonColor }}>
+                  {p.photoUrl ? (
+                    <img src={p.photoUrl} alt={p.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-2xl font-bold" style={{ background: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }}>
+                      {p.name.charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                </div>
+                <div className="text-center">
+                  <p className="text-sm font-semibold">{p.name}</p>
+                  {p.title && <p className="text-xs opacity-60">{p.title}</p>}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Two Column: Bullets + Form */}
+      <div className="max-w-5xl mx-auto px-6 pb-12">
+        <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-start">
+          {/* Left: Bullets */}
+          {(config.regFormBullets.length > 0 || config.regFormBulletHeadline) && (
+            <div className="space-y-5">
+              {config.regFormBulletHeadline && (
+                <h2
+                  className="text-xl md:text-2xl font-bold"
+                  style={{ fontFamily: "'Space Grotesk', system-ui, sans-serif" }}
+                >
+                  {config.regFormBulletHeadline}
+                </h2>
+              )}
+              <ul className="space-y-3">
+                {config.regFormBullets.map((bullet, i) => (
+                  <li key={i} className="flex items-start gap-3">
+                    <span className="mt-0.5 shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold" style={{ background: config.regFormButtonColor }}>✓</span>
+                    <span className="text-base md:text-lg opacity-90">{bullet}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Right: Form */}
+          <div
+            className="p-6 md:p-8 shadow-2xl"
+            style={{
+              background: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)',
+              border: `1px solid ${isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}`,
+              borderRadius,
+            }}
+          >
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1.5">{config.regFormNameLabel || 'Your Name'}</label>
+                <input
+                  type="text"
+                  placeholder={config.regFormNamePlaceholder || 'Enter your name'}
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full px-4 py-3.5 outline-none transition-all focus:ring-2"
+                  style={inputStyle}
+                  disabled={submitting}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1.5">{config.regFormEmailLabel || 'Your Email'}</label>
+                <input
+                  type="email"
+                  placeholder={config.regFormEmailPlaceholder || 'Enter your email'}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-4 py-3.5 outline-none transition-all focus:ring-2"
+                  style={inputStyle}
+                  disabled={submitting}
+                />
+              </div>
+
+              {formError && (
+                <div className="text-red-400 text-sm bg-red-500/10 p-3 rounded-lg">{formError}</div>
+              )}
+
+              <button
+                type="submit"
+                disabled={submitting}
+                className="w-full py-4 font-semibold text-white text-lg transition-all hover:opacity-90 hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-70 disabled:cursor-not-allowed"
+                style={{ background: config.regFormButtonColor || '#e53935', borderRadius }}
+              >
+                {submitting ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    Registering...
+                  </span>
+                ) : (
+                  config.regFormButtonText || 'Reserve My Seat →'
+                )}
+              </button>
+
+              {config.regFormShowPrivacy && (
+                <p className="text-xs opacity-60 text-center">
+                  🔒 {config.regFormPrivacyText || 'We respect your privacy.'}
+                </p>
+              )}
+            </form>
+          </div>
+        </div>
+      </div>
+
+      {/* Disclaimer & Legal */}
+      {(config.regFormDisclaimerText || config.regFormLegalLinks.length > 0) && (
+        <div className="border-t" style={{ borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }}>
+          <div className="max-w-4xl mx-auto px-6 py-8 text-center space-y-4">
+            {config.regFormDisclaimerText && (
+              <p className="text-xs opacity-50 max-w-2xl mx-auto leading-relaxed">{config.regFormDisclaimerText}</p>
+            )}
+            {config.regFormLegalLinks.length > 0 && (
+              <div className="flex justify-center gap-4 flex-wrap">
+                {config.regFormLegalLinks.map((link, i) => (
+                  <a
+                    key={i}
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs underline opacity-50 hover:opacity-80 transition-opacity"
+                  >
+                    {link.label}
+                  </a>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

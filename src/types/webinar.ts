@@ -80,6 +80,17 @@ export interface WebinarConfig {
   regFormPrivacyText: string;
   regFormTheme: 'dark' | 'light';
   
+  // Landing Page Template
+  regFormLayout: 'simple' | 'landing';
+  regFormPreHeadline: string;
+  regFormPostHeadline: string;
+  regFormBulletHeadline: string;
+  regFormBullets: string[];
+  regFormPresenters: Array<{ name: string; title: string; photoUrl: string }>;
+  regFormHeroImageUrl: string;
+  regFormDisclaimerText: string;
+  regFormLegalLinks: Array<{ label: string; url: string }>;
+  
   // Just-in-Time Sessions
   justInTimeEnabled: boolean;
   justInTimeMinutes: number;
@@ -218,6 +229,16 @@ export const DEFAULT_WEBINAR_CONFIG: Omit<WebinarConfig, 'id' | 'createdAt' | 'u
   regFormShowPrivacy: true,
   regFormPrivacyText: 'We respect your privacy. Unsubscribe anytime.',
   regFormTheme: 'dark',
+  // Landing Page Template
+  regFormLayout: 'simple',
+  regFormPreHeadline: '',
+  regFormPostHeadline: '',
+  regFormBulletHeadline: 'What You Will Learn:',
+  regFormBullets: [],
+  regFormPresenters: [],
+  regFormHeroImageUrl: '',
+  regFormDisclaimerText: '',
+  regFormLegalLinks: [],
   // Just-in-Time Sessions
   justInTimeEnabled: false,
   justInTimeMinutes: 15,
