@@ -6,181 +6,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { ClipboardList, ChevronDown, Settings2, Link, Copy, Check, Send, Loader2, Layout, FileText, Palette, Plus, Trash2 } from 'lucide-react';
+import { ClipboardList, ChevronDown, Settings2, Link, Copy, Check, Send, Loader2, Layout, FileText, Palette } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { sendSampleWebhookData } from '@/pages/WebinarEditor';
 import { LandingPageSettings } from './LandingPageSettings';
-
-// Template-specific settings component
-function TemplateSpecificSettings({ config, onChange, type }: {
-  config: Omit<WebinarConfig, 'id' | 'createdAt' | 'updatedAt'>;
-  onChange: (config: Omit<WebinarConfig, 'id' | 'createdAt' | 'updatedAt'>) => void;
-  type: string;
-}) {
-  const updateField = <K extends keyof typeof config>(field: K, value: typeof config[K]) => {
-    onChange({ ...config, [field]: value });
-  };
-
-  return (
-    <div className="space-y-4 p-4 rounded-lg border border-border/50 bg-secondary/20">
-      <Label className="font-medium text-sm">🎨 Template Settings</Label>
-
-      {/* Accent Color - all templates */}
-      <div className="space-y-2">
-        <Label>Accent Color</Label>
-        <div className="flex gap-2">
-          <input type="color" value={config.regFormAccentColor || '#f7c948'} onChange={(e) => updateField('regFormAccentColor', e.target.value)} className="w-12 h-10 rounded cursor-pointer" />
-          <Input value={config.regFormAccentColor} onChange={(e) => updateField('regFormAccentColor', e.target.value)} className="input-field flex-1" />
-        </div>
-      </div>
-
-      {/* Urgency Bar - curiosity, just-in-time */}
-      {(type === 'curiosity' || type === 'just-in-time') && (
-        <>
-          <div className="flex items-center justify-between">
-            <Label>Show Urgency Bar</Label>
-            <Switch checked={config.regFormShowUrgencyBar} onCheckedChange={(v) => updateField('regFormShowUrgencyBar', v)} />
-          </div>
-          {config.regFormShowUrgencyBar && (
-            <Input value={config.regFormUrgencyBarText} onChange={(e) => updateField('regFormUrgencyBarText', e.target.value)} placeholder="Urgency bar text" className="input-field" />
-          )}
-        </>
-      )}
-
-      {/* Secrets - curiosity */}
-      {type === 'curiosity' && (
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <Label>3 Secrets (Curiosity Bullets)</Label>
-            <Button type="button" variant="outline" size="sm" onClick={() => updateField('regFormSecrets', [...config.regFormSecrets, ''])}>
-              <Plus className="w-3 h-3 mr-1" /> Add
-            </Button>
-          </div>
-          {config.regFormSecrets.map((s, i) => (
-            <div key={i} className="flex gap-2 items-center">
-              <span className="text-xs font-bold text-primary shrink-0">SECRET #{i + 1}</span>
-              <Input value={s} onChange={(e) => { const u = [...config.regFormSecrets]; u[i] = e.target.value; updateField('regFormSecrets', u); }} className="input-field flex-1" />
-              <Button type="button" variant="ghost" size="sm" onClick={() => updateField('regFormSecrets', config.regFormSecrets.filter((_, j) => j !== i))} className="h-8 w-8 p-0 text-destructive"><Trash2 className="w-3 h-3" /></Button>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Qualifiers - curiosity, proof-stack */}
-      {(type === 'curiosity' || type === 'proof-stack') && (
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <Label>Qualifiers (For)</Label>
-            <Button type="button" variant="outline" size="sm" onClick={() => updateField('regFormQualifiersFor', [...config.regFormQualifiersFor, ''])}>
-              <Plus className="w-3 h-3 mr-1" /> Add
-            </Button>
-          </div>
-          {config.regFormQualifiersFor.map((q, i) => (
-            <div key={i} className="flex gap-2 items-center">
-              <span className="text-xs shrink-0">✅</span>
-              <Input value={q} onChange={(e) => { const u = [...config.regFormQualifiersFor]; u[i] = e.target.value; updateField('regFormQualifiersFor', u); }} className="input-field flex-1" />
-              <Button type="button" variant="ghost" size="sm" onClick={() => updateField('regFormQualifiersFor', config.regFormQualifiersFor.filter((_, j) => j !== i))} className="h-8 w-8 p-0 text-destructive"><Trash2 className="w-3 h-3" /></Button>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Anti-qualifiers - proof-stack */}
-      {type === 'proof-stack' && (
-        <>
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label>Qualifiers (NOT For)</Label>
-              <Button type="button" variant="outline" size="sm" onClick={() => updateField('regFormQualifiersNotFor', [...config.regFormQualifiersNotFor, ''])}>
-                <Plus className="w-3 h-3 mr-1" /> Add
-              </Button>
-            </div>
-            {config.regFormQualifiersNotFor.map((q, i) => (
-              <div key={i} className="flex gap-2 items-center">
-                <span className="text-xs shrink-0">❌</span>
-                <Input value={q} onChange={(e) => { const u = [...config.regFormQualifiersNotFor]; u[i] = e.target.value; updateField('regFormQualifiersNotFor', u); }} className="input-field flex-1" />
-                <Button type="button" variant="ghost" size="sm" onClick={() => updateField('regFormQualifiersNotFor', config.regFormQualifiersNotFor.filter((_, j) => j !== i))} className="h-8 w-8 p-0 text-destructive"><Trash2 className="w-3 h-3" /></Button>
-              </div>
-            ))}
-          </div>
-
-          {/* Results - proof-stack */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label>Results / Social Proof</Label>
-              <Button type="button" variant="outline" size="sm" onClick={() => updateField('regFormResults', [...config.regFormResults, { name: '', amount: '', context: '', timeline: '' }])}>
-                <Plus className="w-3 h-3 mr-1" /> Add
-              </Button>
-            </div>
-            {config.regFormResults.map((r, i) => (
-              <div key={i} className="p-3 rounded-lg bg-background/50 border border-border/30 space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground">Result {i + 1}</span>
-                  <Button type="button" variant="ghost" size="sm" onClick={() => updateField('regFormResults', config.regFormResults.filter((_, j) => j !== i))} className="h-7 w-7 p-0 text-destructive"><Trash2 className="w-3 h-3" /></Button>
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <Input value={r.name} onChange={(e) => { const u = [...config.regFormResults]; u[i] = { ...u[i], name: e.target.value }; updateField('regFormResults', u); }} placeholder="Name" className="input-field" />
-                  <Input value={r.amount} onChange={(e) => { const u = [...config.regFormResults]; u[i] = { ...u[i], amount: e.target.value }; updateField('regFormResults', u); }} placeholder="$5,000" className="input-field" />
-                  <Input value={r.context} onChange={(e) => { const u = [...config.regFormResults]; u[i] = { ...u[i], context: e.target.value }; updateField('regFormResults', u); }} placeholder="Context" className="input-field" />
-                  <Input value={r.timeline} onChange={(e) => { const u = [...config.regFormResults]; u[i] = { ...u[i], timeline: e.target.value }; updateField('regFormResults', u); }} placeholder="Timeline" className="input-field" />
-                </div>
-              </div>
-            ))}
-          </div>
-        </>
-      )}
-
-      {/* JIT-specific */}
-      {type === 'just-in-time' && (
-        <>
-          <div className="flex items-center justify-between">
-            <Label>Show Viewer Count</Label>
-            <Switch checked={config.regFormShowViewerCount} onCheckedChange={(v) => updateField('regFormShowViewerCount', v)} />
-          </div>
-          <div className="flex items-center justify-between">
-            <div>
-              <Label>Show Spots Remaining</Label>
-            </div>
-            <Switch checked={config.regFormShowSpotsLeft} onCheckedChange={(v) => updateField('regFormShowSpotsLeft', v)} />
-          </div>
-          {config.regFormShowSpotsLeft && (
-            <div className="space-y-2">
-              <Label>Spots Number</Label>
-              <Input type="number" value={config.regFormSpotsLeft} onChange={(e) => updateField('regFormSpotsLeft', parseInt(e.target.value) || 17)} className="input-field" />
-            </div>
-          )}
-        </>
-      )}
-
-      {/* Bonuses - challenge */}
-      {type === 'challenge' && (
-        <>
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label>Bonuses</Label>
-              <Button type="button" variant="outline" size="sm" onClick={() => updateField('regFormBonuses', [...config.regFormBonuses, { name: '', value: '' }])}>
-                <Plus className="w-3 h-3 mr-1" /> Add
-              </Button>
-            </div>
-            {config.regFormBonuses.map((b, i) => (
-              <div key={i} className="flex gap-2 items-center">
-                <Input value={b.name} onChange={(e) => { const u = [...config.regFormBonuses]; u[i] = { ...u[i], name: e.target.value }; updateField('regFormBonuses', u); }} placeholder="Bonus name" className="input-field flex-1" />
-                <Input value={b.value} onChange={(e) => { const u = [...config.regFormBonuses]; u[i] = { ...u[i], value: e.target.value }; updateField('regFormBonuses', u); }} placeholder="$197" className="input-field w-24" />
-                <Button type="button" variant="ghost" size="sm" onClick={() => updateField('regFormBonuses', config.regFormBonuses.filter((_, j) => j !== i))} className="h-8 w-8 p-0 text-destructive"><Trash2 className="w-3 h-3" /></Button>
-              </div>
-            ))}
-          </div>
-          <div className="space-y-2">
-            <Label>Total Bonus Value</Label>
-            <Input value={config.regFormBonusTotalValue} onChange={(e) => updateField('regFormBonusTotalValue', e.target.value)} placeholder="$891" className="input-field" />
-          </div>
-        </>
-      )}
-    </div>
-  );
-}
 
 interface RegistrationFormSettingsProps {
   config: Omit<WebinarConfig, 'id' | 'createdAt' | 'updatedAt'>;
@@ -255,50 +86,27 @@ export function RegistrationFormSettings({ config, onChange, webinarId }: Regist
               </div>
               <RadioGroup
                 value={config.regFormLayout}
-                onValueChange={(v) => updateField('regFormLayout', v as any)}
-                className="grid grid-cols-1 sm:grid-cols-2 gap-3"
+                onValueChange={(v) => updateField('regFormLayout', v as 'simple' | 'landing')}
+                className="grid grid-cols-2 gap-3"
               >
-                {[
-                  { value: 'simple', label: 'Simple Form', desc: 'Centered form, minimal design', icon: '📝' },
-                  { value: 'landing', label: 'Landing Page', desc: 'Full page with hero, bullets, presenters', icon: '🏠' },
-                  { value: 'curiosity', label: 'Curiosity Machine', desc: 'Brunson "3 Secrets" pattern. Gold/dark. Best for cold traffic.', icon: '🔥' },
-                  { value: 'just-in-time', label: 'Just-In-Time', desc: '"Starting in X min" urgency. Best for evergreen funnels.', icon: '⚡' },
-                  { value: 'proof-stack', label: 'Proof Stack', desc: 'Results grid + qualifiers. Best for warm traffic.', icon: '📈' },
-                  { value: 'challenge', label: 'Challenge Invite', desc: 'Workshop style + bonus stack. Best for live events.', icon: '🎯' },
-                  { value: 'minimalist', label: 'Minimalist Closer', desc: 'Ultra-clean, one headline + form. Best for email list.', icon: '✨' },
-                ].map((t) => (
-                  <label key={t.value} htmlFor={`layout-${t.value}`} className={`cursor-pointer flex items-start gap-3 p-3 rounded-lg border-2 transition-all ${config.regFormLayout === t.value ? 'border-primary bg-primary/5' : 'border-border/50 hover:border-border'}`}>
-                    <RadioGroupItem value={t.value} id={`layout-${t.value}`} className="sr-only" />
-                    <span className="text-xl shrink-0 mt-0.5">{t.icon}</span>
-                    <div>
-                      <span className="text-sm font-medium block">{t.label}</span>
-                      <span className="text-xs text-muted-foreground">{t.desc}</span>
-                    </div>
-                  </label>
-                ))}
+                <label htmlFor="layout-simple" className={`cursor-pointer flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all ${config.regFormLayout === 'simple' ? 'border-primary bg-primary/5' : 'border-border/50 hover:border-border'}`}>
+                  <RadioGroupItem value="simple" id="layout-simple" className="sr-only" />
+                  <FileText className="w-6 h-6" />
+                  <span className="text-sm font-medium">Simple Form</span>
+                  <span className="text-xs text-muted-foreground text-center">Centered form only</span>
+                </label>
+                <label htmlFor="layout-landing" className={`cursor-pointer flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all ${config.regFormLayout === 'landing' ? 'border-primary bg-primary/5' : 'border-border/50 hover:border-border'}`}>
+                  <RadioGroupItem value="landing" id="layout-landing" className="sr-only" />
+                  <Layout className="w-6 h-6" />
+                  <span className="text-sm font-medium">Landing Page</span>
+                  <span className="text-xs text-muted-foreground text-center">Full page with bullets & photos</span>
+                </label>
               </RadioGroup>
             </div>
 
-            {/* Landing Page specific settings - show for landing and new templates */}
-            {config.regFormLayout !== 'simple' && (
+            {/* Landing Page specific settings */}
+            {config.regFormLayout === 'landing' && (
               <LandingPageSettings config={config} onChange={onChange} />
-            )}
-
-            {/* Template-specific settings */}
-            {config.regFormLayout === 'curiosity' && (
-              <TemplateSpecificSettings config={config} onChange={onChange} type="curiosity" />
-            )}
-            {config.regFormLayout === 'just-in-time' && (
-              <TemplateSpecificSettings config={config} onChange={onChange} type="just-in-time" />
-            )}
-            {config.regFormLayout === 'proof-stack' && (
-              <TemplateSpecificSettings config={config} onChange={onChange} type="proof-stack" />
-            )}
-            {config.regFormLayout === 'challenge' && (
-              <TemplateSpecificSettings config={config} onChange={onChange} type="challenge" />
-            )}
-            {config.regFormLayout === 'minimalist' && (
-              <TemplateSpecificSettings config={config} onChange={onChange} type="minimalist" />
             )}
 
             {/* Form Content */}

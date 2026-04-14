@@ -92,7 +92,7 @@ export interface WebinarConfig {
   regFormTimerColor: string;
   
   // Landing Page Template
-  regFormLayout: 'simple' | 'landing' | 'curiosity' | 'just-in-time' | 'proof-stack' | 'challenge' | 'minimalist';
+  regFormLayout: 'simple' | 'landing';
   regFormPreHeadline: string;
   regFormPostHeadline: string;
   regFormBulletHeadline: string;
@@ -101,23 +101,6 @@ export interface WebinarConfig {
   regFormHeroImageUrl: string;
   regFormDisclaimerText: string;
   regFormLegalLinks: Array<{ label: string; url: string }>;
-
-  // Template-specific fields
-  regFormSecrets: string[];
-  regFormQualifiersFor: string[];
-  regFormQualifiersNotFor: string[];
-  regFormResults: Array<{ name: string; amount: string; context: string; timeline: string }>;
-  regFormBonuses: Array<{ name: string; value: string }>;
-  regFormShowCountdown: boolean;
-  regFormCountdownSeconds: number;
-  regFormShowViewerCount: boolean;
-  regFormShowSpotsLeft: boolean;
-  regFormSpotsLeft: number;
-  regFormSecondaryTimezone: string;
-  regFormAccentColor: string;
-  regFormUrgencyBarText: string;
-  regFormShowUrgencyBar: boolean;
-  regFormBonusTotalValue: string;
   
   // Just-in-Time Sessions
   justInTimeEnabled: boolean;
@@ -293,20 +276,4 @@ export const DEFAULT_WEBINAR_CONFIG: Omit<WebinarConfig, 'id' | 'createdAt' | 'u
   ipnWebhookSlug: '',
   ipnForwardEnabled: false,
   ipnForwardUrl: '',
-  // Template-specific fields
-  regFormSecrets: [],
-  regFormQualifiersFor: [],
-  regFormQualifiersNotFor: [],
-  regFormResults: [],
-  regFormBonuses: [],
-  regFormShowCountdown: true,
-  regFormCountdownSeconds: 6137,
-  regFormShowViewerCount: false,
-  regFormShowSpotsLeft: false,
-  regFormSpotsLeft: 17,
-  regFormSecondaryTimezone: 'Asia/Dubai',
-  regFormAccentColor: '#f7c948',
-  regFormUrgencyBarText: '⚠️ SEATS ARE LIMITED — Registration closing soon',
-  regFormShowUrgencyBar: true,
-  regFormBonusTotalValue: '$891',
 };

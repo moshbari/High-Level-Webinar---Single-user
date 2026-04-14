@@ -289,7 +289,7 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
           {/* Right: Form */}
           <div className="space-y-2 sm:space-y-3">
             {config.regFormSubheadline && (
-              <p className="text-center text-sm sm:text-base font-bold" style={{ color: config.regFormSubheadlineColor || config.regFormHeadlineColor || config.regFormTextColor }}>{config.regFormSubheadline}</p>
+              <p className="text-center text-lg sm:text-xl md:text-2xl font-bold" style={{ color: config.regFormSubheadlineColor || config.regFormHeadlineColor || config.regFormTextColor }}>{config.regFormSubheadline}</p>
             )}
             {config.regFormShowDatetime && nextSession && !nextSession.isJit && countdown && (
               <div className="text-center">
