@@ -1,4 +1,5 @@
 import { WebinarConfig, TIMEZONES } from '@/types/webinar';
+import { formatText } from './formatText';
 
 const getBorderRadius = (radius: string) => {
   switch (radius) {
@@ -168,8 +169,8 @@ export const generateRegistrationFormCode = (config: WebinarConfig): string => {
 </head>
 <body>
   <div class="reg-container">
-    <h1 class="reg-headline">${config.regFormHeadline}</h1>
-    ${config.regFormSubheadline ? `<p class="reg-subheadline">${config.regFormSubheadline}</p>` : ''}
+    <h1 class="reg-headline">${formatText(config.regFormHeadline)}</h1>
+    ${config.regFormSubheadline ? `<p class="reg-subheadline">${formatText(config.regFormSubheadline)}</p>` : ''}
     ${config.regFormShowDatetime ? '<div class="reg-datetime" id="sessionDateTime">📅 Loading next session...</div>' : ''}
     
     <form class="reg-form" id="registrationForm">

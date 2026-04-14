@@ -1,4 +1,5 @@
 import { WebinarConfig, TIMEZONES } from '@/types/webinar';
+import { formatText } from '@/lib/formatText';
 import { Loader2 } from 'lucide-react';
 import { useState, useMemo, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
@@ -204,9 +205,7 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
 
         <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-8 sm:pt-10 pb-2 sm:pb-4 text-center" style={config.regFormHeroImageUrl ? { marginTop: '-2rem', position: 'relative', zIndex: 1 } : {}}>
           {config.regFormPreHeadline && (
-            <p className="text-sm sm:text-base font-bold tracking-[0.3em] uppercase mb-4 sm:mb-5" style={{ color: config.regFormBulletColor || config.regFormButtonColor }}>
-              {config.regFormPreHeadline}
-            </p>
+            <p className="text-sm sm:text-base font-bold tracking-[0.3em] uppercase mb-4 sm:mb-5" style={{ color: config.regFormBulletColor || config.regFormButtonColor }} dangerouslySetInnerHTML={{ __html: formatText(config.regFormPreHeadline) }} />
           )}
 
           <h1
@@ -218,11 +217,11 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
               color: config.regFormHeadlineColor || config.regFormTextColor || '#ffffff',
             }}
           >
-            {config.regFormHeadline || 'Register for the Free Training'}
+            <span dangerouslySetInnerHTML={{ __html: formatText(config.regFormHeadline || 'Register for the Free Training') }} />
           </h1>
 
           {config.regFormPostHeadline && (
-            <p className="text-sm sm:text-base md:text-lg mb-6 sm:mb-8 max-w-2xl mx-auto opacity-70 leading-relaxed" style={{ color: config.regFormSubheadlineColor || config.regFormTextColor }}>{config.regFormPostHeadline}</p>
+            <p className="text-sm sm:text-base md:text-lg mb-6 sm:mb-8 max-w-2xl mx-auto opacity-70 leading-relaxed" style={{ color: config.regFormSubheadlineColor || config.regFormTextColor }} dangerouslySetInnerHTML={{ __html: formatText(config.regFormPostHeadline) }} />
           )}
 
         </div>
@@ -269,14 +268,14 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
                       color: config.regFormHeadlineColor || config.regFormTextColor,
                     }}
                   >
-                    {config.regFormBulletHeadline}
+                    <span dangerouslySetInnerHTML={{ __html: formatText(config.regFormBulletHeadline) }} />
                   </h2>
                 )}
                 <ul className="space-y-3 sm:space-y-4">
                   {config.regFormBullets.map((bullet, i) => (
                     <li key={i} className="flex items-start gap-2 sm:gap-3">
                       <span className="mt-1 shrink-0 w-5 h-5 sm:w-[22px] sm:h-[22px] rounded-full flex items-center justify-center text-white text-[10px] sm:text-xs font-bold" style={{ background: config.regFormBulletColor || '#1e40af' }}>✓</span>
-                      <span className="text-sm sm:text-[15px] md:text-base leading-relaxed" style={{ color: config.regFormSubheadlineColor || config.regFormTextColor, opacity: 0.75 }}>{bullet}</span>
+                      <span className="text-sm sm:text-[15px] md:text-base leading-relaxed" style={{ color: config.regFormSubheadlineColor || config.regFormTextColor, opacity: 0.75 }} dangerouslySetInnerHTML={{ __html: formatText(bullet) }} />
                     </li>
                   ))}
                 </ul>
@@ -287,7 +286,7 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
           {/* Right: Form */}
           <div className="space-y-2 sm:space-y-3">
             {config.regFormSubheadline && (
-              <p className="text-center text-base sm:text-lg font-extrabold tracking-tight" style={{ color: config.regFormSubheadlineColor || config.regFormHeadlineColor || config.regFormTextColor }}>{config.regFormSubheadline}</p>
+              <p className="text-center text-base sm:text-lg font-extrabold tracking-tight" style={{ color: config.regFormSubheadlineColor || config.regFormHeadlineColor || config.regFormTextColor }} dangerouslySetInnerHTML={{ __html: formatText(config.regFormSubheadline) }} />
             )}
             {config.regFormShowDatetime && nextSession && !nextSession.isJit && countdown && (
               <div className="text-center py-1 sm:py-2">
