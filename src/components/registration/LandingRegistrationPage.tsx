@@ -28,7 +28,6 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
   const isDark = config.regFormTheme === 'dark';
   const borderRadius = getBorderRadius(config.regFormBorderRadius);
 
-  // Build next session date in the configured timezone
   const getNextSessionInTz = () => {
     const tz = config.timezone || 'UTC';
     const now = new Date();
@@ -42,14 +41,21 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
       const [hr, mi, sc] = timePart.split(':').map(Number);
       const guess = new Date(Date.UTC(y, mo - 1, d, hr, mi, sc));
       const parts = new Intl.DateTimeFormat('en-US', {
-        timeZone, year: 'numeric', month: '2-digit', day: '2-digit',
-        hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false,
+        timeZone,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false,
       }).formatToParts(guess);
       const get = (type: string) => parseInt(parts.find(p => p.type === type)?.value || '0');
       const tzAtGuess = new Date(Date.UTC(get('year'), get('month') - 1, get('day'), get('hour') === 24 ? 0 : get('hour'), get('minute'), get('second')));
       const offsetMs = tzAtGuess.getTime() - guess.getTime();
       return guess.getTime() - offsetMs;
     };
+
     let targetMs = getUtcMs(candidateStr, tz);
     if (targetMs <= now.getTime()) {
       const tomorrow = new Date(now);
@@ -57,6 +63,7 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
       const tomorrowInTz = new Intl.DateTimeFormat('en-CA', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit' }).format(tomorrow);
       targetMs = getUtcMs(`${tomorrowInTz}T${hh}:${mm}:00`, tz);
     }
+
     return new Date(targetMs);
   };
 
@@ -72,12 +79,14 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
         minutesAway: config.justInTimeMinutes,
       };
     }
+
     const sessionDate = getNextSessionInTz();
     const tz = config.timezone || 'UTC';
     const tzObj = TIMEZONES.find(t => t.value === tz);
     const dateStr = sessionDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: tz });
     const timeStr = sessionDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: tz });
     const tzLabel = tzObj ? tzObj.label.split(' - ')[1]?.replace(/[()]/g, '').trim() || tzObj.label.split(' ')[0] : 'Local';
+
     return {
       date: dateStr,
       time: timeStr,
@@ -87,19 +96,25 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
     };
   }, [config]);
 
-  // Countdown timer for scheduled webinars
   const [countdown, setCountdown] = useState('');
+
   useEffect(() => {
     if (!nextSession || nextSession.isJit) return;
+
     const update = () => {
       const target = getNextSessionInTz();
       const diff = target.getTime() - Date.now();
-      if (diff <= 0) { setCountdown('Starting now!'); return; }
+      if (diff <= 0) {
+        setCountdown('Starting now!');
+        return;
+      }
+
       const h = Math.floor(diff / 3600000);
       const m = Math.floor((diff % 3600000) / 60000);
       const s = Math.floor((diff % 60000) / 1000);
       setCountdown(`${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`);
     };
+
     update();
     const id = setInterval(update, 1000);
     return () => clearInterval(id);
@@ -107,16 +122,29 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) { setFormError('Please enter your name'); return; }
-    if (!email.trim()) { setFormError('Please enter your email'); return; }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setFormError('Please enter a valid email'); return; }
+    if (!name.trim()) {
+      setFormError('Please enter your name');
+      return;
+    }
+    if (!email.trim()) {
+      setFormError('Please enter your email');
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setFormError('Please enter a valid email');
+      return;
+    }
+
     setFormError(null);
 
     const webhookUrl = config.regFormEmailPlatform === 'systeme'
       ? config.regFormSystemeWebhookUrl
       : config.regFormGhlWebhookUrl;
 
-    if (!webhookUrl) { setFormError('Registration not configured.'); return; }
+    if (!webhookUrl) {
+      setFormError('Registration not configured.');
+      return;
+    }
 
     setSubmitting(true);
     try {
@@ -137,6 +165,7 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
         watch_link: `${baseUrl}/watch/${urlId}`,
         replay_link: `${baseUrl}/replay/${urlId}`,
       };
+
       if (nextSession) {
         payload.session_date = nextSession.date;
         payload.session_time = nextSession.time;
@@ -148,6 +177,7 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
+
       if (!response.ok) throw new Error('Failed');
 
       if (config.regFormThankYouUrl) {
@@ -156,7 +186,7 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
         thankYouUrl.searchParams.set('email', email.trim());
         window.location.href = thankYouUrl.toString();
       } else {
-        toast({ title: "Registration successful!", description: "You've been registered." });
+        toast({ title: 'Registration successful!', description: "You've been registered." });
         setName('');
         setEmail('');
       }
@@ -184,30 +214,35 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
   return (
     <div
       className="min-h-screen"
-      style={{ background: config.regFormBackground || '#0a0a0f', color: config.regFormTextColor || '#ffffff', fontFamily: `'${config.regFormFontFamily}', system-ui, sans-serif`, fontSize: config.regFormBodyFontSize || '1rem' }}
+      style={{
+        background: config.regFormBackground || '#0a0a0f',
+        color: config.regFormTextColor || '#ffffff',
+        fontFamily: `'${config.regFormFontFamily}', system-ui, sans-serif`,
+        fontSize: config.regFormBodyFontSize || '1rem',
+      }}
     >
       <link href={`https://fonts.googleapis.com/css2?family=${fontImports}:wght@300;400;500;600;700;800;900&display=swap`} rel="stylesheet" />
-      {/* Subtle ambient glow */}
+
       <div
         className="absolute top-0 left-0 w-full h-[500px] pointer-events-none"
         style={{ background: `radial-gradient(ellipse 80% 50% at 50% 0%, ${config.regFormButtonColor || '#e53935'}0A, transparent)` }}
       />
-      {/* Hero Section */}
+
       <div className="relative">
         {config.regFormHeroImageUrl && (
           <div className="w-full h-32 sm:h-48 md:h-64 overflow-hidden">
-            <img
-              src={config.regFormHeroImageUrl}
-              alt="Hero"
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 h-32 sm:h-48 md:h-64" style={{ background: 'linear-gradient(to bottom, transparent 40%, ' + (config.regFormBackground || '#0a0a0f') + ')' }} />
+            <img src={config.regFormHeroImageUrl} alt="Hero" className="w-full h-full object-cover" />
+            <div className="absolute inset-0 h-32 sm:h-48 md:h-64" style={{ background: `linear-gradient(to bottom, transparent 40%, ${config.regFormBackground || '#0a0a0f'})` }} />
           </div>
         )}
 
         <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-8 sm:pt-10 pb-2 sm:pb-4 text-center" style={config.regFormHeroImageUrl ? { marginTop: '-2rem', position: 'relative', zIndex: 1 } : {}}>
           {config.regFormPreHeadline && (
-            <p className={`text-sm sm:text-base font-bold tracking-[0.3em] uppercase mb-4 sm:mb-5 ${richTextClassName}`} style={{ color: config.regFormBulletColor || config.regFormButtonColor }} dangerouslySetInnerHTML={{ __html: formatText(config.regFormPreHeadline) }} />
+            <p
+              className={`text-sm sm:text-base font-bold tracking-[0.3em] uppercase mb-4 sm:mb-5 ${richTextClassName}`}
+              style={{ color: config.regFormBulletColor || config.regFormButtonColor }}
+              dangerouslySetInnerHTML={{ __html: formatText(config.regFormPreHeadline) }}
+            />
           )}
 
           <h1
@@ -223,18 +258,18 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
           </h1>
 
           {config.regFormPostHeadline && (
-            <p className={`text-sm sm:text-base md:text-lg mb-6 sm:mb-8 max-w-2xl mx-auto opacity-70 leading-relaxed ${richTextClassName}`} style={{ color: config.regFormSubheadlineColor || config.regFormTextColor }} dangerouslySetInnerHTML={{ __html: formatText(config.regFormPostHeadline) }} />
+            <p
+              className={`text-sm sm:text-base md:text-lg mb-6 sm:mb-8 max-w-2xl mx-auto opacity-70 leading-relaxed ${richTextClassName}`}
+              style={{ color: config.regFormSubheadlineColor || config.regFormTextColor }}
+              dangerouslySetInnerHTML={{ __html: formatText(config.regFormPostHeadline) }}
+            />
           )}
-
         </div>
       </div>
 
-      {/* Two Column: Bullets + Form */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 pb-6 sm:pb-12">
         <div className="grid md:grid-cols-2 gap-6 sm:gap-10 md:gap-14 items-start">
-          {/* Left: Presenters + Bullets */}
           <div className="space-y-5 sm:space-y-6">
-            {/* Presenters */}
             {config.regFormPresenters.length > 0 && (
               <div className="flex gap-6 sm:gap-8 flex-wrap mb-2 sm:mb-4">
                 {config.regFormPresenters.map((p, i) => (
@@ -257,7 +292,6 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
               </div>
             )}
 
-            {/* Bullets */}
             {(config.regFormBullets.length > 0 || config.regFormBulletHeadline) && (
               <div className="space-y-2 sm:space-y-4">
                 {config.regFormBulletHeadline && (
@@ -277,7 +311,11 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
                   {config.regFormBullets.map((bullet, i) => (
                     <li key={i} className="flex items-start gap-2 sm:gap-3">
                       <span className="mt-1 shrink-0 w-5 h-5 sm:w-[22px] sm:h-[22px] rounded-full flex items-center justify-center text-white text-[10px] sm:text-xs font-bold" style={{ background: config.regFormBulletColor || '#1e40af' }}>✓</span>
-                      <span className={`text-sm sm:text-[15px] md:text-base leading-relaxed ${richTextClassName}`} style={{ color: config.regFormSubheadlineColor || config.regFormTextColor, opacity: 0.75 }} dangerouslySetInnerHTML={{ __html: formatText(bullet) }} />
+                      <span
+                        className={`text-sm sm:text-[15px] md:text-base leading-relaxed ${richTextClassName}`}
+                        style={{ color: config.regFormSubheadlineColor || config.regFormTextColor, opacity: 0.75 }}
+                        dangerouslySetInnerHTML={{ __html: formatText(bullet) }}
+                      />
                     </li>
                   ))}
                 </ul>
@@ -285,120 +323,15 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
             )}
           </div>
 
-          {/* Right: Form */}
           <div className="space-y-2 sm:space-y-3">
             {config.regFormSubheadline && (
-              <p className={`text-center text-base sm:text-lg font-extrabold tracking-tight ${richTextClassName}`} style={{ color: config.regFormSubheadlineColor || config.regFormHeadlineColor || config.regFormTextColor }} dangerouslySetInnerHTML={{ __html: formatText(config.regFormSubheadline) }} />
-            )}
-            {config.regFormShowDatetime && nextSession && !nextSession.isJit && countdown && (
-    <div
-      className="min-h-screen"
-      style={{ background: config.regFormBackground || '#0a0a0f', color: config.regFormTextColor || '#ffffff', fontFamily: `'${config.regFormFontFamily}', system-ui, sans-serif`, fontSize: config.regFormBodyFontSize || '1rem' }}
-    >
-      <link href={`https://fonts.googleapis.com/css2?family=${fontImports}:wght@300;400;500;600;700;800&display=swap`} rel="stylesheet" />
-      {/* Subtle ambient glow */}
-      <div
-        className="absolute top-0 left-0 w-full h-[500px] pointer-events-none"
-        style={{ background: `radial-gradient(ellipse 80% 50% at 50% 0%, ${config.regFormButtonColor || '#e53935'}0A, transparent)` }}
-      />
-      {/* Hero Section */}
-      <div className="relative">
-        {config.regFormHeroImageUrl && (
-          <div className="w-full h-32 sm:h-48 md:h-64 overflow-hidden">
-            <img
-              src={config.regFormHeroImageUrl}
-              alt="Hero"
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 h-32 sm:h-48 md:h-64" style={{ background: 'linear-gradient(to bottom, transparent 40%, ' + (config.regFormBackground || '#0a0a0f') + ')' }} />
-          </div>
-        )}
-
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-8 sm:pt-10 pb-2 sm:pb-4 text-center" style={config.regFormHeroImageUrl ? { marginTop: '-2rem', position: 'relative', zIndex: 1 } : {}}>
-          {config.regFormPreHeadline && (
-            <p className="text-sm sm:text-base font-bold tracking-[0.3em] uppercase mb-4 sm:mb-5" style={{ color: config.regFormBulletColor || config.regFormButtonColor }} dangerouslySetInnerHTML={{ __html: formatText(config.regFormPreHeadline) }} />
-          )}
-
-          <h1
-            className="mb-4 sm:mb-5 leading-[1.25] sm:leading-[1.3]"
-            style={{
-              fontFamily: `'${config.regFormHeadlineFontFamily}', system-ui, sans-serif`,
-              fontWeight: config.regFormHeadlineFontWeight || '700',
-              fontSize: config.regFormHeadlineFontSize || 'clamp(1.5rem, 4vw, 2.5rem)',
-              color: config.regFormHeadlineColor || config.regFormTextColor || '#ffffff',
-            }}
-          >
-            <span dangerouslySetInnerHTML={{ __html: formatText(config.regFormHeadline || 'Register for the Free Training') }} />
-          </h1>
-
-          {config.regFormPostHeadline && (
-            <p className="text-sm sm:text-base md:text-lg mb-6 sm:mb-8 max-w-2xl mx-auto opacity-70 leading-relaxed" style={{ color: config.regFormSubheadlineColor || config.regFormTextColor }} dangerouslySetInnerHTML={{ __html: formatText(config.regFormPostHeadline) }} />
-          )}
-
-        </div>
-      </div>
-
-      {/* Two Column: Bullets + Form */}
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 pb-6 sm:pb-12">
-        <div className="grid md:grid-cols-2 gap-6 sm:gap-10 md:gap-14 items-start">
-          {/* Left: Presenters + Bullets */}
-          <div className="space-y-5 sm:space-y-6">
-            {/* Presenters */}
-            {config.regFormPresenters.length > 0 && (
-              <div className="flex gap-6 sm:gap-8 flex-wrap mb-2 sm:mb-4">
-                {config.regFormPresenters.map((p, i) => (
-                  <div key={i} className="flex items-center gap-3">
-                    <div className="w-14 h-14 sm:w-[72px] sm:h-[72px] rounded-full overflow-hidden shrink-0" style={{ border: `3px solid ${config.regFormButtonColor}`, boxShadow: '0 4px 12px rgba(0,0,0,0.25)' }}>
-                      {p.photoUrl ? (
-                        <img src={p.photoUrl} alt={p.name} className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-xl font-black" style={{ background: `linear-gradient(135deg, ${config.regFormButtonColor || '#e53935'}, ${config.regFormButtonColor || '#e53935'}cc)` }}>
-                          {p.name.charAt(0).toUpperCase()}
-                        </div>
-                      )}
-                    </div>
-                    <div>
-                      <p className="text-sm sm:text-[15px] font-bold leading-tight">{p.name}</p>
-                      {p.title && <p className="text-xs sm:text-[13px] opacity-50 mt-0.5">{p.title}</p>}
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <p
+                className={`text-center text-base sm:text-lg font-extrabold tracking-tight ${richTextClassName}`}
+                style={{ color: config.regFormSubheadlineColor || config.regFormHeadlineColor || config.regFormTextColor }}
+                dangerouslySetInnerHTML={{ __html: formatText(config.regFormSubheadline) }}
+              />
             )}
 
-            {/* Bullets */}
-            {(config.regFormBullets.length > 0 || config.regFormBulletHeadline) && (
-              <div className="space-y-2 sm:space-y-4">
-                {config.regFormBulletHeadline && (
-                  <h2
-                    className="text-base sm:text-lg md:text-xl mb-1 sm:mb-2"
-                    style={{
-                      fontFamily: `'${config.regFormHeadlineFontFamily}', system-ui, sans-serif`,
-                      fontWeight: '800',
-                      letterSpacing: '0.02em',
-                      color: config.regFormHeadlineColor || config.regFormTextColor,
-                    }}
-                  >
-                    <span dangerouslySetInnerHTML={{ __html: formatText(config.regFormBulletHeadline) }} />
-                  </h2>
-                )}
-                <ul className="space-y-3 sm:space-y-4">
-                  {config.regFormBullets.map((bullet, i) => (
-                    <li key={i} className="flex items-start gap-2 sm:gap-3">
-                      <span className="mt-1 shrink-0 w-5 h-5 sm:w-[22px] sm:h-[22px] rounded-full flex items-center justify-center text-white text-[10px] sm:text-xs font-bold" style={{ background: config.regFormBulletColor || '#1e40af' }}>✓</span>
-                      <span className="text-sm sm:text-[15px] md:text-base leading-relaxed" style={{ color: config.regFormSubheadlineColor || config.regFormTextColor, opacity: 0.75 }} dangerouslySetInnerHTML={{ __html: formatText(bullet) }} />
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
-
-          {/* Right: Form */}
-          <div className="space-y-2 sm:space-y-3">
-            {config.regFormSubheadline && (
-              <p className="text-center text-base sm:text-lg font-extrabold tracking-tight" style={{ color: config.regFormSubheadlineColor || config.regFormHeadlineColor || config.regFormTextColor }} dangerouslySetInnerHTML={{ __html: formatText(config.regFormSubheadline) }} />
-            )}
             {config.regFormShowDatetime && nextSession && !nextSession.isJit && countdown && (
               <div className="text-center py-1 sm:py-2">
                 <p className="text-2xl sm:text-3xl md:text-4xl font-black tracking-wider" style={{ color: config.regFormTimerColor || config.regFormButtonColor || config.regFormHeadlineColor || config.regFormTextColor, fontFamily: "'Courier New', 'Lucida Console', monospace", fontVariantNumeric: 'tabular-nums' }}>
@@ -406,6 +339,7 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
                 </p>
               </div>
             )}
+
             {config.regFormShowDatetime && nextSession && (
               <div
                 className="py-2.5 sm:py-3 px-4 sm:px-6 rounded-xl text-center"
@@ -418,72 +352,73 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
                 </span>
               </div>
             )}
-          <div
-            className="p-4 sm:p-6 md:p-8 mt-3 sm:mt-4 shadow-2xl"
-            style={{
-              background: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.02)',
-              border: `1px solid ${isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.1)'}`,
-              borderRadius,
-            }}
-          >
-            <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
-              <div>
-                <label className="block text-xs sm:text-sm font-medium mb-1">{config.regFormNameLabel || 'Your Name'}</label>
-                <input
-                  type="text"
-                  placeholder={config.regFormNamePlaceholder || 'Enter your name'}
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="w-full px-4 py-3 sm:py-3.5 text-sm sm:text-base outline-none transition-all focus:ring-2"
-                  style={inputStyle}
-                  disabled={submitting}
-                />
-              </div>
-              <div>
-                <label className="block text-xs sm:text-sm font-medium mb-1">{config.regFormEmailLabel || 'Your Email'}</label>
-                <input
-                  type="email"
-                  placeholder={config.regFormEmailPlaceholder || 'Enter your email'}
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3 sm:py-3.5 text-sm sm:text-base outline-none transition-all focus:ring-2"
-                  style={inputStyle}
-                  disabled={submitting}
-                />
-              </div>
 
-              {formError && (
-                <div className="text-red-400 text-xs sm:text-sm bg-red-500/10 p-2 rounded-lg">{formError}</div>
-              )}
+            <div
+              className="p-4 sm:p-6 md:p-8 mt-3 sm:mt-4 shadow-2xl"
+              style={{
+                background: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.02)',
+                border: `1px solid ${isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.1)'}`,
+                borderRadius,
+              }}
+            >
+              <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+                <div>
+                  <label className="block text-xs sm:text-sm font-medium mb-1">{config.regFormNameLabel || 'Your Name'}</label>
+                  <input
+                    type="text"
+                    placeholder={config.regFormNamePlaceholder || 'Enter your name'}
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full px-4 py-3 sm:py-3.5 text-sm sm:text-base outline-none transition-all focus:ring-2"
+                    style={inputStyle}
+                    disabled={submitting}
+                  />
+                </div>
 
-              <button
-                type="submit"
-                disabled={submitting}
-                className="w-full py-3.5 sm:py-4 font-extrabold text-white text-base sm:text-lg transition-all hover:opacity-90 hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed"
-                style={{ background: config.regFormButtonColor || '#e53935', borderRadius, boxShadow: `0 8px 24px ${config.regFormButtonColor || '#e53935'}45` }}
-              >
-                {submitting ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Registering...
-                  </span>
-                ) : (
-                  config.regFormButtonText || 'Reserve My Seat →'
+                <div>
+                  <label className="block text-xs sm:text-sm font-medium mb-1">{config.regFormEmailLabel || 'Your Email'}</label>
+                  <input
+                    type="email"
+                    placeholder={config.regFormEmailPlaceholder || 'Enter your email'}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full px-4 py-3 sm:py-3.5 text-sm sm:text-base outline-none transition-all focus:ring-2"
+                    style={inputStyle}
+                    disabled={submitting}
+                  />
+                </div>
+
+                {formError && (
+                  <div className="text-red-400 text-xs sm:text-sm bg-red-500/10 p-2 rounded-lg">{formError}</div>
                 )}
-              </button>
 
-              {config.regFormShowPrivacy && (
-                <p className="text-[10px] sm:text-xs opacity-50 text-center mt-1 sm:mt-2">
-                  🔒 {config.regFormPrivacyText || 'We respect your privacy.'}
-                </p>
-              )}
-            </form>
-          </div>
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="w-full py-3.5 sm:py-4 font-extrabold text-white text-base sm:text-lg transition-all hover:opacity-90 hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed"
+                  style={{ background: config.regFormButtonColor || '#e53935', borderRadius, boxShadow: `0 8px 24px ${config.regFormButtonColor || '#e53935'}45` }}
+                >
+                  {submitting ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Registering...
+                    </span>
+                  ) : (
+                    config.regFormButtonText || 'Reserve My Seat →'
+                  )}
+                </button>
+
+                {config.regFormShowPrivacy && (
+                  <p className="text-[10px] sm:text-xs opacity-50 text-center mt-1 sm:mt-2">
+                    🔒 {config.regFormPrivacyText || 'We respect your privacy.'}
+                  </p>
+                )}
+              </form>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Disclaimer & Legal */}
       {(config.regFormDisclaimerText || config.regFormLegalLinks.length > 0) && (
         <div className="border-t" style={{ borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }}>
           <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-10 text-center space-y-3 sm:space-y-4">
