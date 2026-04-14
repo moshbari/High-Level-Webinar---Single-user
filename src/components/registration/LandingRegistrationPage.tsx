@@ -1,4 +1,5 @@
 import { WebinarConfig, TIMEZONES } from '@/types/webinar';
+import { formatText } from '@/lib/formatText';
 import { Loader2 } from 'lucide-react';
 import { useState, useMemo, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
