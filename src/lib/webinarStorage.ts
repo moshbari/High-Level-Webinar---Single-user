@@ -341,6 +341,15 @@ export const updateWebinar = async (id: string, config: Partial<WebinarConfig>):
   if (rest.regFormShowPrivacy !== undefined) updateData.reg_form_show_privacy = rest.regFormShowPrivacy;
   if (rest.regFormPrivacyText !== undefined) updateData.reg_form_privacy_text = rest.regFormPrivacyText;
   if (rest.regFormTheme !== undefined) updateData.reg_form_theme = rest.regFormTheme;
+  // Font Settings
+  if (rest.regFormFontFamily !== undefined) updateData.reg_form_font_family = rest.regFormFontFamily;
+  if (rest.regFormHeadlineFontFamily !== undefined) updateData.reg_form_headline_font_family = rest.regFormHeadlineFontFamily;
+  if (rest.regFormHeadlineFontSize !== undefined) updateData.reg_form_headline_font_size = rest.regFormHeadlineFontSize;
+  if (rest.regFormBodyFontSize !== undefined) updateData.reg_form_body_font_size = rest.regFormBodyFontSize;
+  if (rest.regFormHeadlineColor !== undefined) updateData.reg_form_headline_color = rest.regFormHeadlineColor || null;
+  if (rest.regFormHeadlineFontWeight !== undefined) updateData.reg_form_headline_font_weight = rest.regFormHeadlineFontWeight;
+  if (rest.regFormBulletColor !== undefined) updateData.reg_form_bullet_color = rest.regFormBulletColor || null;
+  if (rest.regFormSubheadlineColor !== undefined) updateData.reg_form_subheadline_color = rest.regFormSubheadlineColor || null;
   // Landing Page Template
   if (rest.regFormLayout !== undefined) updateData.reg_form_layout = rest.regFormLayout;
   if (rest.regFormPreHeadline !== undefined) updateData.reg_form_pre_headline = rest.regFormPreHeadline;
