@@ -174,18 +174,6 @@ export default function LandingRegistrationPage({ config }: LandingRegistrationP
             <p style={{ color: config.regFormSubheadlineColor || config.regFormTextColor, opacity: 0.8 }} className="mb-6">{config.regFormSubheadline}</p>
           )}
 
-          {config.regFormShowDatetime && nextSession && (
-            <div
-              className="mb-6 py-3 px-6 rounded-xl inline-block"
-              style={{ background: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }}
-            >
-              <span className="text-sm md:text-base">
-                {nextSession.isJit
-                  ? `⚡ Starting in just ${nextSession.minutesAway} minutes!`
-                  : `📅 Next Session: ${nextSession.date} at ${nextSession.time} (${nextSession.timezone})`}
-              </span>
-            </div>
-          )}
         </div>
       </div>
 
