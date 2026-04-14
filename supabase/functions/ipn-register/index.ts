@@ -14,7 +14,28 @@ interface ParsedLead {
   source: string;
 }
 
+function unwrapBody(raw: any): Record<string, any> {
+  // Some platforms wrap the payload in an array or nest it under .body
+  if (Array.isArray(raw) && raw.length > 0) {
+    const first = raw[0];
+    if (first && typeof first === "object" && first.body && typeof first.body === "object") {
+      return first.body;
+    }
+    return first;
+  }
+  return raw;
+}
+
 function detectAndParse(body: Record<string, any>): ParsedLead | null {
+  // Systeme.io / checkout-style (checkout_email)
+  if (body.checkout_email) {
+    const name =
+      body.checkout_name ||
+      (body.user && body.user.name) ||
+      "Customer";
+    return { name, email: body.checkout_email, source: "Systeme" };
+  }
+
   // LaunchPad
   if (body.customer_email) {
     const firstName = body.customer_first_name || body.first_name || "";
@@ -39,6 +60,15 @@ function detectAndParse(body: Record<string, any>): ParsedLead | null {
       `${body.WP_BUYER_FIRST_NAME || ""} ${body.WP_BUYER_LAST_NAME || ""}`.trim() ||
       "Customer";
     return { name, email: body.WP_BUYER_EMAIL, source: "WarriorPlus" };
+  }
+
+  // Nested user object fallback (e.g. { user: { email, name } })
+  if (body.user && body.user.email) {
+    return {
+      name: body.user.name || "Customer",
+      email: body.user.email,
+      source: "Custom",
+    };
   }
 
   // Generic fallback
@@ -133,7 +163,8 @@ Deno.serve(async (req) => {
       }
     } else {
       try {
-        body = await req.json();
+        const raw = await req.json();
+        body = unwrapBody(raw);
       } catch {
         body = {};
       }
