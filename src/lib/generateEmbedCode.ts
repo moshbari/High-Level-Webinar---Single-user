@@ -2591,6 +2591,76 @@ export const generateEmbedCode = (config: WebinarConfig, resolvedClips?: Resolve
       trackLeaveOnce();
     });
 
+    // --- Resume / Watch Progress Logic ---
+    const progressKey = 'webinar_progress_' + CONFIG.webinarId;
+
+    function formatTime(totalSeconds) {
+      const h = Math.floor(totalSeconds / 3600);
+      const m = Math.floor((totalSeconds % 3600) / 60);
+      const s = Math.floor(totalSeconds % 60);
+      if (h > 0) return h + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+      return m + ':' + String(s).padStart(2,'0');
+    }
+
+    function saveWatchProgress() {
+      const video = document.getElementById('webinarVideo');
+      if (!video) return;
+      let currentSeconds = 0;
+      if (CONFIG.videoMode === 'multi' && typeof getCumulativeElapsed === 'function') {
+        currentSeconds = getCumulativeElapsed();
+      } else {
+        currentSeconds = video.currentTime || 0;
+      }
+      if (currentSeconds > 5) {
+        localStorage.setItem(progressKey, JSON.stringify({
+          seconds: Math.floor(currentSeconds),
+          timestamp: Date.now(),
+          clipIndex: typeof currentClipIndex !== 'undefined' ? currentClipIndex : 0
+        }));
+      }
+    }
+
+    // Save progress every 10 seconds and on page leave
+    setInterval(saveWatchProgress, 10000);
+    window.addEventListener('beforeunload', saveWatchProgress);
+    window.addEventListener('pagehide', saveWatchProgress);
+
+    function startWithResume(resumeSeconds) {
+      // For JIT webinars, shift the start time back so elapsed = resumeSeconds
+      if (CONFIG.justInTimeEnabled) {
+        const storageKey = 'jit_start_' + CONFIG.webinarId;
+        const now = new Date();
+        const options = { timeZone: CONFIG.timezone };
+        const localTime = new Date(now.toLocaleString('en-US', options));
+        const newStart = new Date(localTime.getTime() - (resumeSeconds * 1000));
+        sessionStorage.setItem(storageKey, String(newStart.getTime()));
+      }
+      document.getElementById('countdownOverlay').classList.add('hidden');
+      startWebinar();
+    }
+
+    function startFresh() {
+      localStorage.removeItem(progressKey);
+      if (CONFIG.justInTimeEnabled) {
+        const storageKey = 'jit_start_' + CONFIG.webinarId;
+        sessionStorage.removeItem(storageKey);
+        // Re-create a fresh JIT start
+        const now = new Date();
+        const options = { timeZone: CONFIG.timezone };
+        const localTime = new Date(now.toLocaleString('en-US', options));
+        if (CONFIG.justInTimeMinutes <= 0) {
+          const jitStart = new Date(localTime.getTime() - 1000);
+          sessionStorage.setItem(storageKey, String(jitStart.getTime()));
+        } else {
+          const offsetMs = (Math.floor(Math.random() * (CONFIG.justInTimeMinutes - 1)) + 1) * 60 * 1000;
+          const jitStart = new Date(localTime.getTime() + offsetMs);
+          sessionStorage.setItem(storageKey, String(jitStart.getTime()));
+        }
+      }
+      document.getElementById('countdownOverlay').classList.add('hidden');
+      startWebinar();
+    }
+
     // Initialize
     trackJoinOnce();
     const { state } = getWebinarState();
@@ -2599,7 +2669,42 @@ export const generateEmbedCode = (config: WebinarConfig, resolvedClips?: Resolve
       countdownIntervalId = setInterval(updateCountdown, 1000);
     } else if (state === 'live') {
       document.getElementById('countdownOverlay').classList.add('hidden');
-      startWebinar();
+
+      // Check for saved watch progress (only for JIT webinars)
+      const savedProgress = CONFIG.justInTimeEnabled ? localStorage.getItem(progressKey) : null;
+      let showResume = false;
+      let resumeData = null;
+
+      if (savedProgress) {
+        try {
+          resumeData = JSON.parse(savedProgress);
+          // Only offer resume if progress is > 30 seconds and < total duration - 30s
+          // and saved less than 48 hours ago
+          const ageHours = (Date.now() - resumeData.timestamp) / (1000 * 60 * 60);
+          if (resumeData.seconds > 30 && resumeData.seconds < (CONFIG.durationSeconds - 30) && ageHours < 48) {
+            showResume = true;
+          }
+        } catch(e) {}
+      }
+
+      if (showResume) {
+        const timeLabel = formatTime(resumeData.seconds);
+        document.getElementById('resumeTimeLabel').textContent = timeLabel;
+        document.getElementById('resumeBtnTime').textContent = timeLabel;
+        document.getElementById('resumeOverlay').classList.remove('hidden');
+
+        document.getElementById('resumeBtn').addEventListener('click', function() {
+          document.getElementById('resumeOverlay').classList.add('hidden');
+          startWithResume(resumeData.seconds);
+        });
+
+        document.getElementById('restartBtn').addEventListener('click', function() {
+          document.getElementById('resumeOverlay').classList.add('hidden');
+          startFresh();
+        });
+      } else {
+        startWebinar();
+      }
     } else {
       const { startTime } = getWebinarState();
       document.getElementById('countdownOverlay').classList.add('hidden');
