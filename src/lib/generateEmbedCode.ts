@@ -1120,6 +1120,84 @@ export const generateEmbedCode = (config: WebinarConfig, resolvedClips?: Resolve
       .interstitial-question { font-size: 1.05rem; }
       .interstitial-option { font-size: 0.9rem; padding: 0.75rem 1rem; }
     }
+
+    /* Resume Popup */
+    .resume-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 300;
+      background: rgba(0,0,0,0.85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(8px);
+    }
+    .resume-overlay.hidden { display: none; }
+    .resume-card {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 16px;
+      padding: 2.5rem 2rem;
+      text-align: center;
+      max-width: 420px;
+      width: 90%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+    .resume-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.25rem;
+      font-size: 1.75rem;
+    }
+    .resume-title {
+      font-size: 1.35rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: #fff;
+    }
+    .resume-subtitle {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-bottom: 1.75rem;
+      line-height: 1.5;
+    }
+    .resume-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .resume-btn {
+      padding: 0.875rem 1.5rem;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+      font-family: 'Inter', system-ui, sans-serif;
+    }
+    .resume-btn-primary {
+      background: var(--primary);
+      color: #fff;
+    }
+    .resume-btn-primary:hover {
+      filter: brightness(1.15);
+      transform: translateY(-1px);
+    }
+    .resume-btn-secondary {
+      background: rgba(255,255,255,0.08);
+      color: var(--text-muted);
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+    .resume-btn-secondary:hover {
+      background: rgba(255,255,255,0.14);
+      color: #fff;
+    }
   </style>
 </head>
 <body>
