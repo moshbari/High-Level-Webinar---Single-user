@@ -1507,9 +1507,26 @@ export const generateEmbedCode = (config: WebinarConfig, resolvedClips?: Resolve
 
         // 0 minutes = start immediately, no countdown at all
         if (CONFIG.justInTimeMinutes <= 0) {
-          sessionStorage.removeItem(storageKey);
-          const jitStart = new Date(localTime.getTime() - 1000); // 1s in the past = already live
+          // Persist start time so it survives tab switches and re-calls
+          let immediateStartMs = sessionStorage.getItem(storageKey);
+          if (!immediateStartMs) {
+            const jitStart = new Date(localTime.getTime() - 1000); // 1s in the past = already live
+            immediateStartMs = String(jitStart.getTime());
+            sessionStorage.setItem(storageKey, immediateStartMs);
+          }
+          const jitStart = new Date(Number(immediateStartMs));
           const jitEnd = new Date(jitStart.getTime() + CONFIG.durationSeconds * 1000);
+          
+          if (localTime >= jitEnd) {
+            // Session ended — clear and restart
+            sessionStorage.removeItem(storageKey);
+            const newStart = new Date(localTime.getTime() - 1000);
+            sessionStorage.setItem(storageKey, String(newStart.getTime()));
+            const newEnd = new Date(newStart.getTime() + CONFIG.durationSeconds * 1000);
+            const elapsed = (localTime - newStart) / 1000;
+            return { state: 'live', startTime: newStart, endTime: newEnd, elapsed };
+          }
+          
           const elapsed = (localTime - jitStart) / 1000;
           return { state: 'live', startTime: jitStart, endTime: jitEnd, elapsed };
         }
