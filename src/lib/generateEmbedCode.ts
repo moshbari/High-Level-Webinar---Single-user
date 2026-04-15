@@ -1126,77 +1126,113 @@ export const generateEmbedCode = (config: WebinarConfig, resolvedClips?: Resolve
       position: fixed;
       inset: 0;
       z-index: 300;
-      background: rgba(0,0,0,0.85);
+      background: rgba(0,0,0,0.7);
       display: flex;
       align-items: center;
       justify-content: center;
-      backdrop-filter: blur(8px);
+      backdrop-filter: blur(4px);
     }
     .resume-overlay.hidden { display: none; }
     .resume-card {
-      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-      border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(30,30,35,0.95);
+      border: 1px solid rgba(255,255,255,0.1);
       border-radius: 16px;
-      padding: 2.5rem 2rem;
+      padding: 2rem 1.75rem;
       text-align: center;
-      max-width: 420px;
-      width: 90%;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+      max-width: 480px;
+      width: 92%;
+      position: relative;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.6);
     }
-    .resume-icon {
-      width: 64px;
-      height: 64px;
-      border-radius: 50%;
-      background: var(--primary);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 1.25rem;
-      font-size: 1.75rem;
+    .resume-close {
+      position: absolute;
+      top: 12px;
+      right: 14px;
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.4);
+      font-size: 1.5rem;
+      cursor: pointer;
+      line-height: 1;
+      padding: 4px;
+      transition: color 0.2s;
     }
+    .resume-close:hover { color: #fff; }
     .resume-title {
-      font-size: 1.35rem;
-      font-weight: 700;
-      margin-bottom: 0.5rem;
-      color: #fff;
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+      color: rgba(255,255,255,0.7);
+      letter-spacing: 0.02em;
     }
     .resume-subtitle {
-      color: var(--text-muted);
-      font-size: 0.9rem;
-      margin-bottom: 1.75rem;
+      color: rgba(255,255,255,0.55);
+      font-size: 0.88rem;
+      margin-bottom: 1.25rem;
       line-height: 1.5;
+    }
+    .resume-time {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #22c55e;
+      margin-bottom: 0.35rem;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.04em;
+    }
+    .resume-time-label {
+      color: rgba(255,255,255,0.4);
+      font-size: 0.8rem;
+      margin-bottom: 1.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
     }
     .resume-buttons {
       display: flex;
-      flex-direction: column;
       gap: 0.75rem;
     }
     .resume-btn {
-      padding: 0.875rem 1.5rem;
+      flex: 1;
+      padding: 0.85rem 1rem;
       border-radius: 10px;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       font-weight: 600;
       cursor: pointer;
       border: none;
       transition: all 0.2s;
       font-family: 'Inter', system-ui, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
     }
     .resume-btn-primary {
-      background: var(--primary);
+      background: #22c55e;
       color: #fff;
+      border: 2px solid #22c55e;
     }
     .resume-btn-primary:hover {
-      filter: brightness(1.15);
+      background: #16a34a;
+      border-color: #16a34a;
       transform: translateY(-1px);
     }
     .resume-btn-secondary {
-      background: rgba(255,255,255,0.08);
-      color: var(--text-muted);
-      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.06);
+      color: rgba(255,255,255,0.7);
+      border: 1px solid rgba(255,255,255,0.15);
     }
     .resume-btn-secondary:hover {
-      background: rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.12);
       color: #fff;
+    }
+    .resume-btn svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+    @media (max-width: 480px) {
+      .resume-card { padding: 1.5rem 1.25rem; }
+      .resume-time { font-size: 2rem; }
+      .resume-buttons { flex-direction: column; }
     }
   </style>
 </head>
