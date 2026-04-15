@@ -1242,7 +1242,19 @@ export const generateEmbedCode = (config: WebinarConfig, resolvedClips?: Resolve
     <p class="overlay-message">Please stay on this page. The session will begin automatically.</p>
   </div>
 
-  <!-- Main Webinar Room -->
+  <!-- Resume Popup Overlay -->
+  <div class="resume-overlay hidden" id="resumeOverlay">
+    <div class="resume-card">
+      <div class="resume-icon">▶</div>
+      <h2 class="resume-title">Welcome Back!</h2>
+      <p class="resume-subtitle" id="resumeSubtitle">You previously watched up to <strong id="resumeTimeLabel">00:00</strong>. Would you like to continue where you left off?</p>
+      <div class="resume-buttons">
+        <button class="resume-btn resume-btn-primary" id="resumeBtn">Resume from <span id="resumeBtnTime">00:00</span></button>
+        <button class="resume-btn resume-btn-secondary" id="restartBtn">Start from Beginning</button>
+      </div>
+    </div>
+  </div>
+
   <div class="webinar-container" id="webinarRoom" style="display: none;">
     <div class="video-section">
       <div class="header">
