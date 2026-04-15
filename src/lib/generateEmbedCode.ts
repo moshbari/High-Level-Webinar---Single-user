@@ -1281,12 +1281,20 @@ export const generateEmbedCode = (config: WebinarConfig, resolvedClips?: Resolve
   <!-- Resume Popup Overlay -->
   <div class="resume-overlay hidden" id="resumeOverlay">
     <div class="resume-card">
-      <div class="resume-icon">▶</div>
-      <h2 class="resume-title">Welcome Back!</h2>
-      <p class="resume-subtitle" id="resumeSubtitle">You previously watched up to <strong id="resumeTimeLabel">00:00</strong>. Would you like to continue where you left off?</p>
+      <button class="resume-close" id="resumeClose" aria-label="Close">×</button>
+      <h2 class="resume-title">Resume Playback</h2>
+      <p class="resume-subtitle">You were watching this video. Would you like to continue from where you left off?</p>
+      <div class="resume-time" id="resumeTimeDisplay">0:55</div>
+      <div class="resume-time-label">Last watched position</div>
       <div class="resume-buttons">
-        <button class="resume-btn resume-btn-primary" id="resumeBtn">Resume from <span id="resumeBtnTime">00:00</span></button>
-        <button class="resume-btn resume-btn-secondary" id="restartBtn">Start from Beginning</button>
+        <button class="resume-btn resume-btn-primary" id="resumeBtn">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          Resume from <span id="resumeBtnTime">0:55</span>
+        </button>
+        <button class="resume-btn resume-btn-secondary" id="restartBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+          Start from beginning
+        </button>
       </div>
     </div>
   </div>
