@@ -2733,7 +2733,7 @@ export const generateEmbedCode = (config: WebinarConfig, resolvedClips?: Resolve
 
       if (showResume) {
         const timeLabel = formatTime(resumeData.seconds);
-        document.getElementById('resumeTimeLabel').textContent = timeLabel;
+        document.getElementById('resumeTimeDisplay').textContent = timeLabel;
         document.getElementById('resumeBtnTime').textContent = timeLabel;
         document.getElementById('resumeOverlay').classList.remove('hidden');
 
@@ -2743,6 +2743,11 @@ export const generateEmbedCode = (config: WebinarConfig, resolvedClips?: Resolve
         });
 
         document.getElementById('restartBtn').addEventListener('click', function() {
+          document.getElementById('resumeOverlay').classList.add('hidden');
+          startFresh();
+        });
+
+        document.getElementById('resumeClose').addEventListener('click', function() {
           document.getElementById('resumeOverlay').classList.add('hidden');
           startFresh();
         });
