@@ -1120,6 +1120,84 @@ export const generateEmbedCode = (config: WebinarConfig, resolvedClips?: Resolve
       .interstitial-question { font-size: 1.05rem; }
       .interstitial-option { font-size: 0.9rem; padding: 0.75rem 1rem; }
     }
+
+    /* Resume Popup */
+    .resume-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 300;
+      background: rgba(0,0,0,0.85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(8px);
+    }
+    .resume-overlay.hidden { display: none; }
+    .resume-card {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 16px;
+      padding: 2.5rem 2rem;
+      text-align: center;
+      max-width: 420px;
+      width: 90%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+    .resume-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.25rem;
+      font-size: 1.75rem;
+    }
+    .resume-title {
+      font-size: 1.35rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: #fff;
+    }
+    .resume-subtitle {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-bottom: 1.75rem;
+      line-height: 1.5;
+    }
+    .resume-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .resume-btn {
+      padding: 0.875rem 1.5rem;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+      font-family: 'Inter', system-ui, sans-serif;
+    }
+    .resume-btn-primary {
+      background: var(--primary);
+      color: #fff;
+    }
+    .resume-btn-primary:hover {
+      filter: brightness(1.15);
+      transform: translateY(-1px);
+    }
+    .resume-btn-secondary {
+      background: rgba(255,255,255,0.08);
+      color: var(--text-muted);
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+    .resume-btn-secondary:hover {
+      background: rgba(255,255,255,0.14);
+      color: #fff;
+    }
   </style>
 </head>
 <body>
@@ -1164,7 +1242,19 @@ export const generateEmbedCode = (config: WebinarConfig, resolvedClips?: Resolve
     <p class="overlay-message">Please stay on this page. The session will begin automatically.</p>
   </div>
 
-  <!-- Main Webinar Room -->
+  <!-- Resume Popup Overlay -->
+  <div class="resume-overlay hidden" id="resumeOverlay">
+    <div class="resume-card">
+      <div class="resume-icon">▶</div>
+      <h2 class="resume-title">Welcome Back!</h2>
+      <p class="resume-subtitle" id="resumeSubtitle">You previously watched up to <strong id="resumeTimeLabel">00:00</strong>. Would you like to continue where you left off?</p>
+      <div class="resume-buttons">
+        <button class="resume-btn resume-btn-primary" id="resumeBtn">Resume from <span id="resumeBtnTime">00:00</span></button>
+        <button class="resume-btn resume-btn-secondary" id="restartBtn">Start from Beginning</button>
+      </div>
+    </div>
+  </div>
+
   <div class="webinar-container" id="webinarRoom" style="display: none;">
     <div class="video-section">
       <div class="header">
@@ -2501,6 +2591,76 @@ export const generateEmbedCode = (config: WebinarConfig, resolvedClips?: Resolve
       trackLeaveOnce();
     });
 
+    // --- Resume / Watch Progress Logic ---
+    const progressKey = 'webinar_progress_' + CONFIG.webinarId;
+
+    function formatTime(totalSeconds) {
+      const h = Math.floor(totalSeconds / 3600);
+      const m = Math.floor((totalSeconds % 3600) / 60);
+      const s = Math.floor(totalSeconds % 60);
+      if (h > 0) return h + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+      return m + ':' + String(s).padStart(2,'0');
+    }
+
+    function saveWatchProgress() {
+      const video = document.getElementById('webinarVideo');
+      if (!video) return;
+      let currentSeconds = 0;
+      if (CONFIG.videoMode === 'multi' && typeof getCumulativeElapsed === 'function') {
+        currentSeconds = getCumulativeElapsed();
+      } else {
+        currentSeconds = video.currentTime || 0;
+      }
+      if (currentSeconds > 5) {
+        localStorage.setItem(progressKey, JSON.stringify({
+          seconds: Math.floor(currentSeconds),
+          timestamp: Date.now(),
+          clipIndex: typeof currentClipIndex !== 'undefined' ? currentClipIndex : 0
+        }));
+      }
+    }
+
+    // Save progress every 10 seconds and on page leave
+    setInterval(saveWatchProgress, 10000);
+    window.addEventListener('beforeunload', saveWatchProgress);
+    window.addEventListener('pagehide', saveWatchProgress);
+
+    function startWithResume(resumeSeconds) {
+      // For JIT webinars, shift the start time back so elapsed = resumeSeconds
+      if (CONFIG.justInTimeEnabled) {
+        const storageKey = 'jit_start_' + CONFIG.webinarId;
+        const now = new Date();
+        const options = { timeZone: CONFIG.timezone };
+        const localTime = new Date(now.toLocaleString('en-US', options));
+        const newStart = new Date(localTime.getTime() - (resumeSeconds * 1000));
+        sessionStorage.setItem(storageKey, String(newStart.getTime()));
+      }
+      document.getElementById('countdownOverlay').classList.add('hidden');
+      startWebinar();
+    }
+
+    function startFresh() {
+      localStorage.removeItem(progressKey);
+      if (CONFIG.justInTimeEnabled) {
+        const storageKey = 'jit_start_' + CONFIG.webinarId;
+        sessionStorage.removeItem(storageKey);
+        // Re-create a fresh JIT start
+        const now = new Date();
+        const options = { timeZone: CONFIG.timezone };
+        const localTime = new Date(now.toLocaleString('en-US', options));
+        if (CONFIG.justInTimeMinutes <= 0) {
+          const jitStart = new Date(localTime.getTime() - 1000);
+          sessionStorage.setItem(storageKey, String(jitStart.getTime()));
+        } else {
+          const offsetMs = (Math.floor(Math.random() * (CONFIG.justInTimeMinutes - 1)) + 1) * 60 * 1000;
+          const jitStart = new Date(localTime.getTime() + offsetMs);
+          sessionStorage.setItem(storageKey, String(jitStart.getTime()));
+        }
+      }
+      document.getElementById('countdownOverlay').classList.add('hidden');
+      startWebinar();
+    }
+
     // Initialize
     trackJoinOnce();
     const { state } = getWebinarState();
@@ -2509,7 +2669,42 @@ export const generateEmbedCode = (config: WebinarConfig, resolvedClips?: Resolve
       countdownIntervalId = setInterval(updateCountdown, 1000);
     } else if (state === 'live') {
       document.getElementById('countdownOverlay').classList.add('hidden');
-      startWebinar();
+
+      // Check for saved watch progress (only for JIT webinars)
+      const savedProgress = CONFIG.justInTimeEnabled ? localStorage.getItem(progressKey) : null;
+      let showResume = false;
+      let resumeData = null;
+
+      if (savedProgress) {
+        try {
+          resumeData = JSON.parse(savedProgress);
+          // Only offer resume if progress is > 30 seconds and < total duration - 30s
+          // and saved less than 48 hours ago
+          const ageHours = (Date.now() - resumeData.timestamp) / (1000 * 60 * 60);
+          if (resumeData.seconds > 30 && resumeData.seconds < (CONFIG.durationSeconds - 30) && ageHours < 48) {
+            showResume = true;
+          }
+        } catch(e) {}
+      }
+
+      if (showResume) {
+        const timeLabel = formatTime(resumeData.seconds);
+        document.getElementById('resumeTimeLabel').textContent = timeLabel;
+        document.getElementById('resumeBtnTime').textContent = timeLabel;
+        document.getElementById('resumeOverlay').classList.remove('hidden');
+
+        document.getElementById('resumeBtn').addEventListener('click', function() {
+          document.getElementById('resumeOverlay').classList.add('hidden');
+          startWithResume(resumeData.seconds);
+        });
+
+        document.getElementById('restartBtn').addEventListener('click', function() {
+          document.getElementById('resumeOverlay').classList.add('hidden');
+          startFresh();
+        });
+      } else {
+        startWebinar();
+      }
     } else {
       const { startTime } = getWebinarState();
       document.getElementById('countdownOverlay').classList.add('hidden');
