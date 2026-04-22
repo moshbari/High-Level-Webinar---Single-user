@@ -1306,10 +1306,10 @@ export const generateEmbedCode = (config: WebinarConfig, resolvedClips?: Resolve
           <div class="logo-circle">${config.logoText}</div>
           <span class="header-title">${config.headerTitle}</span>
         </div>
-        <div class="live-badge">
+        ${config.justInTimeEnabled ? '' : `<div class="live-badge">
           <span class="live-dot"></span>
           LIVE
-        </div>
+        </div>`}
         <div class="viewer-count">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
@@ -1354,7 +1354,7 @@ export const generateEmbedCode = (config: WebinarConfig, resolvedClips?: Resolve
         </div>
         <div class="loading-overlay" id="loadingOverlay">
           <div class="loading-spinner"></div>
-          <span class="loading-text">Joining live session...</span>
+          <span class="loading-text">${config.justInTimeEnabled ? 'Loading your session...' : 'Joining live session...'}</span>
         </div>
       </div>
     </div>
