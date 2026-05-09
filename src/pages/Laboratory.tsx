@@ -514,37 +514,51 @@ export default function Laboratory() {
                               </TooltipContent>
                             </Tooltip>
 
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => navigate(`/webinar/${webinar.id}/preview`)}
-                                  className="h-8 px-2"
-                                >
-                                  <Eye className="w-4 h-4" />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>Preview webinar</p>
-                              </TooltipContent>
-                            </Tooltip>
-
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => navigate(`/webinar/${webinar.id}/code`)}
-                                  className="h-8 px-2"
-                                >
-                                  <Code className="w-4 h-4" />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>View embed code</p>
-                              </TooltipContent>
-                            </Tooltip>
+                            {/* Hosted Registration Dropdown */}
+                            {hasRegistrationPage(webinar) ? (
+                              <DropdownMenu>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <DropdownMenuTrigger asChild>
+                                      <Button variant="ghost" size="sm" className="h-8 px-2">
+                                        <UserPlus className="w-4 h-4" />
+                                      </Button>
+                                    </DropdownMenuTrigger>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>Hosted registration page</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                                <DropdownMenuContent align="end" className="bg-popover">
+                                  <DropdownMenuItem onClick={() => handleOpenRegister(webinar.id)}>
+                                    <ExternalLink className="w-4 h-4 mr-2" />
+                                    Open in new tab
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => handleCopyRegisterUrl(webinar.id)}>
+                                    <Link className="w-4 h-4 mr-2" />
+                                    Copy URL
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            ) : (
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <span tabIndex={0}>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      disabled
+                                      className="h-8 px-2 opacity-40 cursor-not-allowed"
+                                    >
+                                      <UserPlus className="w-4 h-4" />
+                                    </Button>
+                                  </span>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>No registration page configured</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            )}
 
                             {/* Watch Page Dropdown */}
                             <DropdownMenu>
@@ -597,22 +611,6 @@ export default function Laboratory() {
                                 </DropdownMenuItem>
                               </DropdownMenuContent>
                             </DropdownMenu>
-
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => handleCopyCode(webinar.id)}
-                                  className="h-8 px-2"
-                                >
-                                  <Clipboard className="w-4 h-4" />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>Copy embed code</p>
-                              </TooltipContent>
-                            </Tooltip>
 
                             <Tooltip>
                               <TooltipTrigger asChild>
