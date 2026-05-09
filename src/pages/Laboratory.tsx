@@ -192,10 +192,27 @@ export default function Laboratory() {
       return;
     }
 
-    window.open(targetUrl, '_blank');
   };
 
-  return (
+  const hasRegistrationPage = (w: any) =>
+    !!(w?.regFormGhlWebhookUrl?.trim() || w?.regFormSystemeWebhookUrl?.trim());
+
+  const handleCopyRegisterUrl = async (id: string) => {
+    const urlId = await resolveWebinarUrlId(id);
+    const url = `${window.location.origin}/register/${urlId}`;
+    await navigator.clipboard.writeText(url);
+    toast({ title: 'Copied!', description: 'Registration page URL copied to clipboard' });
+  };
+
+  const handleOpenRegister = async (id: string) => {
+    const newWindow = window.open('', '_blank');
+    const urlId = await resolveWebinarUrlId(id);
+    const targetUrl = `${window.location.origin}/register/${urlId}`;
+    if (newWindow) {
+      newWindow.location.href = targetUrl;
+      return;
+    }
+    window.open(targetUrl, '_blank');
     <div className="min-h-screen bg-background">
       {/* Trial Warning Bar */}
       <TrialWarningBar />
