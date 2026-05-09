@@ -192,6 +192,7 @@ export default function Laboratory() {
       return;
     }
 
+    window.open(targetUrl, '_blank');
   };
 
   const hasRegistrationPage = (w: any) =>
@@ -213,6 +214,9 @@ export default function Laboratory() {
       return;
     }
     window.open(targetUrl, '_blank');
+  };
+
+  return (
     <div className="min-h-screen bg-background">
       {/* Trial Warning Bar */}
       <TrialWarningBar />
