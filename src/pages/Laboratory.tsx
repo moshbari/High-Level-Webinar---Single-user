@@ -9,7 +9,7 @@ import { TrialWarningBar } from '@/components/auth/TrialWarningBar';
 import { WebinarNotesButton } from '@/components/webinar/notes';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, Radio, Loader2, MessageSquare, Edit, Eye, Code, Copy, Clipboard, Trash2, Clock, BarChart3, Headphones, LogOut, Settings, User, ExternalLink, PlayCircle, Link } from 'lucide-react';
+import { Plus, Radio, Loader2, MessageSquare, Edit, Eye, Code, Copy, Clipboard, Trash2, Clock, BarChart3, Headphones, LogOut, Settings, User, ExternalLink, PlayCircle, Link, UserPlus } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from '@/hooks/use-toast';
 import { useState, useMemo } from 'react';
