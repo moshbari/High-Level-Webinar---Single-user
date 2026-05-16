@@ -29,3 +29,6 @@ verify_jwt = false
 
 [functions.admin-send-password-reset]
 verify_jwt = false
+
+[functions.webinar-chat]
+verify_jwt = false
