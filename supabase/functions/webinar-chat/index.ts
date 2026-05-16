@@ -35,7 +35,7 @@ Deno.serve(async (req) => {
     }
 
     const body = (await req.json()) as ChatRequest;
-    const { webinarId, userMessage, userName, history } = body;
+    const { webinarId, userMessage, userName, userEmail, sessionId, history } = body;
 
     if (!webinarId || !userMessage || typeof userMessage !== "string") {
       return new Response(
@@ -82,11 +82,33 @@ Deno.serve(async (req) => {
 - Stay on topic about this training and offer.
 - If asked something outside the knowledge base, answer briefly and steer back.
 - Keep replies short (1-3 sentences) unless the user asks for detail.
-- Address the user by name when known.`,
+- Address the user by name when known.
+- CRITICAL: Never repeat a previous answer verbatim. If the user asks about something you've already addressed (even with different wording like "price" vs "how much"), rephrase completely — use different sentence structure, different opening words, different examples or analogies. Sound like a real human who would naturally vary their phrasing, not a bot replaying a script.
+- Vary your openings. Do not start consecutive replies the same way.`,
       userName ? `\nUser's name: ${userName}` : "",
     ].join("");
 
-    const trimmedHistory = Array.isArray(history) ? history.slice(-10) : [];
+    // Build conversation history: prefer client-provided, otherwise load from DB
+    let convoHistory: Array<{ role: "user" | "assistant"; content: string }> = [];
+    if (Array.isArray(history) && history.length > 0) {
+      convoHistory = history.slice(-12);
+    } else if (sessionId || userEmail) {
+      const query = supabase
+        .from("chat_messages")
+        .select("user_message, bot_response, sent_at")
+        .eq("webinar_id", webinarId)
+        .order("sent_at", { ascending: false })
+        .limit(8);
+      const { data: prior } = sessionId
+        ? await query.eq("session_id", sessionId)
+        : await query.eq("user_email", userEmail!);
+      if (prior) {
+        for (const row of prior.reverse()) {
+          if (row.user_message) convoHistory.push({ role: "user", content: row.user_message });
+          if (row.bot_response) convoHistory.push({ role: "assistant", content: row.bot_response });
+        }
+      }
+    }
 
     const openaiRes = await fetch(
       "https://api.openai.com/v1/chat/completions",
@@ -98,10 +120,13 @@ Deno.serve(async (req) => {
         },
         body: JSON.stringify({
           model: "gpt-4o-mini",
-          temperature: 0.7,
+          temperature: 0.95,
+          top_p: 0.95,
+          presence_penalty: 0.7,
+          frequency_penalty: 0.6,
           messages: [
             { role: "system", content: sysPrompt },
-            ...trimmedHistory,
+            ...convoHistory,
             { role: "user", content: userMessage },
           ],
         }),
