@@ -406,7 +406,7 @@ export const generateEmbedCode = (config: WebinarConfig, resolvedClips?: Resolve
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>${config.headerTitle}</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -423,8 +423,10 @@ export const generateEmbedCode = (config: WebinarConfig, resolvedClips?: Resolve
     }
     
     html, body {
+      width: 100%;
       height: 100%;
       height: -webkit-fill-available;
+      overflow: hidden;
     }
 
     body {
@@ -436,6 +438,7 @@ export const generateEmbedCode = (config: WebinarConfig, resolvedClips?: Resolve
       overflow: hidden;
       min-height: 100vh;
       min-height: 100dvh;
+      min-height: var(--webinar-viewport-height, 100dvh);
     }
     
     h1, h2, h3 { font-family: 'Space Grotesk', system-ui, sans-serif; }
@@ -450,11 +453,16 @@ export const generateEmbedCode = (config: WebinarConfig, resolvedClips?: Resolve
       width: 100vw;
       height: 100vh;
       height: 100dvh;
+      height: var(--webinar-viewport-height, 100dvh);
+      max-height: var(--webinar-viewport-height, 100dvh);
+      overflow: hidden;
     }
     
     @media (max-width: 768px) {
       .webinar-container {
         flex-direction: column;
+        height: var(--webinar-viewport-height, 100dvh);
+        max-height: var(--webinar-viewport-height, 100dvh);
       }
     }
     
