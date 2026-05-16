@@ -259,7 +259,7 @@ export const generateReplayCode = (config: WebinarConfig): string => {
       cursor: pointer;
     }
     @media (max-width: 768px) {
-      .video-wrapper { flex: none; height: 40vh; min-height: 200px; }
+      .video-wrapper { flex: none; height: 40vh; height: min(40dvh, calc(var(--webinar-viewport-height, 100dvh) * 0.4)); min-height: 0; }
     }
     video {
       width: 100%; height: 100%;
@@ -480,7 +480,7 @@ export const generateReplayCode = (config: WebinarConfig): string => {
       border-left: 1px solid var(--border);
     }
     @media (max-width: 768px) {
-      .chat-section { width: 100%; flex: 1; border-left: none; border-top: 1px solid var(--border); }
+      .chat-section { width: 100%; flex: 1; min-height: 0; overflow: hidden; border-left: none; border-top: 1px solid var(--border); }
     }
     .chat-header {
       display: flex;
@@ -494,6 +494,9 @@ export const generateReplayCode = (config: WebinarConfig): string => {
     .chat-messages {
       flex: 1;
       overflow-y: auto;
+      min-height: 0;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
       padding: 1rem 1.5rem;
       display: flex;
       flex-direction: column;
@@ -523,6 +526,8 @@ export const generateReplayCode = (config: WebinarConfig): string => {
     .lead-form, .chat-input-form {
       padding: 1rem 1.5rem;
       border-top: 1px solid var(--border);
+      flex-shrink: 0;
+      background: var(--chat-bg);
     }
     .lead-form h3 { font-size: 1rem; margin-bottom: 0.75rem; }
     .lead-input {
