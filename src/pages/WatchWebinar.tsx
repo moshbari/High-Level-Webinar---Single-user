@@ -142,7 +142,8 @@ export default function WatchWebinar() {
     <iframe
       ref={iframeRef}
       title={config?.headerTitle || 'Webinar'}
-      className="w-full h-screen border-0"
+      className="w-full border-0 block"
+      style={{ height: '100dvh' }}
       allow="autoplay; fullscreen; encrypted-media"
     />
   );

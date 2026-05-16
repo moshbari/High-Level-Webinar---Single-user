@@ -128,7 +128,8 @@ export default function ReplayWebinar() {
     <iframe
       ref={iframeRef}
       title={`${config?.headerTitle || 'Webinar'} - Replay`}
-      className="w-full h-screen border-0"
+      className="w-full border-0 block"
+      style={{ height: '100dvh' }}
       sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"
       allow="autoplay; fullscreen"
     />
