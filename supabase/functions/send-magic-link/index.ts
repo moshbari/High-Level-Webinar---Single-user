@@ -24,8 +24,6 @@ function emailHtml(actionLink: string, displayName?: string) {
       <p style="margin:0 0 28px 0;text-align:center;">
         <a href="${actionLink}" style="display:inline-block;background:#ec4899;color:#ffffff;text-decoration:none;font-weight:600;font-size:15px;padding:13px 26px;border-radius:10px;">Sign in to ${BRAND}</a>
       </p>
-      <p style="margin:0 0 8px 0;font-size:13px;color:#6b7280;">Or copy and paste this URL into your browser:</p>
-      <p style="margin:0 0 24px 0;font-size:12px;color:#6b7280;word-break:break-all;"><a href="${actionLink}" style="color:#6b7280;">${actionLink}</a></p>
       <p style="margin:0;font-size:12px;color:#9ca3af;">If you didn't request this email, you can safely ignore it.</p>
     </div>
     <p style="text-align:center;margin:20px 0 0 0;font-size:12px;color:#9ca3af;">© ${new Date().getFullYear()} ${BRAND}</p>
