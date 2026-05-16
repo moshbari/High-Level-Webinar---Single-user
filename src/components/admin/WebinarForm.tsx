@@ -582,16 +582,32 @@ export function WebinarForm({ config, onChange, webinarId }: WebinarFormProps) {
             </div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="webhookUrl">Webhook URL</Label>
-            <Input
-              id="webhookUrl"
-              type="url"
-              value={config.webhookUrl}
-              onChange={(e) => updateField('webhookUrl', e.target.value)}
-              placeholder="https://your-n8n.com/webhook/chatbot"
-              className="input-field"
+            <Label htmlFor="chatbotSystemPrompt">Chatbot Instructions / Personality</Label>
+            <Textarea
+              id="chatbotSystemPrompt"
+              value={config.chatbotSystemPrompt}
+              onChange={(e) => updateField('chatbotSystemPrompt', e.target.value)}
+              placeholder="e.g., You are Sarah, the friendly support agent for John's coaching program. Be warm, concise, and always invite attendees to take action."
+              className="input-field min-h-[90px]"
+              rows={3}
             />
-            <p className="text-xs text-muted-foreground">N8N or other webhook URL for AI responses</p>
+            <p className="text-xs text-muted-foreground">
+              Short instruction that shapes the bot's tone, role, and behavior. Leave empty to use a sensible default.
+            </p>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="chatbotKnowledgeBase">Training Data / Knowledge Base</Label>
+            <Textarea
+              id="chatbotKnowledgeBase"
+              value={config.chatbotKnowledgeBase}
+              onChange={(e) => updateField('chatbotKnowledgeBase', e.target.value)}
+              placeholder="Paste everything the bot should know: product details, pricing, FAQs, objections & answers, bonuses, refund policy, schedule, etc. The more specific, the better."
+              className="input-field min-h-[220px] font-mono text-sm"
+              rows={12}
+            />
+            <p className="text-xs text-muted-foreground">
+              {(config.chatbotKnowledgeBase || '').length.toLocaleString()} characters. This entire text is sent with every chat request — keep it focused.
+            </p>
           </div>
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">

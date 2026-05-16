@@ -1017,25 +1017,26 @@ export const generateReplayCode = (config: WebinarConfig): string => {
       document.getElementById('typingIndicator').classList.remove('hidden');
       sendTrackingEvent('chat_message', { chat_message: msg });
       try {
-        const resp = await fetch(CONFIG.webhookUrl, {
+        const resp = await fetch(CONFIG.supabaseUrl + '/functions/v1/webinar-chat', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': CONFIG.supabaseAnonKey,
+            'Authorization': 'Bearer ' + CONFIG.supabaseAnonKey
+          },
           body: JSON.stringify({
-            message: msg,
+            webinarId: CONFIG.webinarId,
+            userMessage: msg,
             userName: userData?.name || 'Guest',
             userEmail: userData?.email || '',
-            webinarId: CONFIG.webinarId,
-            webinarName: CONFIG.webinarName,
-            leadId: leadId,
-            sessionId: sessionId,
-            source: 'replay'
+            sessionId: sessionId
           })
         });
         const data = await resp.json();
         const delay = (Math.random() * (CONFIG.typingDelayMax - CONFIG.typingDelayMin) + CONFIG.typingDelayMin) * 1000;
         setTimeout(() => {
           document.getElementById('typingIndicator').classList.add('hidden');
-          const aiReply = data.output || data.message || data.response || data.text || CONFIG.errorMessage;
+          const aiReply = data.reply || CONFIG.errorMessage;
           addMessage(aiReply, 'bot');
           saveChatToDb(msg, aiReply);
         }, delay);

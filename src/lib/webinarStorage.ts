@@ -26,6 +26,8 @@ export const rowToConfig = (row: any): WebinarConfig => ({
   botName: row.bot_name,
   botAvatar: row.bot_avatar,
   webhookUrl: row.webhook_url,
+  chatbotSystemPrompt: row.chatbot_system_prompt ?? '',
+  chatbotKnowledgeBase: row.chatbot_knowledge_base ?? '',
   typingDelayMin: row.typing_delay_min,
   typingDelayMax: row.typing_delay_max,
   errorMessage: row.error_message,
@@ -125,6 +127,8 @@ const configToRow = (config: Omit<WebinarConfig, 'id' | 'createdAt' | 'updatedAt
   bot_name: config.botName,
   bot_avatar: config.botAvatar,
   webhook_url: config.webhookUrl,
+  chatbot_system_prompt: config.chatbotSystemPrompt ?? '',
+  chatbot_knowledge_base: config.chatbotKnowledgeBase ?? '',
   typing_delay_min: config.typingDelayMin,
   typing_delay_max: config.typingDelayMax,
   error_message: config.errorMessage,
@@ -299,6 +303,8 @@ export const updateWebinar = async (id: string, config: Partial<WebinarConfig>):
   if (rest.botName !== undefined) updateData.bot_name = rest.botName;
   if (rest.botAvatar !== undefined) updateData.bot_avatar = rest.botAvatar;
   if (rest.webhookUrl !== undefined) updateData.webhook_url = rest.webhookUrl;
+  if (rest.chatbotSystemPrompt !== undefined) updateData.chatbot_system_prompt = rest.chatbotSystemPrompt;
+  if (rest.chatbotKnowledgeBase !== undefined) updateData.chatbot_knowledge_base = rest.chatbotKnowledgeBase;
   if (rest.typingDelayMin !== undefined) updateData.typing_delay_min = rest.typingDelayMin;
   if (rest.typingDelayMax !== undefined) updateData.typing_delay_max = rest.typingDelayMax;
   if (rest.errorMessage !== undefined) updateData.error_message = rest.errorMessage;

@@ -25,7 +25,9 @@ export interface WebinarConfig {
   // Chatbot
   botName: string;
   botAvatar: string;
-  webhookUrl: string;
+  webhookUrl: string; // legacy n8n URL, no longer used by default
+  chatbotSystemPrompt: string;
+  chatbotKnowledgeBase: string;
   typingDelayMin: number;
   typingDelayMax: number;
   errorMessage: string;
@@ -195,7 +197,9 @@ export const DEFAULT_WEBINAR_CONFIG: Omit<WebinarConfig, 'id' | 'createdAt' | 'u
   maxViewers: 283,
   botName: 'Admin',
   botAvatar: 'M',
-  webhookUrl: 'https://moshbari.cloud/webhook/webby-chatbot-6jan26',
+  webhookUrl: '',
+  chatbotSystemPrompt: '',
+  chatbotKnowledgeBase: '',
   typingDelayMin: 3,
   typingDelayMax: 5,
   errorMessage: "Let's keep watching the webinar! I'll answer all questions at the end. 😊",
