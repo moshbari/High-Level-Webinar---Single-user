@@ -875,6 +875,8 @@ export const generateEmbedCode = (config: WebinarConfig, resolvedClips?: Resolve
       padding: 1rem;
       padding-bottom: calc(1rem + env(safe-area-inset-bottom));
       border-top: 1px solid var(--border);
+      flex-shrink: 0;
+      background: var(--chat-bg);
     }
     
     .chat-input-wrapper {
@@ -1416,6 +1418,17 @@ export const generateEmbedCode = (config: WebinarConfig, resolvedClips?: Resolve
   <div class="cta-desktop-floating">${config.ctaStyle === 'floating' ? ctaFloatingHtml : ''}</div>
 
   <script>
+    function updateWebinarViewportHeight() {
+      const height = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+      document.documentElement.style.setProperty('--webinar-viewport-height', height + 'px');
+    }
+    updateWebinarViewportHeight();
+    window.addEventListener('resize', updateWebinarViewportHeight);
+    window.addEventListener('orientationchange', updateWebinarViewportHeight);
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', updateWebinarViewportHeight);
+      window.visualViewport.addEventListener('scroll', updateWebinarViewportHeight);
+    }
     const CONFIG = {
       webinarId: "${config.id}",
       webinarName: "${config.webinarName}",
