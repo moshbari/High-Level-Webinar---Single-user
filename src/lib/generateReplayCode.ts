@@ -697,6 +697,17 @@ export const generateReplayCode = (config: WebinarConfig): string => {
     ${ctaFloatingHtml}
   </div>
   <script>
+    function updateWebinarViewportHeight() {
+      const height = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+      document.documentElement.style.setProperty('--webinar-viewport-height', height + 'px');
+    }
+    updateWebinarViewportHeight();
+    window.addEventListener('resize', updateWebinarViewportHeight);
+    window.addEventListener('orientationchange', updateWebinarViewportHeight);
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', updateWebinarViewportHeight);
+      window.visualViewport.addEventListener('scroll', updateWebinarViewportHeight);
+    }
     const CONFIG = {
       webinarId: '${config.id}',
       webinarName: '${config.webinarName.replace(/'/g, "\\'")}',
