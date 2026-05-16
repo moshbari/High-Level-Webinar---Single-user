@@ -173,7 +173,7 @@ export const generateReplayCode = (config: WebinarConfig): string => {
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>${config.headerTitle} - Replay</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -186,7 +186,7 @@ export const generateReplayCode = (config: WebinarConfig): string => {
       --text-muted: #9ca3af;
       --border: rgba(255,255,255,0.1);
     }
-    html, body { height: 100%; height: -webkit-fill-available; }
+    html, body { width: 100%; height: 100%; height: -webkit-fill-available; overflow: hidden; }
     body {
       font-family: 'Inter', system-ui, sans-serif;
       background: var(--bg);
@@ -196,16 +196,17 @@ export const generateReplayCode = (config: WebinarConfig): string => {
       overflow: hidden;
       min-height: 100vh;
       min-height: 100dvh;
+      min-height: var(--webinar-viewport-height, 100dvh);
     }
     h1, h2, h3 { font-family: 'Space Grotesk', system-ui, sans-serif; }
     .webinar-container {
       display: flex;
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      width: 100vw; height: 100vh; height: 100dvh;
+      width: 100vw; height: 100vh; height: 100dvh; height: var(--webinar-viewport-height, 100dvh); max-height: var(--webinar-viewport-height, 100dvh); overflow: hidden;
     }
     @media (max-width: 768px) {
-      .webinar-container { flex-direction: column; }
+      .webinar-container { flex-direction: column; height: var(--webinar-viewport-height, 100dvh); max-height: var(--webinar-viewport-height, 100dvh); }
     }
     .video-section {
       flex: 1;
