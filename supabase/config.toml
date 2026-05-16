@@ -23,3 +23,9 @@ verify_jwt = false
 
 [functions.ipn-register]
 verify_jwt = false
+
+[functions.send-magic-link]
+verify_jwt = false
+
+[functions.admin-send-password-reset]
+verify_jwt = false

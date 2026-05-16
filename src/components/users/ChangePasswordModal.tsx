@@ -9,48 +9,25 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Mail } from 'lucide-react';
 import { toast } from 'sonner';
-import { z } from 'zod';
-
-const passwordSchema = z.object({
-  password: z.string().min(6, 'Password must be at least 6 characters'),
-  confirmPassword: z.string(),
-}).refine(data => data.password === data.confirmPassword, {
-  message: 'Passwords do not match',
-  path: ['confirmPassword'],
-});
 
 interface ChangePasswordModalProps {
   userId: string;
+  userEmail?: string;
   open: boolean;
   onClose: () => void;
 }
 
-export function ChangePasswordModal({ userId, open, onClose }: ChangePasswordModalProps) {
+export function ChangePasswordModal({ userId, userEmail, open, onClose }: ChangePasswordModalProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    password: '',
-    confirmPassword: '',
-  });
-  const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrors({});
-
+  const handleSendReset = async () => {
+    setIsLoading(true);
     try {
-      passwordSchema.parse(formData);
-      
-      setIsLoading(true);
-      
-      // Call the edge function to update password
       const { data: sessionData } = await supabase.auth.getSession();
-      
       const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-update-user`,
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-send-password-reset`,
         {
           method: 'POST',
           headers: {
@@ -59,31 +36,19 @@ export function ChangePasswordModal({ userId, open, onClose }: ChangePasswordMod
           },
           body: JSON.stringify({
             userId,
-            newPassword: formData.password,
+            origin: window.location.origin,
           }),
         }
       );
-
       const result = await response.json();
-
       if (!response.ok) {
-        toast.error(result.error || 'Failed to update password');
+        toast.error(result.error || 'Failed to send reset email');
         return;
       }
-      
-      toast.success('Password updated successfully');
+      toast.success(`Password reset email sent${result.email ? ` to ${result.email}` : ''}`);
       onClose();
-      setFormData({ password: '', confirmPassword: '' });
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        const fieldErrors: Record<string, string> = {};
-        error.errors.forEach(err => {
-          if (err.path[0]) {
-            fieldErrors[err.path[0] as string] = err.message;
-          }
-        });
-        setErrors(fieldErrors);
-      }
+    } catch {
+      toast.error('Something went wrong. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -91,54 +56,31 @@ export function ChangePasswordModal({ userId, open, onClose }: ChangePasswordMod
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[400px]">
+      <DialogContent className="sm:max-w-[440px]">
         <DialogHeader>
-          <DialogTitle>Change Password</DialogTitle>
-          <DialogDescription>Enter a new password for this user</DialogDescription>
+          <DialogTitle>Send password reset email</DialogTitle>
+          <DialogDescription>
+            We'll email this user a secure link to choose a new password. Admins never see or pick the password directly.
+          </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="new_password">New Password</Label>
-            <Input
-              id="new_password"
-              type="password"
-              value={formData.password}
-              onChange={e => setFormData(prev => ({ ...prev, password: e.target.value }))}
-              placeholder="Enter new password"
-            />
-            {errors.password && (
-              <p className="text-sm text-destructive">{errors.password}</p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="confirm_password">Confirm Password</Label>
-            <Input
-              id="confirm_password"
-              type="password"
-              value={formData.confirmPassword}
-              onChange={e => setFormData(prev => ({ ...prev, confirmPassword: e.target.value }))}
-              placeholder="Confirm new password"
-            />
-            {errors.confirmPassword && (
-              <p className="text-sm text-destructive">{errors.confirmPassword}</p>
-            )}
-          </div>
-
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              disabled={isLoading}
-              className="bg-pink-500 hover:bg-pink-600"
-            >
-              {isLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-              Update Password
-            </Button>
-          </DialogFooter>
-        </form>
+        <div className="rounded-lg border bg-muted/40 px-4 py-3 text-sm">
+          <p className="text-muted-foreground">Recipient</p>
+          <p className="font-medium">{userEmail || '—'}</p>
+        </div>
+        <DialogFooter>
+          <Button type="button" variant="outline" onClick={onClose} disabled={isLoading}>
+            Cancel
+          </Button>
+          <Button
+            type="button"
+            onClick={handleSendReset}
+            disabled={isLoading}
+            className="bg-pink-500 hover:bg-pink-600"
+          >
+            {isLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Mail className="h-4 w-4 mr-2" />}
+            Send reset email
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
