@@ -1,83 +1,89 @@
-# Magic Link Auth + Password Management (ProspectSnap Parity)
+## Goal
 
-## Sender
-`HighLevelWebinar <highlevelwebinar@onesign.click>` — only verified Resend domain.
+Move the AI chatbot off the external n8n webhook and onto a Lovable-hosted edge function. The owner's `OPENAI_API_KEY` (already in secrets) powers every chat reply and every voice dictation, so no individual user needs their own key. Each webinar gets its own training data (system prompt + knowledge base) that the owner edits inside that webinar's settings.
 
-## Scope (1:1 with ProspectSnap)
+## What changes
 
-### 1. Resend connector
-Connect the Resend connector to the project so `RESEND_API_KEY` (gateway key) and `LOVABLE_API_KEY` are available to edge functions. All Resend calls go through `https://connector-gateway.lovable.dev/resend/emails`.
+### 1. Database
+Add two columns to `webinars`:
+- `chatbot_system_prompt TEXT` — short instruction, e.g. "You are the support assistant for John's training."
+- `chatbot_knowledge_base TEXT` — long-form training data (about the product, FAQ answers, offer details, etc.).
 
-### 2. Edge function: `send-magic-link` (public, `verify_jwt = false`)
-Input: `{ email, redirectTo, displayName? }` validated with Zod.
-Logic (identical to ProspectSnap `sendMagicLink`):
-1. If `displayName` provided and email has no existing user → `supabaseAdmin.auth.admin.createUser({ email, email_confirm: false, user_metadata: { full_name } })` so the existing `handle_new_user` trigger captures the name into `profiles`.
-2. `supabaseAdmin.auth.admin.generateLink({ type: 'magiclink', email, options: { redirectTo } })` → returns `action_link` (works for both new and returning users).
-3. Send branded HTML email via Resend gateway. Subject: "Your HighLevelWebinar sign-in link". CTA button uses theme primary color.
+Both default to empty and are part of the existing RLS rules (owner/admin only edit; viewer pages read via the public anon SELECT policy that already exists).
 
-### 3. Edge function: `admin-send-password-reset` (admin-gated)
-Input: `{ userId }`. Validates caller's JWT, checks `has_role(uid, 'admin')`.
-Logic (identical to ProspectSnap `sendPasswordResetForUser`):
-1. Fetch target user email via `auth.admin.getUserById`.
-2. Generate recovery link via `auth.admin.generateLink({ type: 'recovery', email, options: { redirectTo: \`${origin}/update-password\` } })`.
-3. Send via Resend with "Reset your HighLevelWebinar password" template.
+### 2. New edge function: `webinar-chat`
+- Public (`verify_jwt = false`) so the embedded webinar viewer can call it.
+- Input: `{ webinarId, userName, userEmail, userMessage, sessionId, history? }`.
+- Looks up the webinar's `chatbot_system_prompt`, `chatbot_knowledge_base`, `bot_name`, `welcome_message` and assembles a system prompt.
+- Calls OpenAI Chat Completions with `OPENAI_API_KEY` (default model: `gpt-4o-mini`, configurable later).
+- Returns `{ reply }`.
 
-### 4. `/auth` page rewrite (mirrors ProspectSnap `/login`)
-- Heading: "Sign in or sign up"
-- Sub: "We'll email you a secure link — no password required."
-- Fields: Name (optional, labeled "new accounts") + Email
-- Primary button: "Email me a sign-in link" → calls `send-magic-link` with `redirectTo: ${origin}/laboratory`
-- Separator "OR"
-- Collapsed-by-default "Sign in with password" button → expands to password field + `signInWithPassword`
-- Footnote: "Forgot it? Just use the sign-in link above."
-- Footer: "You can set or change your password anytime from Account settings."
-- Existing signup tab is removed (magic link replaces it).
+Pending-reply / human-handoff flow stays untouched — the existing client-side logic that writes to `chat_messages` and flips `is_pending` keeps working; the edge function just replaces the n8n call.
 
-### 5. `/update-password` page (already exists — verify it handles recovery)
-Confirm it works as recovery landing for the admin-triggered reset link. Adjust copy if needed.
+### 3. Voice dictation
+`transcribe-audio` already uses `OPENAI_API_KEY` with Whisper — no change needed. Confirmed it's admin-key based, not per-user.
 
-### 6. Account password card (new section in user's own profile area)
-A "Set / Change password" card on the user's account view (or added to `/laboratory` profile dropdown):
-- Detects `hasPassword` by checking `user.identities` for an `email` provider.
-- Inputs: new password + confirm.
-- Action: `supabase.auth.updateUser({ password })`.
-- Button label flips: "Set password" vs "Update password".
-- Copy: "Optional. You can keep using sign-in links — a password just gives you another way to sign in."
+### 4. Viewer code
+- `src/lib/generateEmbedCode.ts` and `src/lib/generateReplayCode.ts`: replace the `fetch(CONFIG.webhookUrl, …)` call with a `fetch` to the Supabase edge function URL `${SUPABASE_URL}/functions/v1/webinar-chat`, passing the anon key + the same payload shape.
+- The legacy `webhookUrl` field on the webinar stays in the schema (no breaking changes for any embed already deployed elsewhere) but is no longer the source of truth.
 
-### 7. Admin "Send password reset" action in `/laboratory/users`
-Replace/augment the current password-reset row action (currently uses `admin-update-user` to directly set a password) with a "Send reset email" item that calls `admin-send-password-reset`. The existing direct-set option can stay as a secondary "Set password manually" if you want — confirm in chat after the plan. Default: send-link replaces direct-set to match ProspectSnap.
+### 5. Admin UI
+In `WebinarForm.tsx`, under the Chatbot section:
+- Remove (or hide behind "Advanced") the n8n "Webhook URL" field.
+- Add two new fields:
+  - **Chatbot Personality / Instructions** — single-line / small textarea, becomes the system prompt.
+  - **Training Data / Knowledge Base** — large textarea with character counter, becomes the body the model is grounded on.
+- Save through the existing `updateWebinar` pipeline.
 
-## Technical Details
+### 6. Rollout notes
+- No data migration: empty training data simply means a generic fallback prompt is used.
+- Existing webinars keep working — the new edge function is called regardless; only the reply quality changes once training data is added.
+- We don't touch lead capture, tracking webhook, registration webhooks, CTA, video — all unrelated.
 
-**Edge function env vars used:** `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_ANON_KEY`, `LOVABLE_API_KEY`, `RESEND_API_KEY`.
+## Technical details
 
-**config.toml additions:**
+**Edge function sketch**
+```ts
+// supabase/functions/webinar-chat/index.ts
+const sysPrompt = [
+  webinar.chatbot_system_prompt || `You are ${webinar.bot_name || 'the support team'} for "${webinar.webinar_name}".`,
+  webinar.chatbot_knowledge_base ? `\n\nKNOWLEDGE BASE:\n${webinar.chatbot_knowledge_base}` : '',
+  `\n\nRules:\n- Stay on topic.\n- If asked something outside the knowledge base, answer briefly and steer back.\n- Address the user by name when known.`,
+].join('');
+
+const res = await fetch('https://api.openai.com/v1/chat/completions', {
+  method: 'POST',
+  headers: { Authorization: `Bearer ${OPENAI_API_KEY}`, 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    model: 'gpt-4o-mini',
+    messages: [
+      { role: 'system', content: sysPrompt },
+      ...history.slice(-10),
+      { role: 'user', content: userMessage },
+    ],
+  }),
+});
 ```
-[functions.send-magic-link]
-verify_jwt = false
 
-[functions.admin-send-password-reset]
-verify_jwt = false   # JWT validated in code
+**Embed/replay HTML change**
+```js
+// old
+const resp = await fetch(CONFIG.webhookUrl, { ... });
+const reply = (await resp.json()).output;
+
+// new
+const resp = await fetch(`${SUPABASE_URL}/functions/v1/webinar-chat`, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json', apikey: SUPABASE_ANON_KEY },
+  body: JSON.stringify({ webinarId: CONFIG.webinarId, userName, userEmail, userMessage, sessionId })
+});
+const { reply } = await resp.json();
 ```
 
-**Files created:**
-- `supabase/functions/send-magic-link/index.ts`
-- `supabase/functions/admin-send-password-reset/index.ts`
-- `src/components/account/PasswordCard.tsx` (the set/change card)
+## Out of scope (call out, don't build now)
+- File / PDF upload for training data — text-only for v1.
+- Vector embeddings / RAG — the whole knowledge base is dropped into the prompt; fine until it gets very long. Easy to upgrade later.
+- Per-webinar model selection — fixed default for now.
+- Migrating existing n8n training content — owner re-pastes it into the new field.
 
-**Files modified:**
-- `src/pages/Auth.tsx` — replace with magic-link-first UI
-- `src/components/users/UserManagementTable.tsx` (or wherever the reset action lives) — add "Send reset email" row action
-- `supabase/config.toml` — register new functions
-- Existing `handle_new_user` trigger already reads `raw_user_meta_data->>'full_name'` → no DB migration required.
-
-**No DB migration needed.**
-
-## Order of execution
-1. Connect Resend connector.
-2. Deploy `send-magic-link` + update config.toml.
-3. Rewrite `/auth`.
-4. Add PasswordCard to account area.
-5. Deploy `admin-send-password-reset`.
-6. Wire admin "Send reset email" action.
-7. End-to-end test: send magic link to a fresh email, click, verify auto-signin into `/laboratory`, set a password from account, sign out, sign back in with password.
+Ready to implement once you approve.

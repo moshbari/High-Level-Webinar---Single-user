@@ -545,6 +545,8 @@ export type Database = {
           bot_avatar: string
           bot_name: string
           chat_background: string
+          chatbot_knowledge_base: string
+          chatbot_system_prompt: string
           created_at: string
           cta_button_color: string
           cta_button_text: string
@@ -652,6 +654,8 @@ export type Database = {
           bot_avatar?: string
           bot_name?: string
           chat_background?: string
+          chatbot_knowledge_base?: string
+          chatbot_system_prompt?: string
           created_at?: string
           cta_button_color?: string
           cta_button_text?: string
@@ -759,6 +763,8 @@ export type Database = {
           bot_avatar?: string
           bot_name?: string
           chat_background?: string
+          chatbot_knowledge_base?: string
+          chatbot_system_prompt?: string
           created_at?: string
           cta_button_color?: string
           cta_button_text?: string
