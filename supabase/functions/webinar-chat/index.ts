@@ -35,7 +35,7 @@ Deno.serve(async (req) => {
     }
 
     const body = (await req.json()) as ChatRequest;
-    const { webinarId, userMessage, userName, history } = body;
+    const { webinarId, userMessage, userName, userEmail, sessionId, history } = body;
 
     if (!webinarId || !userMessage || typeof userMessage !== "string") {
       return new Response(
