@@ -2440,11 +2440,7 @@ export const generateEmbedCode = (config: WebinarConfig, resolvedClips?: Resolve
       try {
         const response = await fetch(CONFIG.supabaseUrl + '/functions/v1/webinar-chat', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'apikey': CONFIG.supabaseAnonKey,
-            'Authorization': 'Bearer ' + CONFIG.supabaseAnonKey
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             webinarId: CONFIG.webinarId,
             userMessage: message,

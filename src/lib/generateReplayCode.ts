@@ -1019,11 +1019,7 @@ export const generateReplayCode = (config: WebinarConfig): string => {
       try {
         const resp = await fetch(CONFIG.supabaseUrl + '/functions/v1/webinar-chat', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'apikey': CONFIG.supabaseAnonKey,
-            'Authorization': 'Bearer ' + CONFIG.supabaseAnonKey
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             webinarId: CONFIG.webinarId,
             userMessage: msg,
