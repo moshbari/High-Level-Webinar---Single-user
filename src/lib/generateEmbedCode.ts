@@ -406,7 +406,7 @@ export const generateEmbedCode = (config: WebinarConfig, resolvedClips?: Resolve
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>${config.headerTitle}</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -423,8 +423,10 @@ export const generateEmbedCode = (config: WebinarConfig, resolvedClips?: Resolve
     }
     
     html, body {
+      width: 100%;
       height: 100%;
       height: -webkit-fill-available;
+      overflow: hidden;
     }
 
     body {
@@ -436,6 +438,7 @@ export const generateEmbedCode = (config: WebinarConfig, resolvedClips?: Resolve
       overflow: hidden;
       min-height: 100vh;
       min-height: 100dvh;
+      min-height: var(--webinar-viewport-height, 100dvh);
     }
     
     h1, h2, h3 { font-family: 'Space Grotesk', system-ui, sans-serif; }
@@ -450,11 +453,16 @@ export const generateEmbedCode = (config: WebinarConfig, resolvedClips?: Resolve
       width: 100vw;
       height: 100vh;
       height: 100dvh;
+      height: var(--webinar-viewport-height, 100dvh);
+      max-height: var(--webinar-viewport-height, 100dvh);
+      overflow: hidden;
     }
     
     @media (max-width: 768px) {
       .webinar-container {
         flex-direction: column;
+        height: var(--webinar-viewport-height, 100dvh);
+        max-height: var(--webinar-viewport-height, 100dvh);
       }
     }
     
@@ -725,7 +733,9 @@ export const generateEmbedCode = (config: WebinarConfig, resolvedClips?: Resolve
       .video-section {
         height: 40vh;
         height: 40dvh;
+        height: min(40dvh, calc(var(--webinar-viewport-height, 100dvh) * 0.4));
         flex: none;
+        min-height: 0;
       }
       
       /* Mobile CTA wrapper - sits between video and chat in document flow */
@@ -744,6 +754,7 @@ export const generateEmbedCode = (config: WebinarConfig, resolvedClips?: Resolve
         max-width: 100%;
         flex: 1;
         min-height: 0;
+        overflow: hidden;
         border-left: none;
         border-top: 1px solid var(--border);
         position: relative;
@@ -767,6 +778,9 @@ export const generateEmbedCode = (config: WebinarConfig, resolvedClips?: Resolve
     .chat-messages {
       flex: 1;
       overflow-y: auto;
+      min-height: 0;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
       padding: 1rem;
       display: flex;
       flex-direction: column;
@@ -861,6 +875,8 @@ export const generateEmbedCode = (config: WebinarConfig, resolvedClips?: Resolve
       padding: 1rem;
       padding-bottom: calc(1rem + env(safe-area-inset-bottom));
       border-top: 1px solid var(--border);
+      flex-shrink: 0;
+      background: var(--chat-bg);
     }
     
     .chat-input-wrapper {
@@ -1402,6 +1418,17 @@ export const generateEmbedCode = (config: WebinarConfig, resolvedClips?: Resolve
   <div class="cta-desktop-floating">${config.ctaStyle === 'floating' ? ctaFloatingHtml : ''}</div>
 
   <script>
+    function updateWebinarViewportHeight() {
+      const height = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+      document.documentElement.style.setProperty('--webinar-viewport-height', height + 'px');
+    }
+    updateWebinarViewportHeight();
+    window.addEventListener('resize', updateWebinarViewportHeight);
+    window.addEventListener('orientationchange', updateWebinarViewportHeight);
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', updateWebinarViewportHeight);
+      window.visualViewport.addEventListener('scroll', updateWebinarViewportHeight);
+    }
     const CONFIG = {
       webinarId: "${config.id}",
       webinarName: "${config.webinarName}",

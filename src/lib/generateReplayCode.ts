@@ -173,7 +173,7 @@ export const generateReplayCode = (config: WebinarConfig): string => {
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>${config.headerTitle} - Replay</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -186,7 +186,7 @@ export const generateReplayCode = (config: WebinarConfig): string => {
       --text-muted: #9ca3af;
       --border: rgba(255,255,255,0.1);
     }
-    html, body { height: 100%; height: -webkit-fill-available; }
+    html, body { width: 100%; height: 100%; height: -webkit-fill-available; overflow: hidden; }
     body {
       font-family: 'Inter', system-ui, sans-serif;
       background: var(--bg);
@@ -196,16 +196,17 @@ export const generateReplayCode = (config: WebinarConfig): string => {
       overflow: hidden;
       min-height: 100vh;
       min-height: 100dvh;
+      min-height: var(--webinar-viewport-height, 100dvh);
     }
     h1, h2, h3 { font-family: 'Space Grotesk', system-ui, sans-serif; }
     .webinar-container {
       display: flex;
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      width: 100vw; height: 100vh; height: 100dvh;
+      width: 100vw; height: 100vh; height: 100dvh; height: var(--webinar-viewport-height, 100dvh); max-height: var(--webinar-viewport-height, 100dvh); overflow: hidden;
     }
     @media (max-width: 768px) {
-      .webinar-container { flex-direction: column; }
+      .webinar-container { flex-direction: column; height: var(--webinar-viewport-height, 100dvh); max-height: var(--webinar-viewport-height, 100dvh); }
     }
     .video-section {
       flex: 1;
@@ -258,7 +259,7 @@ export const generateReplayCode = (config: WebinarConfig): string => {
       cursor: pointer;
     }
     @media (max-width: 768px) {
-      .video-wrapper { flex: none; height: 40vh; min-height: 200px; }
+      .video-wrapper { flex: none; height: 40vh; height: min(40dvh, calc(var(--webinar-viewport-height, 100dvh) * 0.4)); min-height: 0; }
     }
     video {
       width: 100%; height: 100%;
@@ -479,7 +480,7 @@ export const generateReplayCode = (config: WebinarConfig): string => {
       border-left: 1px solid var(--border);
     }
     @media (max-width: 768px) {
-      .chat-section { width: 100%; flex: 1; border-left: none; border-top: 1px solid var(--border); }
+      .chat-section { width: 100%; flex: 1; min-height: 0; overflow: hidden; border-left: none; border-top: 1px solid var(--border); }
     }
     .chat-header {
       display: flex;
@@ -493,6 +494,9 @@ export const generateReplayCode = (config: WebinarConfig): string => {
     .chat-messages {
       flex: 1;
       overflow-y: auto;
+      min-height: 0;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
       padding: 1rem 1.5rem;
       display: flex;
       flex-direction: column;
@@ -522,6 +526,8 @@ export const generateReplayCode = (config: WebinarConfig): string => {
     .lead-form, .chat-input-form {
       padding: 1rem 1.5rem;
       border-top: 1px solid var(--border);
+      flex-shrink: 0;
+      background: var(--chat-bg);
     }
     .lead-form h3 { font-size: 1rem; margin-bottom: 0.75rem; }
     .lead-input {
@@ -691,6 +697,17 @@ export const generateReplayCode = (config: WebinarConfig): string => {
     ${ctaFloatingHtml}
   </div>
   <script>
+    function updateWebinarViewportHeight() {
+      const height = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+      document.documentElement.style.setProperty('--webinar-viewport-height', height + 'px');
+    }
+    updateWebinarViewportHeight();
+    window.addEventListener('resize', updateWebinarViewportHeight);
+    window.addEventListener('orientationchange', updateWebinarViewportHeight);
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', updateWebinarViewportHeight);
+      window.visualViewport.addEventListener('scroll', updateWebinarViewportHeight);
+    }
     const CONFIG = {
       webinarId: '${config.id}',
       webinarName: '${config.webinarName.replace(/'/g, "\\'")}',
