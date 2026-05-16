@@ -171,7 +171,7 @@ export function EditUserModal({ user, open, onClose }: EditUserModalProps) {
               onClick={() => setIsPasswordModalOpen(true)}
               className="text-sm text-pink-500 hover:text-pink-600 underline"
             >
-              Change Password
+              Send password reset email
             </button>
 
             <DialogFooter>
@@ -193,6 +193,7 @@ export function EditUserModal({ user, open, onClose }: EditUserModalProps) {
 
       <ChangePasswordModal
         userId={user.user_id}
+        userEmail={user.email}
         open={isPasswordModalOpen}
         onClose={() => setIsPasswordModalOpen(false)}
       />

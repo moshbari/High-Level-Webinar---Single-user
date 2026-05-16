@@ -1,47 +1,33 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2, Mail, Lock, User } from 'lucide-react';
+import { Loader2, Mail, Lock, User, ChevronDown, ChevronUp, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { z } from 'zod';
 import { ROUTES } from '@/lib/routes';
 
-const loginSchema = z.object({
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
-});
-
-const signupSchema = z.object({
-  fullName: z.string().min(2, 'Name must be at least 2 characters'),
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
-  confirmPassword: z.string(),
-}).refine(data => data.password === data.confirmPassword, {
-  message: 'Passwords do not match',
-  path: ['confirmPassword'],
-});
+const emailSchema = z.string().email('Please enter a valid email').max(255);
 
 export default function Auth() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { signIn, signUp, user, isLoading: authLoading } = useAuth();
-  
-  const [isLoading, setIsLoading] = useState(false);
-  const [loginData, setLoginData] = useState({ email: '', password: '' });
-  const [signupData, setSignupData] = useState({
-    fullName: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-  });
+  const { signIn, user, isLoading: authLoading } = useAuth();
+
+  const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
+  const [magicLoading, setMagicLoading] = useState(false);
+  const [magicSent, setMagicSent] = useState(false);
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [password, setPassword] = useState('');
+  const [passwordLoading, setPasswordLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Redirect if already logged in - moved to useEffect to avoid side-effects during render
   useEffect(() => {
     if (user && !authLoading) {
       const from = (location.state as { from?: { pathname: string } })?.from?.pathname || ROUTES.HOME;
@@ -49,84 +35,82 @@ export default function Auth() {
     }
   }, [user, authLoading, location.state, navigate]);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleMagicLink = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
-    setIsLoading(true);
-
     try {
-      loginSchema.parse(loginData);
-      const { error } = await signIn(loginData.email, loginData.password);
-      
+      emailSchema.parse(email.trim());
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        setErrors({ email: err.errors[0]?.message || 'Invalid email' });
+      }
+      return;
+    }
+    setMagicLoading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const resp = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-magic-link`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+          },
+          body: JSON.stringify({
+            email: email.trim().toLowerCase(),
+            displayName: name.trim() || undefined,
+            redirectTo: `${window.location.origin}${ROUTES.HOME}`,
+          }),
+        }
+      );
+      const result = await resp.json().catch(() => ({}));
+      if (!resp.ok) {
+        toast.error(result.error || 'Could not send sign-in link');
+      } else {
+        setMagicSent(true);
+        toast.success('Check your inbox for the sign-in link');
+      }
+    } catch {
+      toast.error('Something went wrong. Please try again.');
+    } finally {
+      setMagicLoading(false);
+    }
+  };
+
+  const handlePasswordLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrors({});
+    try {
+      emailSchema.parse(email.trim());
+      if (password.length < 6) {
+        setErrors({ password: 'Password must be at least 6 characters' });
+        return;
+      }
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        setErrors({ email: err.errors[0]?.message || 'Invalid email' });
+      }
+      return;
+    }
+    setPasswordLoading(true);
+    try {
+      const { error } = await signIn(email.trim().toLowerCase(), password);
       if (error) {
-        if (error.message.includes('Invalid login credentials')) {
+        if (error.message.toLowerCase().includes('invalid login')) {
           toast.error('Invalid email or password');
         } else {
           toast.error(error.message);
         }
       } else {
         toast.success('Welcome back!');
-        navigate(ROUTES.HOME);
-      }
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        const fieldErrors: Record<string, string> = {};
-        error.errors.forEach(err => {
-          if (err.path[0]) {
-            fieldErrors[err.path[0] as string] = err.message;
-          }
-        });
-        setErrors(fieldErrors);
       }
     } finally {
-      setIsLoading(false);
+      setPasswordLoading(false);
     }
   };
 
-  const handleSignup = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrors({});
-    setIsLoading(true);
-
-    try {
-      signupSchema.parse(signupData);
-      const { error } = await signUp(signupData.email, signupData.password, signupData.fullName);
-      
-      if (error) {
-        if (error.message.includes('already registered')) {
-          setErrors({ email: 'This email is already registered' });
-        } else {
-          toast.error(error.message);
-        }
-      } else {
-        toast.success('Account created successfully! Welcome to your free trial.');
-        navigate(ROUTES.HOME);
-      }
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        const fieldErrors: Record<string, string> = {};
-        error.errors.forEach(err => {
-          if (err.path[0]) {
-            fieldErrors[err.path[0] as string] = err.message;
-          }
-        });
-        setErrors(fieldErrors);
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  if (authLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
-
-  // If user exists, we're about to redirect - show loading
-  if (user) {
+  if (authLoading || user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -138,136 +122,123 @@ export default function Auth() {
     <div className="min-h-screen flex items-center justify-center bg-muted/30 p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold">Welcome</CardTitle>
-          <CardDescription>Sign in to your account or create a new one</CardDescription>
+          <CardTitle className="text-2xl font-bold">Sign in or sign up</CardTitle>
+          <CardDescription>
+            We'll email you a secure link — no password required.
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="login" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-6">
-              <TabsTrigger value="login">Sign In</TabsTrigger>
-              <TabsTrigger value="signup">Sign Up</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="login">
-              <form onSubmit={handleLogin} className="space-y-4">
+          {magicSent ? (
+            <div className="space-y-4 text-center py-4">
+              <div className="mx-auto w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
+                <CheckCircle2 className="h-7 w-7 text-green-600" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-lg">Check your inbox</h3>
+                <p className="text-sm text-muted-foreground mt-1">
+                  We sent a sign-in link to <strong>{email}</strong>. Click it to sign in.
+                </p>
+              </div>
+              <Button variant="outline" onClick={() => setMagicSent(false)} className="w-full">
+                Use a different email
+              </Button>
+            </div>
+          ) : (
+            <>
+              <form onSubmit={handleMagicLink} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="login-email">Email</Label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="login-email"
-                      type="email"
-                      value={loginData.email}
-                      onChange={e => setLoginData(prev => ({ ...prev, email: e.target.value }))}
-                      placeholder="Enter your email"
-                      className="pl-10"
-                    />
-                  </div>
-                  {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="login-password">Password</Label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="login-password"
-                      type="password"
-                      value={loginData.password}
-                      onChange={e => setLoginData(prev => ({ ...prev, password: e.target.value }))}
-                      placeholder="Enter your password"
-                      className="pl-10"
-                    />
-                  </div>
-                  {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
-                </div>
-
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                  Sign In
-                </Button>
-              </form>
-            </TabsContent>
-
-            <TabsContent value="signup">
-              <form onSubmit={handleSignup} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="signup-name">Full Name</Label>
+                  <Label htmlFor="name">
+                    Name <span className="text-muted-foreground font-normal">(new accounts)</span>
+                  </Label>
                   <div className="relative">
                     <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
-                      id="signup-name"
+                      id="name"
                       type="text"
-                      value={signupData.fullName}
-                      onChange={e => setSignupData(prev => ({ ...prev, fullName: e.target.value }))}
-                      placeholder="Enter your full name"
+                      value={name}
+                      onChange={e => setName(e.target.value)}
+                      placeholder="Your name"
                       className="pl-10"
+                      autoComplete="name"
                     />
                   </div>
-                  {errors.fullName && <p className="text-sm text-destructive">{errors.fullName}</p>}
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="signup-email">Email</Label>
+                  <Label htmlFor="email">Email</Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
-                      id="signup-email"
+                      id="email"
                       type="email"
-                      value={signupData.email}
-                      onChange={e => setSignupData(prev => ({ ...prev, email: e.target.value }))}
-                      placeholder="Enter your email"
+                      value={email}
+                      onChange={e => setEmail(e.target.value)}
+                      placeholder="you@example.com"
                       className="pl-10"
+                      autoComplete="email"
+                      required
                     />
                   </div>
                   {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="signup-password">Password</Label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="signup-password"
-                      type="password"
-                      value={signupData.password}
-                      onChange={e => setSignupData(prev => ({ ...prev, password: e.target.value }))}
-                      placeholder="Create a password"
-                      className="pl-10"
-                    />
-                  </div>
-                  {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="signup-confirm">Confirm Password</Label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="signup-confirm"
-                      type="password"
-                      value={signupData.confirmPassword}
-                      onChange={e => setSignupData(prev => ({ ...prev, confirmPassword: e.target.value }))}
-                      placeholder="Confirm your password"
-                      className="pl-10"
-                    />
-                  </div>
-                  {errors.confirmPassword && (
-                    <p className="text-sm text-destructive">{errors.confirmPassword}</p>
-                  )}
-                </div>
-
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                  Create Account
+                <Button type="submit" className="w-full" disabled={magicLoading}>
+                  {magicLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Mail className="h-4 w-4 mr-2" />}
+                  Email me a sign-in link
                 </Button>
-
-                <p className="text-xs text-center text-muted-foreground">
-                  By signing up, you agree to start a free trial period.
-                </p>
               </form>
-            </TabsContent>
-          </Tabs>
+
+              <div className="relative my-6">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t border-border" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-card px-2 text-muted-foreground">OR</span>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setShowPassword(v => !v)}
+                className="w-full flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+              >
+                Sign in with password
+                {showPassword ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+              </button>
+
+              {showPassword && (
+                <form onSubmit={handlePasswordLogin} className="space-y-3 mt-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="password">Password</Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="password"
+                        type="password"
+                        value={password}
+                        onChange={e => setPassword(e.target.value)}
+                        placeholder="Your password"
+                        className="pl-10"
+                        autoComplete="current-password"
+                      />
+                    </div>
+                    {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
+                  </div>
+                  <Button type="submit" variant="secondary" className="w-full" disabled={passwordLoading}>
+                    {passwordLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                    Sign in
+                  </Button>
+                  <p className="text-xs text-center text-muted-foreground">
+                    Forgot it? Just use the sign-in link above.
+                  </p>
+                </form>
+              )}
+
+              <p className="text-xs text-center text-muted-foreground mt-6">
+                You can set or change your password anytime from Account settings.
+              </p>
+            </>
+          )}
         </CardContent>
       </Card>
     </div>
