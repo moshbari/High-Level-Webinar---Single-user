@@ -733,7 +733,9 @@ export const generateEmbedCode = (config: WebinarConfig, resolvedClips?: Resolve
       .video-section {
         height: 40vh;
         height: 40dvh;
+        height: min(40dvh, calc(var(--webinar-viewport-height, 100dvh) * 0.4));
         flex: none;
+        min-height: 0;
       }
       
       /* Mobile CTA wrapper - sits between video and chat in document flow */
@@ -752,6 +754,7 @@ export const generateEmbedCode = (config: WebinarConfig, resolvedClips?: Resolve
         max-width: 100%;
         flex: 1;
         min-height: 0;
+        overflow: hidden;
         border-left: none;
         border-top: 1px solid var(--border);
         position: relative;
@@ -775,6 +778,9 @@ export const generateEmbedCode = (config: WebinarConfig, resolvedClips?: Resolve
     .chat-messages {
       flex: 1;
       overflow-y: auto;
+      min-height: 0;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
       padding: 1rem;
       display: flex;
       flex-direction: column;
