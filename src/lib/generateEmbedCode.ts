@@ -2438,43 +2438,20 @@ export const generateEmbedCode = (config: WebinarConfig, resolvedClips?: Resolve
       let aiResponse = CONFIG.errorMessage;
       
       try {
-        const response = await fetch(CONFIG.webhookUrl, {
+        const response = await fetch(CONFIG.supabaseUrl + '/functions/v1/webinar-chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            type: 'chat_message',
-            message,
+            webinarId: CONFIG.webinarId,
+            userMessage: message,
             userName: userData?.name || 'Guest',
-            userEmail: userData?.email || '',
-            timestamp: new Date().toISOString()
+            userEmail: userData?.email || ''
           })
         });
-        
         const data = await response.json();
-        
-        // Handle different response formats from N8N/webhooks
-        if (typeof data === 'string') {
-          aiResponse = data;
-        } else if (data.output?.[0]?.content?.[0]?.text) {
-          // N8N OpenAI node format
-          aiResponse = data.output[0].content[0].text;
-        } else if (data.output) {
-          aiResponse = data.output;
-        } else if (data.reply) {
-          aiResponse = data.reply;
-        } else if (data.response) {
-          aiResponse = data.response;
-        } else if (data.message) {
-          aiResponse = data.message;
-        } else if (data.text) {
-          aiResponse = data.text;
-        } else if (data.content) {
-          aiResponse = data.content;
-        } else {
-          aiResponse = CONFIG.errorMessage;
-        }
+        aiResponse = data.reply || data.error || CONFIG.errorMessage;
       } catch (error) {
-        console.error('Webhook error:', error);
+        console.error('Chat error:', error);
       }
       
       // Save to database
