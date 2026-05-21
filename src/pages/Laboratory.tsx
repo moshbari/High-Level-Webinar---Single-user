@@ -467,6 +467,9 @@ export default function Laboratory() {
                         </div>
                       </TableCell>
                       <TableCell>
+                        <span className="text-sm text-muted-foreground">{webinar.vendorName || '—'}</span>
+                      </TableCell>
+                      <TableCell>
                         <div className="flex items-center gap-2 text-muted-foreground">
                           <Clock className="w-4 h-4" />
                           <span className="text-sm">{formatTime(webinar.startHour, webinar.startMinute)}</span>
