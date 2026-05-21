@@ -444,6 +444,7 @@ export default function Laboratory() {
                 <TableHeader>
                   <TableRow className="hover:bg-transparent">
                     <TableHead className="w-[300px]">Webinar</TableHead>
+                    <TableHead>Vendor Name</TableHead>
                     <TableHead>Schedule</TableHead>
                     <TableHead>Watching Now</TableHead>
                     <TableHead>Created</TableHead>
@@ -464,6 +465,9 @@ export default function Laboratory() {
                             <p className="text-sm text-muted-foreground truncate">{webinar.headerTitle}</p>
                           </div>
                         </div>
+                      </TableCell>
+                      <TableCell>
+                        <span className="text-sm text-muted-foreground">{webinar.vendorName || '—'}</span>
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2 text-muted-foreground">
