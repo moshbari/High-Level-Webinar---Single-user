@@ -444,6 +444,7 @@ export default function Laboratory() {
                 <TableHeader>
                   <TableRow className="hover:bg-transparent">
                     <TableHead className="w-[300px]">Webinar</TableHead>
+                    <TableHead>Vendor Name</TableHead>
                     <TableHead>Schedule</TableHead>
                     <TableHead>Watching Now</TableHead>
                     <TableHead>Created</TableHead>
