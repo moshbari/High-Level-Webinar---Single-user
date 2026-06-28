@@ -589,6 +589,30 @@ export const generateReplayCode = (config: WebinarConfig): string => {
       30% { transform: translateY(-4px); }
     }
     ${ctaStyles}
+
+    /* === Mobile landscape: rotate phone -> video fills the whole screen (widescreen) ===
+       Targets short, wide viewports (phones held sideways) without affecting tablets/desktops.
+       Must come AFTER the max-width:768px rules so it wins the cascade when both match. */
+    @media (orientation: landscape) and (max-height: 600px) {
+      .webinar-container {
+        flex-direction: row;
+        height: var(--webinar-viewport-height, 100dvh);
+        max-height: var(--webinar-viewport-height, 100dvh);
+      }
+      .video-section {
+        flex: 1 1 100%;
+        width: 100%;
+        height: var(--webinar-viewport-height, 100dvh);
+        min-height: 0;
+      }
+      .video-wrapper { flex: 1; height: auto; min-height: 0; }
+      .video-wrapper video,
+      video { width: 100%; height: 100%; object-fit: contain; }
+      /* Everything else gets out of the way so the video is truly full-screen */
+      .header,
+      .chat-section,
+      .cta-banner { display: none !important; }
+    }
   </style>
 </head>
 <body>

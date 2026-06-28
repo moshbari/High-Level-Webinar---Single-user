@@ -1250,6 +1250,32 @@ export const generateEmbedCode = (config: WebinarConfig, resolvedClips?: Resolve
       .resume-time { font-size: 2rem; }
       .resume-buttons { flex-direction: column; }
     }
+
+    /* === Mobile landscape: rotate phone -> video fills the whole screen (widescreen) ===
+       Targets short, wide viewports (phones held sideways) without affecting tablets/desktops.
+       Must come AFTER the max-width:768px rules so it wins the cascade when both match. */
+    @media (orientation: landscape) and (max-height: 600px) {
+      .webinar-container {
+        flex-direction: row;
+        height: var(--webinar-viewport-height, 100dvh);
+        max-height: var(--webinar-viewport-height, 100dvh);
+      }
+      .video-section {
+        flex: 1 1 100%;
+        width: 100%;
+        height: var(--webinar-viewport-height, 100dvh);
+        min-height: 0;
+      }
+      .video-wrapper { flex: 1; height: auto; min-height: 0; }
+      .video-wrapper video,
+      .video-wrapper iframe,
+      #ytPlayerContainer { width: 100%; height: 100%; object-fit: contain; }
+      /* Everything else gets out of the way so the video is truly full-screen */
+      .header,
+      .chat-section,
+      .cta-mobile-wrapper,
+      .cta-banner { display: none !important; }
+    }
   </style>
 </head>
 <body>
