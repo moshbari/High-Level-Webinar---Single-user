@@ -14,6 +14,7 @@ import ClipLibrary from "./pages/ClipLibrary";
 import LiveChat from "./pages/LiveChat";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
+import Home from "./pages/Home";
 import Laboratory from "./pages/Laboratory";
 import Upgrade from "./pages/Upgrade";
 import UpdatePassword from "./pages/UpdatePassword";
@@ -60,8 +61,8 @@ const App = () => (
             <Route path="/app-settings" element={<ProtectedRoute requireAdmin><AppSettings /></ProtectedRoute>} />
             <Route path="/branding" element={<ProtectedRoute requireAdmin><Branding /></ProtectedRoute>} />
             
-            {/* Root redirects directly to laboratory - no component hop */}
-            <Route path="/" element={<ProtectedRoute><Navigate to={ROUTES.HOME} replace /></ProtectedRoute>} />
+            {/* Root: public homepage for visitors; signed-in users go straight to the laboratory */}
+            <Route path="/" element={<Home />} />
             
             {/* Webinar dashboard routes (protected) */}
             <Route path="/dashboard" element={<ProtectedRoute><ReportingDashboard /></ProtectedRoute>} />
